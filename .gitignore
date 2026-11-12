@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# built pages (deployed by the workflow, not committed)
+site/
+build_private/
+
+# licensed rates and anything derived from them
+private/
