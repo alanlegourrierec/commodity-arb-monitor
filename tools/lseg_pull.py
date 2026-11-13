@@ -7,6 +7,7 @@ desktop session, so the data never leaves the machine and stays under your licen
     setx LSEG_APP_KEY <key from the App Key Generator in Workspace>
     python tools/lseg_pull.py --check      # which codes return data, writes nothing
     python tools/lseg_pull.py              # updates private/freight.csv
+    python tools/lseg_pull.py --wait 600   # keeps trying for 10 hours if Workspace is not open yet
     python tools/lseg_pull.py --find "Baltic Supramax 10TC"   # look up a code
 
 The codes live in data/lseg_map.csv. {M}{Y} in a code is replaced by the current month
@@ -20,6 +21,7 @@ import csv
 import math
 import os
 import sys
+import time
 from datetime import date, datetime
 from pathlib import Path
 
@@ -30,6 +32,7 @@ COLUMNS = ["type", "key", "label", "unit", "value", "ws_flat_rate", "date", "sou
 MONTH_CODES = "FGHJKMNQUVXZ"
 FIELDS = ["CF_LAST", "CF_CLOSE", "CF_DATE"]
 STALE_DAYS = 10
+RETRY_SECONDS = 300
 
 
 def resolve(ric, today):
@@ -110,6 +113,27 @@ def fetch_lseg(rics):
         ld.close_session()
 
 
+def fetch_when_ready(fetch, rics, wait_minutes=0, sleep=time.sleep, clock=time.monotonic):
+    """Rates from Workspace, tried again every few minutes while it is closed.
+
+    The morning task can start before Workspace is open. Rather than fail, it waits for the session,
+    for `wait_minutes` at most. Without a wait it tries once.
+    """
+    deadline = clock() + wait_minutes * 60
+    while True:
+        try:
+            fetched, reason = fetch(rics), "it returned no data"
+        except Exception as exc:        # the library raises its own error types when Workspace is closed
+            fetched, reason = {}, str(exc).strip().splitlines()[-1] if str(exc).strip() else type(exc).__name__
+        if fetched:
+            return fetched
+        if clock() >= deadline:
+            print(f"Workspace did not answer ({reason})", flush=True)
+            return {}
+        print(f"{datetime.now():%H:%M} Workspace did not answer, next try in {RETRY_SECONDS // 60} min", flush=True)
+        sleep(RETRY_SECONDS)
+
+
 def find(query, top=25):
     """Print the codes LSEG search returns for a query (needs the same desktop session)."""
     import lseg.data as ld
@@ -163,6 +187,8 @@ def main(argv=None, fetch=fetch_lseg, today=None):
     ap.add_argument("--map", default=MAP, help="code map (default data/lseg_map.csv)")
     ap.add_argument("--out", default=OUT, help="rate file to update (default private/freight.csv)")
     ap.add_argument("--find", metavar="QUERY", help="search LSEG for a code and stop")
+    ap.add_argument("--wait", type=float, default=0, metavar="MINUTES",
+                    help="keep trying this long while Workspace is closed (default: try once)")
     args = ap.parse_args(argv)
     today = today or date.today()
     if args.find:
@@ -171,7 +197,9 @@ def main(argv=None, fetch=fetch_lseg, today=None):
 
     mapping = read_map(args.map)
     rics = sorted({resolve(m["ric"], today) for m in mapping})
-    fetched = fetch(rics)
+    fetched = fetch_when_ready(fetch, rics, args.wait)
+    if not fetched and not args.check:
+        return 1                        # nothing came back, the rate file stays as it is
     rows, report = merge(read_rows(args.out), mapping, fetched, today)
     for key, ric, value, state in report:
         print(f"{key:<12} {ric:<14} {value:>16}  {state}")

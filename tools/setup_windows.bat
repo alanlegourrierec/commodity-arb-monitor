@@ -2,7 +2,7 @@
 setlocal EnableDelayedExpansion
 rem One-time setup on Windows. Workspace must be open and signed in.
 rem It installs Python if needed, the packages, stores your LSEG app key, pulls the rates once,
-rem registers the 07:30 weekday task and opens the private build.
+rem registers the 09:15 weekday task and opens the private build.
 cd /d "%~dp0.."
 set LOG=private\setup_log.txt
 if not exist private mkdir private
@@ -49,7 +49,7 @@ echo [3/5] Pulling today's rates
 !PY! tools\lseg_pull.py >> %LOG% 2>&1
 type %LOG% | findstr /C:" ok" /C:"no data" /C:"stale"
 
-echo [4/5] Daily task at 07:30, Monday to Friday
+echo [4/5] Daily task at 09:15, Monday to Friday
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\schedule_windows.ps1 >> %LOG% 2>&1
 
 echo [5/5] Building the private dashboard
