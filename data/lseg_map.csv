@@ -1,0 +1,22 @@
+type,key,label,unit,ric,comment
+freight,TD25,Aframax 70kt Houston → Rotterdam,$/day,.BAAFRTD25,Baltic TD25 TCE
+freight,TD22,VLCC 270kt USGC → China,$/voyage,.BAUC,Baltic TD22 lump sum
+freight,TD3C,VLCC 270kt MEG → China,$/day,.BMEGTD3C,Baltic TD3C TCE (Ras Tanura: upper bound for Fujairah)
+freight,TC14,MR 38kt USGC → NWE,$/day,.BAHATC14,Baltic TC14 TCE
+freight,TC2,MR 37kt NWE → USAC,$/day,.BAGFTC2,Baltic TC2 TCE
+freight,LNG_ATL,LNG carrier Atlantic spot,$/day,G2Bc1,"NYMEX future on BLNG2-174 (Sabine → UK Cont), front month. The Baltic indices .BLNG2 and .BLNG2g stop on 23/12/2025 on this licence"
+freight,C5,Capesize 170kt Port Hedland → Qingdao,$/t,.BAWB,Baltic C5
+freight,C3,Capesize 170kt Tubarão → Qingdao,$/t,.BATB,Baltic C3
+freight,C4,Capesize 150kt Richards Bay → Rotterdam,$/day,BATMM{M}{Y},"Capesize 5TC FFA, current month (C4 is no longer assessed)"
+freight,RB_JAPAN,Capesize 150kt Richards Bay → Japan,$/day,BATMM{M}{Y},"Capesize 5TC FFA, current month"
+freight,HP_CHINA,Capesize 150kt Hay Point → China,$/day,BATMM{M}{Y},"Capesize 5TC FFA, current month"
+freight,NEWC_JAPAN,Panamax Newcastle → Japan,$/day,.BPWT,Panamax 82 5TC spot
+freight,HP_INDIA,Panamax 75kt Hay Point → India,$/day,.BPWT,Panamax 82 5TC spot
+freight,RB_INDIA,Supramax 55kt Richards Bay → India,$/day,BASIFEM{M}{Y},"Supramax 58 10TC FFA, current month (no Baltic route from South Africa to India)"
+freight,KALI_INDIA,Supramax 55kt Kalimantan → India,$/day,.BASI,"Supramax S10 route (South China via Indonesia), closest Baltic route"
+freight,USG_INDIA,Supramax 60kt US Gulf → India (petcoke),$/day,BASIFEM{M}{Y},"Supramax 58 10TC FFA, current month. US Gulf fronthaul usually pays above the average"
+freight,SCRAP_US_TR,Supramax 45kt US East Coast → Turkey,$/day,BASIFEM{M}{Y},"Supramax 58 10TC FFA, current month (Atlantic trips usually pay above the average)"
+freight,SCRAP_US_IN,Supramax 45kt US East Coast → India,$/day,BASIFEM{M}{Y},"Supramax 58 10TC FFA, current month (Atlantic trips usually pay above the average)"
+freight,SCRAP_EU_TR,Supramax 45kt Rotterdam → Turkey,$/day,BASIFEM{M}{Y},"Supramax 58 10TC FFA, current month (Atlantic trips usually pay above the average)"
+freight,SCRAP_EU_IN,Supramax 45kt Rotterdam → India,$/day,BASIFEM{M}{Y},"Supramax 58 10TC FFA, current month (Atlantic trips usually pay above the average)"
+price,PETCOKE_USG,Petcoke FOB US Gulf,$/t,,"Platts CPAAF00 exists but is not in this licence (permission denied): typed-in level used"

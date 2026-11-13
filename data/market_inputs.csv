@@ -1,0 +1,20 @@
+key,value,unit,date,source,note
+HOU_DIFF,0.58,$/bbl,2026-11-12,TradingView,WTI Houston minus WTI Cushing (used if HOU1! and HTT1! are not returned)
+MURBAN_DIFF,-3.54,$/bbl,2026-11-12,TradingView,Murban minus Brent (used if ADM1! is not returned)
+GASOIL_ICE,1341.25,$/t,2026-11-12,TradingView,ICE low sulphur gasoil front month
+JKM,31.335,$/MMBtu,2026-11-12,TradingView,JKM front month
+EUROBOB,,$/t,,,Eurobob oxy NWE barges (used if B7H1! is not returned)
+IRON_ORE_62,91.03,$/dmt,2026-11-12,TradingView,Iron ore 62% CFR China (TIO1!)
+API2,136.15,$/t,2026-11-12,TradingView,API2 CIF ARA coal (ATW1!)
+API4,127.00,$/t,2026-11-12,TradingView,API4 FOB Richards Bay coal (AFR1!)
+NEWC,141.95,$/t,2026-11-12,TradingView,globalCOAL Newcastle (NCF1!)
+LME_COPPER,14095.50,$/t,2026-11-12,TradingView,LME copper grade A (CA1!)
+COMEX_COPPER,6.4230,$/lb,2026-11-12,TradingView,COMEX copper (HG1!)
+LME_ALU,3074.50,$/t,2026-11-12,TradingView,LME aluminium (AH1!)
+MIDWEST_PREMIUM,1.1025,$/lb,2026-11-12,TradingView,US Midwest aluminium premium (AUP1!)
+JAPAN_PREMIUM,238.61,$/t,2026-11-12,TradingView,Japan aluminium premium (MJP1!)
+PETCOKE_USG,79.00,$/t,2026-06-03,Argus via press (10 Jun 2026),Petcoke 6.5% S FOB US Gulf (update by hand)
+RIN_D6,2.03,$/RIN,2026-10-02,PFL Petroleum RIN recap of 5 Oct 2026,D6 ethanol RIN 2026 vintage (update by hand)
+RIN_D4,2.095,$/RIN,2026-10-02,PFL Petroleum RIN recap of 5 Oct 2026,D4 biomass-based diesel RIN 2026 vintage (update by hand)
+RIN_D5,2.045,$/RIN,2026-10-02,PFL Petroleum RIN recap of 5 Oct 2026,D5 advanced biofuel RIN 2026 vintage (update by hand)
+RIN_D3,2.265,$/RIN,2026-10-02,PFL Petroleum RIN recap of 5 Oct 2026,D3 cellulosic RIN 2026 vintage (update by hand)

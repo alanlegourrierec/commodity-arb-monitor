@@ -1,0 +1,39 @@
+type,key,label,unit,value,ws_flat_rate,date,source,comment
+freight,TD25,Aframax 70kt Houston → Rotterdam,$/day,,,,,"Units: WS (with ws_flat_rate), $/t, $/voyage or $/day (TCE)"
+freight,TD22,VLCC 270kt USGC → China,$/voyage,,,,,TD22 is assessed as a lump sum
+freight,TD3C,VLCC 270kt MEG → China,$/day,,,,,Used for Murban delivered China
+freight,TC14,MR 38kt USGC → NWE,$/day,,,,,
+freight,TC2,MR 37kt NWE → USAC,$/day,,,,,Gasoline and gasoil to New York
+freight,LNG_ATL,LNG carrier Atlantic spot,$/day,25750,,2026-10-06,"Spark Commodities via Oil & Gas Journal","Atlantic two-stroke spot, Pacific was 39,000"
+price,EUROBOB,Eurobob oxy NWE barges,$/t,,,,,Needed for the gasoline arb
+price,VLSFO,VLSFO Rotterdam,$/t,,,,,Empty: Brent x 7.33 proxy
+price,ULSD_USGC_DIFF,Gulf Coast ULSD vs NYMEX HO,c/gal,,,,,Empty: -10 c/gal
+price,WTI_MIDLAND_CIF_DIFF,WTI Midland CIF Rotterdam vs Brent,$/bbl,,,,,Empty: 0
+price,GASOIL_CARGO_DIFF,ULSD cargo CIF NWE vs ICE gasoil,$/t,,,,,Empty: 0
+param,LIQUEFACTION_FEE,US LNG tolling fee,$/MMBtu,,,,,Empty: 2.50
+param,FINANCING_RATE,Cargo financing rate,%,,,,,Empty: 5%
+param,CARGO_INSURANCE,Cargo insurance,% of value,,,,,Empty: 0.05%
+param,WAR_TD3C,War risk Fujairah → Ningbo (VLCC),% of hull,,,,,"Gulf of Oman, JWC listed area. Add WAR_<leg> rows for other legs"
+param,WAR_GULF,Reference: Hormuz transit,% of hull,,,,,"Empty: 8% (7-9% quoted, Lloyd's List, 9 Nov 2026)"
+freight,C5,Capesize 170kt Port Hedland → Qingdao,$/t,13.25,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Miner fixtures on Friday
+freight,C3,Capesize 170kt Tubarão → Qingdao,$/t,37.00,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),"Midweek level, slowed Thursday"
+freight,C4,Capesize 150kt Richards Bay → Rotterdam,$/day,39400,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),"BCI 5TC close, C4 no longer assessed"
+freight,RB_JAPAN,Capesize 150kt Richards Bay → Japan,$/day,39400,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),BCI 5TC close
+freight,NEWC_JAPAN,Panamax Newcastle → Japan,$/day,24000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),"Pacific round to Japan, 90k dwt"
+param,IRON_ORE_MOISTURE,Iron ore moisture,% of weight,,,,,Empty: 8%
+param,LME_LOADOUT,LME load-out and delivery to port,$/t,,,,,Empty: 50
+param,COPPER_FREIGHT_US,Cathode freight Rotterdam → US,$/t,,,,,Empty: 90
+param,ALU_FREIGHT_US,Aluminium freight Rotterdam → US Midwest,$/t,,,,,Empty: 120
+param,ALU_FREIGHT_JAPAN,Aluminium freight Rotterdam → Japan,$/t,,,,,Empty: 140
+param,COPPER_US_TARIFF,US tariff on copper cathode,% of value,,,,,Empty: 0% (cathodes exempt since Aug 2025)
+param,ALU_US_TARIFF,US Section 232 tariff on aluminium,% of value,,,,,Empty: 50%
+param,ALU_ORIGIN_PREMIUM,Aluminium duty-unpaid premium in warehouse Rotterdam,$/t,,,,,Empty: 500
+freight,HP_CHINA,Capesize 150kt Hay Point → China,$/day,39400,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),BCI 5TC close
+freight,HP_INDIA,Panamax 75kt Hay Point → India,$/day,22000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Pacific round to South China level
+freight,RB_INDIA,Supramax 55kt Richards Bay → India,$/day,21500,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),"RB → Pakistan fixture, ballast bonus ignored"
+freight,KALI_INDIA,Supramax 55kt Kalimantan → India,$/day,,,,,Empty: 20000 $/day model default
+freight,USG_INDIA,Supramax 60kt US Gulf → India (petcoke),$/day,34000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Petcoke trip to India
+freight,SCRAP_US_TR,Supramax 45kt US East Coast → Turkey,$/day,28000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Port Arthur → Iskenderun trip
+freight,SCRAP_US_IN,Supramax 45kt US East Coast → India,$/day,,,,,Empty: 20000 $/day model default
+freight,SCRAP_EU_TR,Supramax 45kt Rotterdam → Turkey,$/day,36000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Scrap Tilbury → East Med trip
+freight,SCRAP_EU_IN,Supramax 45kt Rotterdam → India,$/day,,,,,Empty: 20000 $/day model default

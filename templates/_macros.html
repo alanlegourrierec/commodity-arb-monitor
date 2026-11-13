@@ -1,0 +1,134 @@
+{% macro cards(items) %}
+<section class="cards" aria-label="Best route by family">
+  {% for c in items %}
+  <article class="card">
+    <p class="eyebrow">{{ c.family }}</p>
+    {% if c.best %}
+    <span>{{ c.best.route }}</span>
+    <span class="big {{ 'pos' if c.best.margin > 0 else 'neg' }}">{{ c.best.margin|with_unit(c.best.unit, True) }}</span>
+    <span><span class="pill {{ c.best.status|status_class }}">{{ c.best.status }}</span>{% if c.best.status not in ('Netback', 'Delivered') %} &nbsp;{{ c.open }} of {{ c.total }} open{% endif %}</span>
+    {% if c.note %}<span class="note">{{ c.note }}</span>{% endif %}
+    {% else %}
+    <span class="note">No priced route</span>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endmacro %}
+
+{% macro route_map(chart) %}
+<section id="map">
+  <h2>Routes</h2>
+  <p class="note">Shipping lanes are coloured by status. <span class="dot" style="background:#2e9e5b"></span>open <span class="dot" style="background:#d39a2a"></span>marginal <span class="dot" style="background:#d0533f"></span>closed <span class="dot" style="background:#2f6fdf"></span>netback or delivered cost only. Hover a lane for its numbers.</p>
+  {{ chart|safe }}
+</section>
+{% endmacro %}
+
+{% macro route_table(routes, intro) %}
+<section id="routes">
+  <h2>All routes</h2>
+  <p class="note">{{ intro }}</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Route</th><th>Status</th><th class="r">Margin</th><th class="r">P&amp;L / cargo</th><th class="r">Freight</th><th class="r">Insurance</th><th class="r">Curve</th><th class="r">Break-even</th><th>Freight vs break-even</th><th class="r">Break-even TCE</th><th>Freight source</th></tr></thead>
+    <tbody>
+    {% for r in routes %}
+      <tr>
+        <td><b>{{ r.route }}</b><span class="sub">{{ r.vessel }}{% if r.distance_nm %} · {{ r.distance_nm|num(0) }} nm{% endif %}{% if r.voyage_days %} · {{ r.voyage_days|num(0) }} d{% elif r.laden_days %} · {{ r.laden_days|num(0) }} d transit{% endif %}</span>{% if r.private_note %}<span class="sub priv" title="Freight source disclaimer">{{ r.private_note }}</span>{% endif %}</td>
+        <td><span class="pill {{ r.status|status_class }}">{{ r.status }}</span></td>
+        {% set trade = r.status in ('Open', 'Marginal', 'Closed', 'Stale price') %}
+        <td class="r {{ ('pos' if (r.margin or 0) > 0 else 'neg' if (r.margin or 0) < 0) if trade }}">{{ r.margin|with_unit(r.unit, trade) }}{% if r.status == 'Delivered' %}<span class="sub">delivered cost</span>{% elif r.status == 'Netback' %}<span class="sub">FOB netback</span>{% elif r.whose %}<span class="sub">{{ r.whose }}</span>{% endif %}</td>
+        <td class="r">{{ r.pnl_musd|musd }}</td>
+        <td class="r">{{ r.freight|with_unit(r.unit) }}{% if r.tce_used %}<span class="sub">TCE {{ r.tce_used|tce }}</span>{% endif %}{% if r.ets %}<span class="sub">incl. EU ETS {{ r.ets|num(2) }}</span>{% endif %}</td>
+        <td class="r">{% if r.insurance %}{{ r.insurance|num(3) }}{% else %}—{% endif %}{% if r.war_risk %}<span class="sub">war {{ r.war_risk|num(3) }}</span>{% endif %}</td>
+        <td class="r">{% if r.time_spread %}{{ (-r.time_spread)|signed(2) }}<span class="sub">{{ 'backwardation' if r.time_spread > 0 else 'contango' }}</span>{% else %}—{% endif %}</td>
+        <td class="r">{{ r.breakeven_freight|with_unit(r.unit) }}</td>
+        <td>{% if r.bar %}<div class="mini" aria-hidden="true"><span class="g" style="width:{{ r.bar.green }}%"></span>{% if r.bar.red_to %}<span class="x" style="left:{{ r.bar.red_from }}%;width:{{ r.bar.red_to - r.bar.red_from }}%"></span>{% endif %}<span class="m" style="left:{{ r.bar.marker }}%"></span></div>{% else %}—{% endif %}</td>
+        <td class="r">{{ r.breakeven_tce|tce }}</td>
+        <td class="src">{{ r.freight_source }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro terms_table(routes, intro) %}
+<section id="terms">
+  <h2>What the cargo costs at each delivery term</h2>
+  <p class="note">{{ intro }}</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Route</th><th>Bought</th><th class="r">FOB</th><th class="r">CFR</th><th class="r">CIF</th><th class="r">DAP</th><th class="r">Duty paid</th><th>Sold</th><th class="r">Margin</th><th class="r">One day late</th></tr></thead>
+    <tbody>
+    {% for r in routes if r.ladder %}
+      {% set L = r.ladder %}
+      {% set order = ['FOB', 'CFR', 'CIF', 'DAP', 'DDP'] %}
+      {% set d = 1 if r.unit == '$/t' else 2 %}
+      {% set trade = r.status in ('Open', 'Marginal', 'Closed', 'Stale price') %}
+      <tr>
+        <td><b>{{ r.route }}</b><span class="sub">{{ r.unit }}{% if r.over_lme %} over LME{% endif %}</span></td>
+        <td>{% if L.backward %}—{% else %}{{ r.buy_basis }}<span class="sub">{{ L.buy|num(d) }}</span>{% endif %}</td>
+        {% for term in order %}
+        {% set past = order.index(term) > order.index(L.sold) %}
+        <td class="r {{ 'off' if past }}">{% if L[term] is defined %}<span class="{{ 'at' if term == L.sold }}">{{ L[term]|num(d) }}</span>{% else %}—{% endif %}{% if term == 'DDP' and r.rvo and not past %}<span class="sub">RINs {{ r.rvo|num(d) }}</span>{% endif %}</td>
+        {% endfor %}
+        <td>{{ {'DDP': 'Duty paid'}.get(L.sold, L.sold) }} {{ r.sell_place }}{% if r.dest_price|default(none) is not none and not L.backward %}<span class="sub">{{ r.dest_price|num(d) }} · {{ r.dest_note }}</span>{% elif r.dest_note %}<span class="sub">{{ r.dest_note }}</span>{% endif %}</td>
+        <td class="r {{ ('pos' if (r.margin or 0) > 0 else 'neg' if (r.margin or 0) < 0) if trade }}">{% if trade %}{{ r.margin|with_unit(r.unit, True) }}{% if r.whose %}<span class="sub">{{ r.whose }}</span>{% endif %}{% elif L.backward %}<span class="sub">netback in FOB</span>{% else %}<span class="sub">cost only</span>{% endif %}</td>
+        <td class="r">{% if r.delay_day %}{{ r.delay_day|num(3 if r.delay_day < 1 else 2) }}{% if trade and r.margin > 0 and r.tce_used and r.family != 'LNG' %}<span class="sub">margin covers {{ (r.margin / r.delay_day)|num(0) }} d</span>{% endif %}{% else %}—{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro history(charts, families, units, extra=None) %}
+<section id="history">
+  <div class="head">
+    <h2>Route history</h2>
+    <label class="note">Family
+      <select id="family" data-units="{{ units|tojson|forceescape }}">
+        {% for f in families %}<option value="{{ f }}">{{ f }} ({{ units[f] }})</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <p class="note">One point per run, in the unit of the selected family.</p>
+  {{ charts.margin|safe }}
+  {% if charts.insurance %}
+  <div class="duo"><div>{{ charts.freight|safe }}</div><div>{{ charts.insurance|safe }}</div></div>
+  {% else %}
+  {{ charts.freight|safe }}
+  {% endif %}
+  {% if extra %}<p class="note">{{ extra|safe }}</p>{% endif %}
+</section>
+{% endmacro %}
+
+{% macro tables(spread_rows, prices, assumptions) %}
+<section id="spreads">
+  <h2>Key spreads</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Spread</th><th class="r">Value</th><th>Reading</th></tr></thead>
+    <tbody>{% for s in spread_rows %}<tr><td>{{ s.label }}</td><td class="r {{ 'neg' if (s.value or 0) < 0 }}">{{ s.value|with_unit(s.unit, True) }}</td><td>{{ s.note }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section id="prices">
+  <h2>Prices used</h2>
+  <p class="note">Basis says what the quote includes. Two prices are only comparable once they sit on the same term.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Contract</th><th>Basis</th><th>Symbol</th><th class="r">Price</th><th>Unit</th><th>Source</th><th>Date</th><th>Check</th></tr></thead>
+    <tbody>{% for p in prices %}<tr><td>{{ p.label }}</td><td>{{ p.basis or '—' }}</td><td>{{ p.symbol }}</td><td class="r">{{ p.value|num(4 if p.unit in ('$/gal', '$/lb', 'USD per EUR') else 2) }}</td><td>{{ p.unit }}</td><td>{{ p.source }}{% if p.private_note %}<span class="sub priv">{{ p.private_note }}</span>{% endif %}</td><td class="src">{{ p.date }}</td><td><span class="pill {{ 'ok' if p.check == 'ok' else 'warn' }}">{{ p.check }}</span></td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<details>
+  <summary>Model assumptions</summary>
+  <div class="scroll"><table>
+    <thead><tr><th>Scope</th><th>Parameter</th><th class="r">Value</th><th>Unit</th><th>Source</th></tr></thead>
+    <tbody>{% for a in assumptions %}<tr><td>{{ a.scope }}</td><td>{{ a.label }}</td><td class="r">{{ a.value|num(0 if a.value|abs >= 1000 else 2) }}</td><td>{{ a.unit }}</td><td>{{ a.source }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</details>
+{% endmacro %}

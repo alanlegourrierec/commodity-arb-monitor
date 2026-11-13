@@ -1,0 +1,725 @@
+{
+ "asof": "2026-11-12 08:05 UTC",
+ "prices": {
+  "WTI_CUSHING": {
+   "value": 87.27,
+   "unit": "$/bbl",
+   "label": "WTI Cushing (NYMEX)",
+   "symbol": "CL1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "WTI_HOUSTON": {
+   "value": 87.85,
+   "unit": "$/bbl",
+   "label": "WTI Midland Gulf Coast (Houston)",
+   "symbol": "HOU1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "BRENT": {
+   "value": 93.42,
+   "unit": "$/bbl",
+   "label": "Brent (ICE)",
+   "symbol": "BRN1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "MURBAN": {
+   "value": 89.88,
+   "unit": "$/bbl",
+   "label": "Murban (IFAD)",
+   "symbol": "ADM1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "RBOB": {
+   "value": 2.6175,
+   "unit": "$/gal",
+   "label": "RBOB NY Harbor (NYMEX)",
+   "symbol": "RB1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "ULSD_NYH": {
+   "value": 4.2456,
+   "unit": "$/gal",
+   "label": "ULSD NY Harbor (NYMEX)",
+   "symbol": "HO1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "GASOIL_ICE": {
+   "value": 1341.25,
+   "unit": "$/t",
+   "label": "Low Sulphur Gasoil (ICE)",
+   "symbol": "ULS1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "HENRY_HUB": {
+   "value": 3.238,
+   "unit": "$/MMBtu",
+   "label": "Henry Hub (NYMEX)",
+   "symbol": "NG1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "TTF_USD": {
+   "value": 28.727,
+   "unit": "$/MMBtu",
+   "label": "TTF en USD (NYMEX)",
+   "symbol": "TFU1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "TTF_EUR": {
+   "value": 87.185,
+   "unit": "EUR/MWh",
+   "label": "TTF (ICE Endex)",
+   "symbol": "TFM1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "JKM": {
+   "value": 31.335,
+   "unit": "$/MMBtu",
+   "label": "JKM (Platts, NYMEX)",
+   "symbol": "JKM1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "IRON_ORE_62": {
+   "value": 91.03,
+   "unit": "$/dmt",
+   "label": "Iron ore 62% CFR China",
+   "symbol": "TIO1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "API2": {
+   "value": 136.15,
+   "unit": "$/t",
+   "label": "API2 Rotterdam coal",
+   "symbol": "ATW1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "API4": {
+   "value": 127.0,
+   "unit": "$/t",
+   "label": "API4 Richards Bay coal",
+   "symbol": "AFR1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "NEWC": {
+   "value": 141.95,
+   "unit": "$/t",
+   "label": "globalCOAL Newcastle",
+   "symbol": "NCF1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "LME_COPPER": {
+   "value": 14095.5,
+   "unit": "$/t",
+   "label": "Copper grade A (LME)",
+   "symbol": "CA1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "COMEX_COPPER": {
+   "value": 6.423,
+   "unit": "$/lb",
+   "label": "Copper (COMEX)",
+   "symbol": "HG=F",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "LME_ALU": {
+   "value": 3074.5,
+   "unit": "$/t",
+   "label": "Aluminium high grade (LME)",
+   "symbol": "AH1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "MIDWEST_PREMIUM": {
+   "value": 1.1025,
+   "unit": "$/lb",
+   "label": "Aluminium US Midwest premium",
+   "symbol": "AUP1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "JAPAN_PREMIUM": {
+   "value": 238.61,
+   "unit": "$/t",
+   "label": "Aluminium Japan premium",
+   "symbol": "MJP1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "COKING_COAL": {
+   "value": 260.5,
+   "unit": "$/t",
+   "label": "Premium hard coking coal FOB Australia (SGX TSI)",
+   "symbol": "ACF1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "INDO_4200": {
+   "value": 76.98,
+   "unit": "$/t",
+   "label": "Indonesian 4,200 GAR FOB (SGX M42)",
+   "symbol": "M42F1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "EUA": {
+   "value": 89.99,
+   "unit": "EUR/t",
+   "label": "EU carbon allowance (ICE EUA)",
+   "symbol": "ECF1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "DE_POWER": {
+   "value": 222.16,
+   "unit": "EUR/MWh",
+   "label": "German power base, front month (EEX)",
+   "symbol": "DEBM1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "VLSFO_SG": {
+   "value": 752.676,
+   "unit": "$/t",
+   "label": "VLSFO 0.5% FOB Singapore",
+   "symbol": "S5F1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "VLSFO_RDM": {
+   "value": 626.042,
+   "unit": "$/t",
+   "label": "VLSFO 0.5% barges FOB Rotterdam",
+   "symbol": "R5F1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "HSFO_SG": {
+   "value": 612.134,
+   "unit": "$/t",
+   "label": "HSFO 380 cst Singapore",
+   "symbol": "SE1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "HRC_CHINA": {
+   "value": 479.0,
+   "unit": "$/t",
+   "label": "HRC FOB China (LME)",
+   "symbol": "HC1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "HRC_NWE": {
+   "value": 857.61,
+   "unit": "$/t",
+   "label": "HRC NW Europe (LME, Argus)",
+   "symbol": "HN1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "HRC_US": {
+   "value": 1351.0,
+   "unit": "$/st",
+   "label": "HRC US Midwest (CME, CRU), per short ton",
+   "symbol": "HRC1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "SCRAP_TURKEY": {
+   "value": 399.5,
+   "unit": "$/t",
+   "label": "Scrap HMS 80:20 CFR Turkey (LME)",
+   "symbol": "SC1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "SCRAP_INDIA": {
+   "value": 390.0,
+   "unit": "$/t",
+   "label": "Scrap CFR India (LME)",
+   "symbol": "SI1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "SCRAP_TAIWAN": {
+   "value": 344.0,
+   "unit": "$/t",
+   "label": "Scrap CFR Taiwan (LME)",
+   "symbol": "ST1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "REBAR_TURKEY": {
+   "value": 611.0,
+   "unit": "$/t",
+   "label": "Rebar FOB Turkey (LME)",
+   "symbol": "SR1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "EURUSD": {
+   "value": 1.1243,
+   "unit": "USD per EUR",
+   "label": "EUR/USD",
+   "symbol": "TFU / TFM",
+   "source": "Implied by the TTF USD and EUR contracts",
+   "date": "2026-11-12"
+  },
+  "HOU_DIFF": {
+   "value": 0.6,
+   "unit": "$/bbl",
+   "label": "WTI Houston (Argus) vs WTI trade month",
+   "symbol": "HTT1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "DATED_BRENT": {
+   "value": 95.01,
+   "unit": "$/bbl",
+   "label": "Dated Brent (Platts), CME financial",
+   "symbol": "AUB1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "ULSD_USGC_UPDOWN": {
+   "value": -0.0988,
+   "unit": "$/gal",
+   "label": "Gulf Coast ULSD (Platts) vs NY Harbor, up-down",
+   "symbol": "LT1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "EUROBOB": {
+   "value": 877.084,
+   "unit": "$/t",
+   "label": "Eurobob oxy NWE barges (Argus), CME",
+   "symbol": "B7H1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "ALU_DUP_RDM": {
+   "value": 427.69,
+   "unit": "$/t",
+   "label": "Aluminium duty-unpaid premium Rotterdam (Fastmarkets), CME",
+   "symbol": "AEP1!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "TC20_FUT": {
+   "value": 164.322,
+   "unit": "$/t",
+   "label": "TC20 MEG → UK Continent LR2 (Baltic), CME futures",
+   "symbol": "TF21!",
+   "source": "TradingView (delayed)",
+   "date": "2026-11-12"
+  },
+  "RIN_D6": {
+   "value": 2.03,
+   "unit": "$/RIN",
+   "label": "D6 ethanol RIN 2026 vintage",
+   "symbol": "manual",
+   "source": "Manual (2026-10-02)",
+   "date": "2026-10-02"
+  },
+  "RIN_D4": {
+   "value": 2.095,
+   "unit": "$/RIN",
+   "label": "D4 biomass-based diesel RIN 2026 vintage",
+   "symbol": "manual",
+   "source": "Manual (2026-10-02)",
+   "date": "2026-10-02"
+  },
+  "RIN_D5": {
+   "value": 2.045,
+   "unit": "$/RIN",
+   "label": "D5 advanced biofuel RIN 2026 vintage",
+   "symbol": "manual",
+   "source": "Manual (2026-10-02)",
+   "date": "2026-10-02"
+  },
+  "RIN_D3": {
+   "value": 2.265,
+   "unit": "$/RIN",
+   "label": "D3 cellulosic RIN 2026 vintage",
+   "symbol": "manual",
+   "source": "Manual (2026-10-02)",
+   "date": "2026-10-02"
+  }
+ },
+ "curves": {
+  "BRENT": [
+   {
+    "contract": "BRNF2027",
+    "close": 93.48,
+    "expiry": "2026-11-30"
+   },
+   {
+    "contract": "BRNG2027",
+    "close": 91.33,
+    "expiry": "2026-12-30"
+   },
+   {
+    "contract": "BRNH2027",
+    "close": 89.51,
+    "expiry": "2027-01-29"
+   },
+   {
+    "contract": "BRNJ2027",
+    "close": 87.87,
+    "expiry": "2027-02-26"
+   },
+   {
+    "contract": "BRNK2027",
+    "close": 86.51,
+    "expiry": "2027-03-31"
+   },
+   {
+    "contract": "BRNM2027",
+    "close": 85.28,
+    "expiry": "2027-04-30"
+   },
+   {
+    "contract": "BRNN2027",
+    "close": 84.14,
+    "expiry": "2027-05-28"
+   }
+  ],
+  "WTI": [
+   {
+    "contract": "CLZ2026",
+    "close": 86.46,
+    "expiry": "2026-11-20"
+   },
+   {
+    "contract": "CLF2027",
+    "close": 85.41,
+    "expiry": "2026-12-21"
+   },
+   {
+    "contract": "CLG2027",
+    "close": 84.26,
+    "expiry": "2027-01-20"
+   },
+   {
+    "contract": "CLH2027",
+    "close": 83.02,
+    "expiry": "2027-02-22"
+   },
+   {
+    "contract": "CLJ2027",
+    "close": 81.87,
+    "expiry": "2027-03-22"
+   },
+   {
+    "contract": "CLK2027",
+    "close": 80.79,
+    "expiry": "2027-04-20"
+   },
+   {
+    "contract": "CLM2027",
+    "close": 79.79,
+    "expiry": "2027-05-20"
+   }
+  ],
+  "HO": [
+   {
+    "contract": "HOZ2026",
+    "close": 4.2021,
+    "expiry": "2026-11-30"
+   },
+   {
+    "contract": "HOF2027",
+    "close": 4.1134,
+    "expiry": "2026-12-31"
+   },
+   {
+    "contract": "HOG2027",
+    "close": 4.0335,
+    "expiry": "2027-01-29"
+   }
+  ],
+  "RBOB": [
+   {
+    "contract": "RBZ2026",
+    "close": 2.6217,
+    "expiry": "2026-11-30"
+   },
+   {
+    "contract": "RBF2027",
+    "close": 2.5911,
+    "expiry": "2026-12-31"
+   },
+   {
+    "contract": "RBG2027",
+    "close": 2.5802,
+    "expiry": "2027-01-29"
+   }
+  ],
+  "TTF": [
+   {
+    "contract": "TFMZ2026",
+    "close": 91.865,
+    "expiry": "2026-11-27"
+   },
+   {
+    "contract": "TFMF2027",
+    "close": 91.62,
+    "expiry": "2026-12-30"
+   },
+   {
+    "contract": "TFMG2027",
+    "close": 91.06,
+    "expiry": "2027-01-28"
+   },
+   {
+    "contract": "TFMH2027",
+    "close": 87.775,
+    "expiry": "2027-02-25"
+   },
+   {
+    "contract": "TFMJ2027",
+    "close": 75.7,
+    "expiry": "2027-03-30"
+   },
+   {
+    "contract": "TFMK2027",
+    "close": 70.775,
+    "expiry": "2027-04-29"
+   },
+   {
+    "contract": "TFMM2027",
+    "close": 68.715,
+    "expiry": "2027-05-27"
+   }
+  ],
+  "JKM": [
+   {
+    "contract": "JKMZ2026",
+    "close": 31.325,
+    "expiry": "2026-11-17"
+   },
+   {
+    "contract": "JKMF2027",
+    "close": 28.665,
+    "expiry": "2026-12-17"
+   },
+   {
+    "contract": "JKMG2027",
+    "close": 27.92,
+    "expiry": "2027-01-20"
+   }
+  ],
+  "HENRY_HUB": [
+   {
+    "contract": "NGZ2026",
+    "close": 3.303,
+    "expiry": "2026-11-25"
+   },
+   {
+    "contract": "NGF2027",
+    "close": 3.694,
+    "expiry": "2026-12-29"
+   },
+   {
+    "contract": "NGG2027",
+    "close": 3.281,
+    "expiry": "2027-01-27"
+   }
+  ],
+  "API2": [
+   {
+    "contract": "ATWX2026",
+    "close": 136.65,
+    "expiry": "2026-11-27"
+   },
+   {
+    "contract": "ATWZ2026",
+    "close": 137.45,
+    "expiry": "2026-12-24"
+   },
+   {
+    "contract": "ATWF2027",
+    "close": 136.6,
+    "expiry": "2027-01-29"
+   },
+   {
+    "contract": "ATWG2027",
+    "close": 129.45,
+    "expiry": "2027-02-26"
+   },
+   {
+    "contract": "ATWH2027",
+    "close": 127.05,
+    "expiry": "2027-03-25"
+   },
+   {
+    "contract": "ATWJ2027",
+    "close": 127.25,
+    "expiry": "2027-04-30"
+   },
+   {
+    "contract": "ATWK2027",
+    "close": 126.3,
+    "expiry": "2027-05-28"
+   }
+  ],
+  "API4": [
+   {
+    "contract": "AFRX2026",
+    "close": 127.15,
+    "expiry": "2026-11-27"
+   },
+   {
+    "contract": "AFRZ2026",
+    "close": 122.75,
+    "expiry": "2026-12-24"
+   },
+   {
+    "contract": "AFRF2027",
+    "close": 121.6,
+    "expiry": "2027-01-29"
+   }
+  ],
+  "NEWC": [
+   {
+    "contract": "NCFX2026",
+    "close": 145.0,
+    "expiry": "2026-11-27"
+   },
+   {
+    "contract": "NCFZ2026",
+    "close": 146.0,
+    "expiry": "2026-12-24"
+   },
+   {
+    "contract": "NCFF2027",
+    "close": 146.5,
+    "expiry": "2027-01-29"
+   }
+  ],
+  "IRON_ORE_62": [
+   {
+    "contract": "TIOX2026",
+    "close": 92.15,
+    "expiry": "2026-12-01"
+   },
+   {
+    "contract": "TIOZ2026",
+    "close": 91.52,
+    "expiry": "2027-01-04"
+   },
+   {
+    "contract": "TIOF2027",
+    "close": 91.41,
+    "expiry": "2027-02-01"
+   },
+   {
+    "contract": "TIOG2027",
+    "close": 91.28,
+    "expiry": "2027-03-01"
+   },
+   {
+    "contract": "TIOH2027",
+    "close": 91.15,
+    "expiry": "2027-04-01"
+   },
+   {
+    "contract": "TIOJ2027",
+    "close": 91.31,
+    "expiry": "2027-05-03"
+   },
+   {
+    "contract": "TIOK2027",
+    "close": 90.95,
+    "expiry": "2027-06-01"
+   }
+  ],
+  "COKING_COAL": [
+   {
+    "contract": "ACFX2026",
+    "close": 260.5,
+    "expiry": "2026-11-30"
+   },
+   {
+    "contract": "ACFZ2026",
+    "close": 253.0,
+    "expiry": "2026-12-31"
+   },
+   {
+    "contract": "ACFF2027",
+    "close": 251.5,
+    "expiry": "2027-01-29"
+   }
+  ],
+  "VLSFO_SG": [
+   {
+    "contract": "S5FX2026",
+    "close": 752.676,
+    "expiry": "2026-12-02"
+   },
+   {
+    "contract": "S5FZ2026",
+    "close": 700.09,
+    "expiry": "2027-01-05"
+   },
+   {
+    "contract": "S5FF2027",
+    "close": 662.802,
+    "expiry": "2027-02-02"
+   }
+  ],
+  "EUA": [
+   {
+    "contract": "ECFX2026",
+    "close": 89.9,
+    "expiry": "2026-11-30"
+   },
+   {
+    "contract": "ECFZ2026",
+    "close": 89.99,
+    "expiry": "2026-12-14"
+   },
+   {
+    "contract": "ECFF2027",
+    "close": 90.58,
+    "expiry": "2027-01-25"
+   },
+   {
+    "contract": "ECFH2027",
+    "close": 90.69,
+    "expiry": "2027-03-15"
+   },
+   {
+    "contract": "ECFM2027",
+    "close": 91.61,
+    "expiry": "2027-06-28"
+   },
+   {
+    "contract": "ECFQ2027",
+    "close": 92.32,
+    "expiry": "2027-08-23"
+   },
+   {
+    "contract": "ECFU2027",
+    "close": 92.13,
+    "expiry": "2027-09-27"
+   }
+  ]
+ }
+}

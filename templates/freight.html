@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Freight · Commodity Arbitrage Monitor{% endblock %}
+{% block content %}
+{% set vsg, vrd, hsg = px.VLSFO_SG, px.VLSFO_RDM, px.HSFO_SG %}
+<header>
+  <p class="eyebrow">Ships · Bunkers · Chokepoints · Curves</p>
+  <h1>Freight</h1>
+  <p class="lede">
+  {% if hormuz %}<b>{{ hormuz.total|num(1) }} ships a day</b> crossed Hormuz in the week to {{ hormuz.week }}, against {{ hormuz.total_ly|num(0) }} a year earlier.{% endif %}
+  {% if vsg and vrd %}VLSFO costs <b>{{ vsg.value|num(0) }} $/t</b> in Singapore and {{ vrd.value|num(0) }} in Rotterdam.{% endif %}
+  {% if td25 and td25.time_spread %}On a Houston → Rotterdam Aframax the Brent curve takes <b>{{ td25.time_spread|num(2) }} $/bbl</b> over the voyage, against {{ td25.freight|num(2) }} for the ship.{% endif %}</p>
+  <p class="meta">Prices as of {{ snap.prices_asof }}. Chokepoint transits come from IMF PortWatch, which counts AIS signals daily and runs a few days behind{% if fr.chokepoint_weeks %}. Its latest day is {{ fr.chokepoint_weeks.latest_day }}{% endif %}. {% if private %}Freight rates come from the private rate file where given.{% else %}This is the public build, so freight is the voyage model plus rates reported in the press. <span class="priv">{{ private_note }}</span>, so licensed Baltic rates stay in the private build.{% endif %}</p>
+</header>
+
+<dl class="strip" aria-label="Bunkers and carbon">
+  <div><dt>VLSFO Singapore</dt><dd>{{ vsg.value|num(0) if vsg else '—' }} $/t</dd></div>
+  <div><dt>VLSFO Rotterdam</dt><dd>{{ vrd.value|num(0) if vrd else '—' }} $/t</dd></div>
+  <div><dt>Hi-5 Singapore</dt><dd>{{ (vsg.value - hsg.value)|num(0) if vsg and hsg else '—' }} $/t</dd><span class="sub">VLSFO − HSFO, what a scrubber saves</span></div>
+  <div><dt>EUA</dt><dd>{{ px.EUA.value|num(2) if px.EUA else '—' }} €/t</dd></div>
+  {% if px.TC20_FUT %}<div><dt>TC20 MEG → UKC, LR2</dt><dd>{{ px.TC20_FUT.value|num(2) }} $/t</dd><span class="sub">CME futures, front month. The one Gulf tanker rate that trades publicly</span></div>{% endif %}
+  {% for v in fr.vessels if v.vessel == 'Aframax' %}<div><dt>EU ETS, Aframax day at sea</dt><dd>{{ v.ets|num(0) }} $</dd><span class="sub">50% of emissions on EU voyages</span></div>{% endfor %}
+  {% if fr.storage %}<div><dt>Floating storage, 5 months</dt><dd class="{{ 'pos' if fr.storage.result > 0 else 'neg' }}">{{ fr.storage.result|signed(2) }} $/bbl</dd><span class="sub">{{ 'pays' if fr.storage.result > 0 else 'does not pay' }}</span></div>{% endif %}
+</dl>
+
+<section id="chokepoints">
+  <h2>Chokepoints</h2>
+  <p class="note">Ships a day through each chokepoint in the last full week, against the same week a year earlier. Tanker traffic is also shown as an index of the pre-war average, with November 2025 to February 2026 as 100. Hormuz and Bab el-Mandeb decide how far Gulf barrels travel. The Cape and Suez decide how long the long-haul trades take. Fewer transits on a lane with the same trade means more tonne-miles somewhere else.</p>
+  {% if fr.chokepoints %}
+  <div class="scroll"><table>
+    <thead><tr><th>Chokepoint</th><th class="r">All ships / day</th><th class="r">vs year ago</th><th class="r">Tankers / day</th><th class="r">vs year ago</th><th class="r">Bulk carriers / day</th><th class="r">vs year ago</th><th class="r">Tankers vs pre-war</th></tr></thead>
+    <tbody>{% for c in fr.chokepoints %}
+      <tr><td><b>{{ c.name }}</b><span class="sub">week to {{ c.week }}</span></td>
+        <td class="r">{{ c.total|num(1) }}</td><td class="r {{ 'neg' if (c.total_chg or 0) < -15 else 'pos' if (c.total_chg or 0) > 15 }}">{{ c.total_chg|pct }}</td>
+        <td class="r">{{ c.tanker|num(1) }}</td><td class="r {{ 'neg' if (c.tanker_chg or 0) < -15 else 'pos' if (c.tanker_chg or 0) > 15 }}">{{ c.tanker_chg|pct }}</td>
+        <td class="r">{{ c.bulk|num(1) }}</td><td class="r {{ 'neg' if (c.bulk_chg or 0) < -15 else 'pos' if (c.bulk_chg or 0) > 15 }}">{{ c.bulk_chg|pct }}</td>
+        <td class="r">{% if c.tanker_index is not none %}{{ c.tanker_index|num(0) }}{% else %}—{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <div class="duo"><div>{{ charts.tankers|safe }}</div><div>{{ charts.bulkers|safe }}</div></div>
+  {% else %}
+  <p class="note">No PortWatch data yet. It is fetched on the next scheduled run.</p>
+  {% endif %}
+</section>
+
+<section id="headroom">
+  <h2>Which trades can pay more for ships</h2>
+  <p class="note">For every priced route, the black dot is the TCE paid today and the white dot is the TCE at which the trade stops working. A long green line is a trade that can absorb a freight rally, which is demand support for that ship class. Red means the cargo only moves if freight falls. LNG is left out, because its break-even TCEs run into millions of dollars a day at these spreads. The axis is capped at 150 k$/day. Hover a dot for the real value.</p>
+  {{ charts.headroom|safe }}
+</section>
+
+<section id="vessels">
+  <h2>What a day at sea costs</h2>
+  {% if not private %}<p class="disclaimer"><span class="tag">Baltic timecharter averages</span> {{ private_note }}. Hire below comes from the voyage model and rates reported in the press.</p>{% elif snap.supramax_gap %}<p class="disclaimer">{{ licence_note }} on some legs, marked on the Dry bulk page.</p>{% endif %}
+  <p class="note">Hire is the median TCE used across this site's routes for that class. Bunkers are priced at Rotterdam VLSFO. EU ETS is the allowance cost of a day steaming on a voyage into or out of the EU. The scrubber column is what a ship burning HSFO instead of VLSFO saves at Singapore prices. Hire is also what a day of delay costs, which is why the delivery-terms tables show a cost per day late.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Vessel</th><th class="r">Hire</th><th class="r">Fuel</th><th class="r">Bunkers</th><th class="r">Hire + bunkers</th><th class="r">Bunker share</th><th class="r">EU ETS</th><th class="r">Scrubber saving</th></tr></thead>
+    <tbody>{% for v in fr.vessels %}
+      <tr><td><b>{{ v.vessel }}</b><span class="sub">{{ v.tce_source }}</span></td>
+        <td class="r">{{ v.tce|kusd }}/d</td><td class="r">{{ v.fuel_t_day|num(0) }} t/d{% if v.vessel.startswith('LNG') %}<span class="sub">boil-off gas</span>{% endif %}</td>
+        <td class="r">{{ v.bunkers|kusd }}{% if v.bunkers %}/d{% endif %}</td><td class="r">{{ v.total|kusd }}/d</td>
+        <td class="r">{% if v.bunker_share %}{{ v.bunker_share|num(0) }} %{% else %}—{% endif %}</td>
+        <td class="r">{{ v.ets|kusd }}/d</td><td class="r">{{ v.scrubber|kusd }}{% if v.scrubber %}/d{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section id="curves">
+  <h2>Curves, or what time on the water costs</h2>
+  <p class="note">Each forward curve is shown as a % of its front month. A cargo is bought at today's price and sold at the price for its arrival. A backwardated curve is therefore a cost that grows with the voyage, and a contango is a gain. That is why steep backwardation shuts long-haul arbs and empties storage.</p>
+  <div class="duo">{% for c in charts.curves %}<div>{{ c|safe }}</div>{% endfor %}</div>
+  <div class="twocol">
+    <div>
+      <h3>Structure</h3>
+      <div class="scroll"><table>
+        <thead><tr><th>Curve</th><th class="r">M1</th><th class="r">M2</th><th class="r">M1 − M2 a month</th><th></th></tr></thead>
+        <tbody>{% for c in fr.curves %}
+          <tr><td>{{ c.label }}<span class="sub">{{ c.m1_contract }} / {{ c.m2_contract }} · {{ c.unit }}</span></td>
+            <td class="r">{{ c.m1|num(3 if c.unit == '$/gal' else 2) }}</td><td class="r">{{ c.m2|num(3 if c.unit == '$/gal' else 2) }}</td>
+            <td class="r">{{ c.per_month|signed(3 if c.unit == '$/gal' else 2) }}<span class="sub">{{ c.pct_month|num(1) }} % of M1</span></td>
+            <td><span class="pill {{ 'warn' if c.state == 'backwardation' else 'info' }}">{{ c.state }}</span></td></tr>
+        {% endfor %}</tbody>
+      </table></div>
+    </div>
+    <div>
+      <h3>Curve cost per route</h3>
+      <div class="scroll"><table>
+        <thead><tr><th>Route</th><th class="r">Laden days</th><th class="r">Curve</th><th class="r">Margin before curve</th></tr></thead>
+        <tbody>{% for r in all_routes if r.time_spread %}
+          <tr><td>{{ r.route }}<span class="sub">{{ r.curve or '' }}</span></td><td class="r">{{ r.laden_days|num(0) }}</td>
+            <td class="r {{ 'neg' if r.time_spread > 0 else 'pos' }}">{{ (-r.time_spread)|with_unit(r.unit, True) }}</td>
+            <td class="r">{{ (r.margin + r.time_spread)|with_unit(r.unit, True) if r.margin is not none else '—' }}</td></tr>
+        {% endfor %}</tbody>
+      </table></div>
+      {% if fr.storage %}
+      <p class="note">Floating storage on a VLCC from {{ fr.storage.near.contract }} to {{ fr.storage.far.contract }}, {{ fr.storage.days }} days. The curve gives {{ fr.storage.carry|signed(2) }}, hire takes {{ fr.storage.hire|num(2) }} and financing {{ fr.storage.financing|num(2) }} $/bbl at a TCE of {{ fr.storage.tce|kusd }} a day. The result is <b>{{ fr.storage.result|signed(2) }} $/bbl</b>.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section id="ideas">
+  <h2>Freight trade ideas</h2>
+  {% if ideas %}
+  <p class="note">Built from rates observed on {{ ideas[0].date }}. FFAs are margined, so the result is shown per lot and not as a return on capital. An analysis exercise, not investment advice.</p>
+  <div class="ideas">
+  {% for i in ideas %}
+    <article class="idea">
+      <div>
+        <h3>{{ loop.index }}. {{ i.title }}</h3>
+        <p class="instr"><b>{{ i.side }}</b> {{ i.instrument }}</p>
+      </div>
+      <div><h4>Why</h4><ul>{% for line in i.context[:3] %}<li>{{ line }}</li>{% endfor %}</ul></div>
+      <div><h4>What kills it</h4><ul>{% for line in i.risks[:2] %}<li>{{ line }}</li>{% endfor %}</ul></div>
+      <dl class="kpis">
+        <div><dt>Entry</dt><dd>{{ i.entry|num }} {{ i.unit }}</dd></div>
+        <div><dt>Target</dt><dd>{{ i.target|num }} {{ i.unit }}</dd></div>
+        <div><dt>Stop</dt><dd>{{ i.stop|num }} {{ i.unit }}</dd></div>
+        <div><dt>Horizon</dt><dd>{{ i.horizon }}</dd></div>
+      </dl>
+      {% set g = i.geo %}
+      <div class="payoff" role="img" aria-label="Stop {{ i.stop }}, entry {{ i.entry }}, target {{ i.target }}">
+        <div class="track"></div>
+        <div class="seg" style="left:{{ [g.stop, g.entry]|min }}%;width:{{ (g.entry - g.stop)|abs }}%;background:color-mix(in srgb,var(--bad) 55%,transparent)"></div>
+        <div class="seg" style="left:{{ [g.entry, g.target]|min }}%;width:{{ (g.target - g.entry)|abs }}%;background:color-mix(in srgb,var(--ok) 55%,transparent)"></div>
+        {% for name, pos, val in [('Stop', g.stop, i.stop), ('Entry', g.entry, i.entry), ('Target', g.target, i.target)] %}
+        <div class="tick" style="left:{{ pos }}%"></div>
+        <div class="lab" style="left:{{ pos }}%;top:{{ 0 if name == 'Entry' else 38 }}px;transform:translateX({{ '-100%' if pos > 80 else '0' if pos < 20 else '-50%' }})">{{ name }} {{ val|num }}</div>
+        {% endfor %}
+        {% if g.spot is not none %}<div class="tick spot" style="left:{{ g.spot }}%"></div>
+        <div class="lab" style="left:{{ g.spot }}%;top:0;transform:translateX({{ '-100%' if g.spot > 80 else '0' if g.spot < 20 else '-50%' }})">{{ i.spot_label }}</div>{% endif %}
+      </div>
+      <p class="note">A 1,000 t lot makes {{ (i.gain * 1000)|signed(0) }} $ at the target and {{ (i.loss * 1000)|signed(0) }} $ at the stop.</p>
+    </article>
+  {% endfor %}
+  </div>
+  {% else %}
+  <p class="note"><span class="priv">{{ private_note }}.</span> The freight ideas are built on licensed FFA and Baltic levels, so they only appear in the private build, made with <code>python run.py --private private</code>. The commodity ideas are on the <a href="ideas.html">Trade ideas</a> page.</p>
+  {% endif %}
+</section>
+
+<section id="prices">
+  <h2>Prices used</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Contract</th><th>Symbol</th><th class="r">Price</th><th>Unit</th><th>Source</th><th>Date</th></tr></thead>
+    <tbody>{% for p in prices %}<tr><td>{{ p.label }}</td><td>{{ p.symbol }}</td><td class="r">{{ p.value|num(4 if p.unit == 'USD per EUR' else 2) }}</td><td>{{ p.unit }}</td><td>{{ p.source }}</td><td class="src">{{ p.date }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<details>
+  <summary>Method and limits</summary>
+  <div class="method">
+    <p><b>Chokepoints.</b> IMF PortWatch counts AIS transits by vessel type every day. Weeks run Monday to Sunday and only complete weeks are shown. Ships with AIS switched off are not counted, which understates Hormuz traffic.</p>
+    <p><b>Break-even TCE.</b> The daily hire at which the route's margin hits zero, given today's prices, bunkers, allowances and the curve. It is the most a charterer could pay for that ship and still move the cargo.</p>
+    <p><b>Bunkers and ETS.</b> Rotterdam VLSFO for Atlantic legs and Singapore for legs starting east of Suez. Allowances use 3.114 t CO2 per tonne of fuel, or 2.75 for LNG boil-off, and 50% coverage for voyages into or out of the EU.</p>
+    <p><b>Floating storage.</b> A VLCC at the model TCE, 7.33 bbl/t and 5% financing. It ignores the time to find a ship and the extra insurance in a war zone.</p>
+    <p><b>Limits.</b> There are no vessel positions and no fixtures list. The page cannot say how many ships are open in a loading area, which is what moves spot rates day to day. The public build has no FFA curve.</p>
+  </div>
+</details>
+{% endblock %}
