@@ -26,3 +26,30 @@ date,route_id,route,family,unit,status,margin,freight,freight_source,insurance,w
 2026-11-12,SCRAP_EU_TURKEY,Scrap Rotterdam → Turkey,Scrap,$/t,Netback,378.1533,21.3467,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0,,36000.0
 2026-11-12,SCRAP_US_INDIA,Scrap New York → India,Scrap,$/t,Netback,354.9421,35.0579,Model,0.0,,20000.0
 2026-11-12,SCRAP_US_TURKEY,Scrap New York → Turkey,Scrap,$/t,Netback,376.4222,23.0778,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0,,28000.0
+2026-11-13,ALU_LME_JAPAN,Aluminium LME → Japan,Metals,$/t,Closed,-399.8816,140.0,Assumption,1.532,,
+2026-11-13,ALU_LME_MIDWEST,Aluminium LME → US Midwest,Metals,$/t,Open,284.5308,120.0,Assumption,1.532,,
+2026-11-13,COAL_RB_JAPAN,Coal Richards Bay → Japan,Coal,$/t,Open,11.0993,26.3375,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0,,39400.0
+2026-11-13,COAL_RB_NWE,Coal Richards Bay → Rotterdam,Coal,$/t,Closed,-16.0575,24.4148,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0643,,39400.0
+2026-11-13,COKING_CHINA,PLV coking coal Hay Point → China,Coking coal,$/t,Delivered,276.8891,16.2588,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.1303,,39400.0
+2026-11-13,COKING_INDIA,PLV coking coal Hay Point → India,Coking coal,$/t,Delivered,282.2737,21.6435,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.1303,,22000.0
+2026-11-13,COPPER_LME_COMEX,Copper LME Rotterdam → COMEX,Metals,$/t,Closed,-118.656,90.0,Assumption,6.8087,,
+2026-11-13,CRUDE_USGC_ASIA,WTI Houston → Ningbo,Crude,$/bbl,Closed,-3.322,4.6294,Model,0.0448,0.0,55000.0
+2026-11-13,CRUDE_USGC_NWE,WTI Houston → Rotterdam,Crude,$/bbl,Closed,-1.0779,4.851,Model,0.0448,0.0,40000.0
+2026-11-13,DIESEL_NWE_USAC,Gasoil Rotterdam → New York,Products,$/t,Closed,-60.1574,31.3721,Model,0.6249,0.0,25000.0
+2026-11-13,DIESEL_USGC_NWE,ULSD Houston → Rotterdam,Products,$/t,Closed,-23.1357,44.6446,Model,0.6039,0.0,25000.0
+2026-11-13,GASOLINE_NWE_USAC,Eurobob Rotterdam → New York,Products,$/t,Closed,-105.3436,31.3721,Model,0.4385,0.0,25000.0
+2026-11-13,HRC_CN_EU_OUT,"China HRC → EU, out of quota",Steel,$/t,Closed,-359.2754,55.0,Assumption,0.2395,,
+2026-11-13,HRC_CN_EU_QUOTA,"China HRC → EU, in quota",Steel,$/t,Closed,-92.1557,55.0,Assumption,0.2395,,
+2026-11-13,HRC_EU_US,EU HRC → US Gulf,Steel,$/t,Open,47.6631,45.0,Assumption,0.4417,,
+2026-11-13,INDIA_INDO,Indonesian coal → India,India fuel,$/t,Closed,-8.2792,21.3152,Model,0.0385,,20000.0
+2026-11-13,INDIA_PETCOKE,US petcoke → India,India fuel,$/t,Stale price,62.2624,38.8323,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0395,,34000.0
+2026-11-13,INDIA_SA,South African coal → India,India fuel,$/t,Open,13.0724,13.9139,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0643,,21500.0
+2026-11-13,LNG_US_ASIA_CAPE,US LNG → Asia (Cape),LNG,$/MMBtu,Open,23.0084,1.9413,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 38 days old",0.0157,0.0,25750.0
+2026-11-13,LNG_US_ASIA_PANAMA,US LNG → Asia (Panama),LNG,$/MMBtu,Open,23.5688,1.3946,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 38 days old",0.0157,0.0,25750.0
+2026-11-13,LNG_US_NWE,US LNG → Europe,LNG,$/MMBtu,Open,22.8308,0.7341,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 38 days old",0.015,0.0,25750.0
+2026-11-13,ORE_AUS_CHINA,Iron ore Port Hedland → Qingdao,Iron ore,$/dmt,Netback,77.1978,14.4022,Baltic Exchange weekly highlights (Safety4Sea) $/t (2026-11-06),0.0,,46517.1712
+2026-11-13,ORE_BRA_CHINA,Iron ore Tubarão → Qingdao,Iron ore,$/dmt,Netback,49.7826,40.2174,Baltic Exchange weekly highlights (Safety4Sea) $/t (2026-11-06),0.0,,50569.584
+2026-11-13,SCRAP_EU_INDIA,Scrap Rotterdam → India,Scrap,$/t,Netback,353.5737,36.4263,Model,0.0,,20000.0
+2026-11-13,SCRAP_EU_TURKEY,Scrap Rotterdam → Turkey,Scrap,$/t,Netback,378.1652,21.3348,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0,,36000.0
+2026-11-13,SCRAP_US_INDIA,Scrap New York → India,Scrap,$/t,Netback,354.9421,35.0579,Model,0.0,,20000.0
+2026-11-13,SCRAP_US_TURKEY,Scrap New York → Turkey,Scrap,$/t,Netback,376.4222,23.0778,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0,,28000.0
