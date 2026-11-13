@@ -47,3 +47,31 @@ def test_check_mode_writes_nothing(tmp_path):
     out = tmp_path / "freight.csv"
     lseg_pull.main(["--check", "--out", str(out)], fetch=lambda rics: {}, today=TODAY)
     assert not out.exists()
+
+
+def test_the_pull_waits_for_workspace_to_open(capsys):
+    calls, naps = [], []
+
+    def fetch(rics):
+        calls.append(1)
+        if len(calls) < 3:
+            raise ConnectionError("[WinError 10061] connection refused")
+        return {".BAWB": (13.25, None)}
+
+    fetched = lseg_pull.fetch_when_ready(fetch, [".BAWB"], wait_minutes=60, sleep=naps.append, clock=lambda: 0)
+    assert fetched == {".BAWB": (13.25, None)}
+    assert naps == [lseg_pull.RETRY_SECONDS] * 2
+    assert capsys.readouterr().out.count("next try in 5 min") == 2
+
+
+def test_without_a_wait_a_closed_workspace_fails_at_once_and_keeps_the_rate_file(tmp_path):
+    out = tmp_path / "freight.csv"
+    out.write_text("type,key,label,unit,value,ws_flat_rate,date,source,comment\n"
+                   "freight,C5,C5,$/t,10.0,,2026-11-11,LSEG .BAWB,\n", encoding="utf-8")
+    before = out.read_text(encoding="utf-8")
+
+    def closed(rics):
+        raise ConnectionError("[WinError 10061] connection refused")
+
+    assert lseg_pull.main(["--out", str(out)], fetch=closed, today=TODAY) == 1
+    assert out.read_text(encoding="utf-8") == before
