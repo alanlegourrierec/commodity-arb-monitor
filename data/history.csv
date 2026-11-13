@@ -35,9 +35,9 @@ date,route_id,route,family,unit,status,margin,freight,freight_source,insurance,w
 2026-11-13,COPPER_LME_COMEX,Copper LME Rotterdam → COMEX,Metals,$/t,Closed,-135.1473,90.0,Assumption,6.81,,
 2026-11-13,CRUDE_USGC_ASIA,WTI Houston → Ningbo,Crude,$/bbl,Closed,-13.6241,28.2651,"Baltic Exchange tanker report, week 45 lump sum (2026-11-06)",0.0447,0.0,533731.0763
 2026-11-13,CRUDE_USGC_NWE,WTI Houston → Rotterdam,Crude,$/bbl,Closed,-3.4391,9.4184,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.0447,0.0,107500.0
-2026-11-13,DIESEL_NWE_USAC,Gasoil Rotterdam → New York,Products,$/t,Closed,-56.8024,23.5143,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.623,0.0,13600.0
-2026-11-13,DIESEL_USGC_NWE,ULSD Houston → Rotterdam,Products,$/t,Closed,-35.3649,79.4408,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.5884,0.0,60800.0
-2026-11-13,GASOLINE_NWE_USAC,Eurobob Rotterdam → New York,Products,$/t,Closed,-81.3216,23.5143,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.437,0.0,13600.0
+2026-11-13,DIESEL_NWE_USAC,Gasoil Rotterdam → New York,Products,$/t,Closed,-49.0939,23.5143,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.623,0.0,13600.0
+2026-11-13,DIESEL_USGC_NWE,ULSD Houston → Rotterdam,Products,$/t,Closed,-43.0965,79.4408,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.5923,0.0,60800.0
+2026-11-13,GASOLINE_NWE_USAC,Eurobob Rotterdam → New York,Products,$/t,Closed,-72.5785,23.5143,"Baltic Exchange tanker report, week 45 TCE (2026-11-06)",0.437,0.0,13600.0
 2026-11-13,HRC_CN_EU_OUT,"China HRC → EU, out of quota",Steel,$/t,Closed,-360.9967,55.0,Assumption,0.2397,,
 2026-11-13,HRC_CN_EU_QUOTA,"China HRC → EU, in quota",Steel,$/t,Closed,-93.6435,55.0,Assumption,0.2397,,
 2026-11-13,HRC_EU_US,EU HRC → US Gulf,Steel,$/t,Open,118.2736,45.0,Assumption,0.4416,,
