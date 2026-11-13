@@ -9,7 +9,7 @@
   {% if hormuz %}<b>{{ hormuz.total|num(1) }} ships a day</b> crossed Hormuz in the week to {{ hormuz.week }}, against {{ hormuz.total_ly|num(0) }} a year earlier.{% endif %}
   {% if vsg and vrd %}VLSFO costs <b>{{ vsg.value|num(0) }} $/t</b> in Singapore and {{ vrd.value|num(0) }} in Rotterdam.{% endif %}
   {% if td25 and td25.time_spread %}On a Houston → Rotterdam Aframax the Brent curve takes <b>{{ td25.time_spread|num(2) }} $/bbl</b> over the voyage, against {{ td25.freight|num(2) }} for the ship.{% endif %}</p>
-  <p class="meta">Prices as of {{ snap.prices_asof }}. Chokepoint transits come from IMF PortWatch, which counts AIS signals daily and runs a few days behind{% if fr.chokepoint_weeks %}. Its latest day is {{ fr.chokepoint_weeks.latest_day }}{% endif %}. {% if private %}Freight rates come from the private rate file where given.{% else %}This is the public build, so freight is the voyage model plus rates reported in the press. <span class="priv">{{ private_note }}</span>, so licensed Baltic rates stay in the private build.{% endif %}</p>
+  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. Chokepoint transits come from IMF PortWatch, which counts AIS signals daily and runs a few days behind{% if fr.chokepoint_weeks %}. Its latest day is {{ fr.chokepoint_weeks.latest_day }}{% endif %}. {% if private %}Freight rates come from the private rate file where given.{% else %}This is the public build, so freight is the voyage model plus rates reported in the press. <span class="priv">{{ private_note }}</span>, so licensed Baltic rates stay in the private build.{% endif %}</p>
 </header>
 
 <dl class="strip" aria-label="Bunkers and carbon">
@@ -66,7 +66,7 @@
 
 <section id="curves">
   <h2>Curves, or what time on the water costs</h2>
-  <p class="note">Each forward curve is shown as a % of its front month. A cargo is bought at today's price and sold at the price for its arrival. A backwardated curve is therefore a cost that grows with the voyage, and a contango is a gain. That is why steep backwardation shuts long-haul arbs and empties storage.</p>
+  <p class="note">Each forward curve is shown as a % of its front month. A cargo is bought at the price of the day it loads and sold at the price of the day it lands. A backwardated curve is therefore a cost that grows with the voyage, and a contango is a gain. That is why steep backwardation shuts long-haul arbs and empties storage.</p>
   <div class="duo">{% for c in charts.curves %}<div>{{ c|safe }}</div>{% endfor %}</div>
   <div class="twocol">
     <div>
@@ -86,7 +86,7 @@
       <div class="scroll"><table>
         <thead><tr><th>Route</th><th class="r">Laden days</th><th class="r">Curve</th><th class="r">Margin before curve</th></tr></thead>
         <tbody>{% for r in all_routes if r.time_spread %}
-          <tr><td>{{ r.route }}<span class="sub">{{ r.curve or '' }}</span></td><td class="r">{{ r.laden_days|num(0) }}</td>
+          <tr><td>{{ r.route }}<span class="sub">{{ curve_labels.get(r.curve, r.curve or '') }}</span></td><td class="r">{{ r.laden_days|num(0) }}</td>
             <td class="r {{ 'neg' if r.time_spread > 0 else 'pos' }}">{{ (-r.time_spread)|with_unit(r.unit, True) }}</td>
             <td class="r">{{ (r.margin + r.time_spread)|with_unit(r.unit, True) if r.margin is not none else '—' }}</td></tr>
         {% endfor %}</tbody>

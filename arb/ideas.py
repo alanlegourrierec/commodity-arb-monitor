@@ -28,12 +28,25 @@ def _line(label, value, note=""):
     return dict(label=label, note=note, value=value)
 
 
+MONTHS = dict(zip("FGHJKMNQUVXZ", ["January", "February", "March", "April", "May", "June", "July", "August",
+                                    "September", "October", "November", "December"]))
+
+
+def _contract(curve, code):
+    """The contract of a curve by its month code, 'Z2026' for December 2026."""
+    return next((c for c in curve or [] if c["contract"].endswith(code)), None)
+
+
 def _carry(econ, curves):
-    """Sell prompt from tank, buy back on a later contract: the backwardation is locked."""
+    """Sell one contract from tank and buy a later one back: the backwardation is locked.
+
+    The idea names its two contracts and stays on them. Reading the first and third contracts of the
+    curve instead would turn a December trade into a January one the day December expires.
+    """
     curve = curves.get(econ["curve"])
-    if not curve or len(curve) <= econ["far"]:
+    near, far = _contract(curve, econ["near"]), _contract(curve, econ["far"])
+    if not near or not far:
         return None
-    near, far = curve[econ["near"]], curve[econ["far"]]
     k = econ.get("factor", 1.0)                       # e.g. $/gal -> $/t
     days = (date.fromisoformat(far["expiry"]) - date.fromisoformat(near["expiry"])).days
     lines = [_line("Sell in tank", near["close"] * k, near["contract"]),
@@ -88,28 +101,51 @@ def _diversion(route, alternative):
     return _route_economics(route, alternative["netback"], f"{route['buy_basis']}, at its {place} netback")
 
 
-def load_commodity_ideas(path, routes, curves):
+def _economics(idea, by_id, curves, route_id=None):
+    """Economics of an idea, on its own route or on another one for a what-if."""
+    route = by_id.get(route_id or idea.get("route_id"), {})
+    compare = by_id.get(idea.get("compare_route_id"))
+    if idea.get("buy_at") == "alternative" and compare:
+        return _diversion(route, compare), None         # the alternative is already inside the margin
+    if idea.get("route_id"):
+        return _route_economics(route), compare
+    return _carry(idea["economics"], curves), None
+
+
+def _case(idea, name, eco, by_id, curves):
+    """Margin in the good or the bad case.
+
+    A case moves today's margin by a fixed amount, by a number of days of delay at the cost the route
+    shows, or it reruns the cargo on another route, such as the Cape when the Panama slot is lost.
+    """
+    case = idea[name]
+    margin = eco["margin"]
+    if case.get("route_id"):
+        other = _economics(idea, by_id, curves, case["route_id"])[0]
+        margin = other["margin"] if other else margin
+    margin += case.get("delta", 0.0)
+    return margin - case.get("delay_days", 0) * (eco.get("delay_day") or 0.0)
+
+
+def load_commodity_ideas(path, routes, curves, today=None):
     if not path or not Path(path).exists():
         return []
     by_id = {r["route_id"]: r for r in routes}
     ideas = json.loads(Path(path).read_text(encoding="utf-8"))
     for i in ideas:
-        route = by_id.get(i.get("route_id"), {})
-        compare = by_id.get(i.get("compare_route_id"))
-        if i.get("buy_at") == "alternative" and compare:
-            eco = _diversion(route, compare)
-            compare = None                              # already inside the margin
-        elif i.get("route_id"):
-            eco = _route_economics(route)
-        else:
-            eco = _carry(i["economics"], curves)
+        if today and i.get("until") and today.isoformat() > i["until"]:
+            i.update(economics=None, missed=True)       # the cargo had to be bought by that day
+            continue
+        eco, compare = _economics(i, by_id, curves)
         if eco is None:
+            carry = i.get("economics") if not i.get("route_id") else None
+            if carry and curves.get(carry["curve"]) and not _contract(curves[carry["curve"]], carry["near"]):
+                i["expired"] = f"{MONTHS[carry['near'][0]]} {carry['near'][1:]}"
             i["economics"] = None
             continue
         units = i.get("volume") or eco["units"]
         musd = (lambda m: None if units is None else m * units / 1e6)
-        good = eco["margin"] + i["good"]["delta"]
-        bad = eco["margin"] + i["bad"]["delta"]
+        good, bad = _case(i, "good", eco, by_id, curves), _case(i, "bad", eco, by_id, curves)
         # Margin per day the cargo is tied up, to compare trades of different lengths.
         days = i.get("days") or eco.get("days")
         per_day = eco["margin"] / days if days else None

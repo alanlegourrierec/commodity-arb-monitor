@@ -5,7 +5,7 @@
   <p class="eyebrow">One physical trade per desk</p>
   <h1>Trade ideas</h1>
   <p class="lede">Each idea is a cargo someone could move. It says what to buy and on which term, where to sell it, and what is left after every cost on the way. The numbers are recomputed each morning from the same model as the rest of the site. The text is dated and stays as written.</p>
-  <p class="meta">Prices as of {{ snap.prices_asof }}. Margins are per cargo, before the desk's overheads and credit lines. An analysis exercise, not investment advice.</p>
+  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. Margins are per cargo, before the desk's overheads and credit lines. An analysis exercise, not investment advice.</p>
 </header>
 
 <div class="ideas">
@@ -37,7 +37,7 @@
     </div>
     {% if e.compare %}<p class="note">The alternative, {{ e.compare.route }}, is at {{ e.compare.margin|with_unit(e.compare.unit, True) }} ({{ e.compare.status|lower }}).</p>{% endif %}
     {% else %}
-    <p class="note">A price is missing today, so the economics are not computed.</p>
+    <p class="note">{% if i.expired %}The {{ i.expired }} contract has stopped trading, so this trade is either on or missed. Its numbers are no longer recomputed.{% elif i.missed %}This cargo had to be bought by {{ i.until|day }} to make its deadline. That day has passed, so the numbers are no longer recomputed.{% else %}A price is missing today, so the economics are not computed.{% endif %}</p>
     {% endif %}
 
     <div><h4>Why</h4><ul>{% for line in i.why %}<li>{{ line }}</li>{% endfor %}</ul></div>
@@ -52,10 +52,11 @@
   <summary>How to read an idea</summary>
   <div class="method">
     <p><b>The deal sheet</b> runs from the purchase to the sale. Each line is a delivery term and what it adds. FOB is on board at the load port. CFR adds the freight, CIF the cargo insurance, DAP what is lost on the way, and duty paid the import duties. The cargo stops at the term it is sold on. Whatever comes after is the buyer's cost and stays out of the margin. Financing and inspection stay with the seller on every term.</p>
+    <p><b>Dates.</b> A cargo idea loads about 30 days after the deal. The purchase is priced for the loading day and the sale for the landing day, both read off the forward curve. A storage idea names its two contracts and stays on them. Once the first one expires the trade is on, and the page stops recomputing it.</p>
     <p><b>A spot cargo costs what its next best outlet pays.</b> The US LNG idea buys the cargo at its European netback, not at Henry Hub plus the tolling fee. That cost-plus price is only open to a long-term offtaker, who earns it whichever way the ship sails. The idea earns the gap between Asia and Europe.</p>
     <p><b>Per day</b> divides the margin by the days the cargo is tied up. That is the voyage for a cargo and the time to the buy-back for a storage trade. It compares a short trade with a long one on the same product. It is not annualised, because a desk cannot repeat the same cargo back to back all year.</p>
     <p><b>One day late</b> is the ship's hire plus the interest on the cargo for one more day. Demurrage is usually claimed back from whoever caused the delay, so this is the exposure and not a forecast.</p>
-    <p><b>If it works, if it goes wrong.</b> Both cases move today's margin by the amount written with the idea, so they follow the market.</p>
+    <p><b>If it works, if it goes wrong.</b> Both cases move today's margin by the amount written with the idea, so they follow the market. The bad case is sized on something that has happened, and it can turn the cargo into a loss.</p>
   </div>
 </details>
 {% endblock %}

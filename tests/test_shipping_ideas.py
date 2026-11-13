@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -42,7 +43,7 @@ def test_carry_idea_locks_the_backwardation(tmp_path):
                       dict(contract="CLG2027", close=84.0, expiry="2027-01-20")]}
     path = tmp_path / "ideas.json"
     path.write_text('[{"desk": "Crude", "title": "t",'
-                    ' "economics": {"curve": "WTI", "near": 0, "far": 2, "volume": 1000000, "unit": "$/bbl"},'
+                    ' "economics": {"curve": "WTI", "near": "Z2026", "far": "G2027", "volume": 1000000, "unit": "$/bbl"},'
                     ' "good": {"delta": 1, "case": ""}, "bad": {"delta": -1, "case": ""}}]')
     e = ideas.load_commodity_ideas(path, [], curves)[0]["economics"]
     assert e["margin"] == 2.0
@@ -87,9 +88,48 @@ def test_margin_per_day_uses_the_days_the_cargo_is_tied_up(tmp_path):
                       dict(contract="CLG2027", close=84.0, expiry="2027-01-20")]}
     path = tmp_path / "ideas.json"
     path.write_text('[{"desk": "Crude", "title": "t",'
-                    ' "economics": {"curve": "WTI", "near": 0, "far": 2, "volume": 1000000, "unit": "$/bbl"},'
+                    ' "economics": {"curve": "WTI", "near": "Z2026", "far": "G2027", "volume": 1000000, "unit": "$/bbl"},'
                     ' "good": {"delta": 1, "case": ""}, "bad": {"delta": -1, "case": ""}}]')
     e = ideas.load_commodity_ideas(path, [], curves)[0]["economics"]
     assert e["days"] == 61
     assert e["per_day"] == pytest.approx(2.0 / 61)
     assert e["pnl_day"] == pytest.approx(2.0 / 61 * 1e6)
+
+
+def test_a_storage_idea_stays_on_its_contracts(tmp_path):
+    curves = {"WTI": [dict(contract="CLF2027", close=85.0, expiry="2026-12-21"),
+                      dict(contract="CLG2027", close=84.0, expiry="2027-01-20"),
+                      dict(contract="CLH2027", close=83.0, expiry="2027-02-22")]}
+    path = tmp_path / "ideas.json"
+    path.write_text('[{"desk": "Crude", "title": "t",'
+                    ' "economics": {"curve": "WTI", "near": "Z2026", "far": "G2027", "volume": 1000000, "unit": "$/bbl"},'
+                    ' "good": {"delta": 1, "case": ""}, "bad": {"delta": -1, "case": ""}}]')
+    idea = ideas.load_commodity_ideas(path, [], curves)[0]
+    assert idea["economics"] is None                  # December has expired, January does not take its place
+    assert idea["expired"] == "December 2026"
+
+
+def test_a_bad_case_can_reroute_the_cargo_or_count_days_of_delay(tmp_path):
+    by_id = {r["route_id"]: r for r in _routes()}
+    path = tmp_path / "ideas.json"
+    path.write_text('[{"desk": "LNG", "title": "t", "route_id": "LNG_US_ASIA_PANAMA", "compare_route_id": "LNG_US_NWE",'
+                    ' "buy_at": "alternative", "good": {"delta": 1, "case": ""},'
+                    ' "bad": {"route_id": "LNG_US_ASIA_CAPE", "case": ""}},'
+                    ' {"desk": "Coal", "title": "t", "route_id": "COAL_RB_JAPAN", "good": {"delta": 1, "case": ""},'
+                    ' "bad": {"delta": -5, "delay_days": 10, "case": ""}}]')
+    lng, coal = [i["economics"] for i in ideas.load_commodity_ideas(path, list(by_id.values()), {})]
+    cape = ideas._diversion(by_id["LNG_US_ASIA_CAPE"], by_id["LNG_US_NWE"])
+    assert lng["bad"] == pytest.approx(cape["margin"])
+    assert lng["bad"] < lng["margin"]
+    assert coal["bad"] == pytest.approx(coal["margin"] - 5 - 10 * by_id["COAL_RB_JAPAN"]["delay_day"])
+
+
+def test_an_idea_with_a_deadline_stops_being_priced_after_it(tmp_path):
+    by_id = {r["route_id"]: r for r in _routes()}
+    path = tmp_path / "ideas.json"
+    path.write_text('[{"desk": "Base metals", "title": "t", "route_id": "COPPER_LME_COMEX", "until": "2026-11-17",'
+                    ' "good": {"delta": 1, "case": ""}, "bad": {"delta": -1, "case": ""}}]')
+    load = lambda day: ideas.load_commodity_ideas(path, list(by_id.values()), {}, day)[0]
+    assert load(date(2026, 11, 17))["economics"] is not None
+    late = load(date(2026, 11, 18))
+    assert late["economics"] is None and late["missed"]

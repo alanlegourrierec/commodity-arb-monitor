@@ -11,7 +11,7 @@
   {% if export %}A Gulf Coast refiner nets <b>{{ export.margin|num(0) }} $/t</b> more by exporting diesel to Rotterdam than by selling it at home.{% endif %}
   {% if lng_asia and lng_gap is not none %}A US LNG cargo nets <b>{{ lng_gap|abs|num }} $/MMBtu</b> more in {{ 'Asia' if lng_gap >= 0 else 'Europe' }} than in {{ 'Europe' if lng_gap >= 0 else 'Asia' }}.{% endif %}
   {% if killed %}The curve alone shuts {% for r in killed %}<b>{{ r.route }}</b>{{ ', ' if not loop.last }}{% endfor %}. The spread pays for the ship but not for the backwardation over the voyage.{% endif %}</p>
-  <p class="meta">Prices as of {{ snap.prices_asof }}, front-month futures, delayed. Freight comes from rate overrides on {{ snap.summary.freight_overrides }} routes and from the voyage model on the others. Margins include EU allowances on European legs and the forward curve between loading and arrival.</p>
+  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. A cargo bought today loads around {{ load_date|day }}, and every price is read off its forward curve for the day the cargo loads or lands. Freight comes from rate overrides on {{ snap.summary.freight_overrides }} routes and from the voyage model on the others. Margins include EU allowances on European legs.</p>
 </header>
 
 {{ m.cards(cards) }}
@@ -31,7 +31,7 @@
 
 <section id="lng">
   <h2>Where to send a US LNG cargo</h2>
-  <p class="note">The delivered price is split into the FOB netback and the shipping costs, per MMBtu loaded at Sabine Pass. The dotted lines mark the feedgas cost at 1.15 × Henry Hub and the full FOB cost with the liquefaction fee. Both are what a long-term offtaker pays. A spot cargo is worth its best netback, so for a trader the money is in the gap between destinations. JKM and TTF are taken for the month the cargo arrives, so a cargo that slips into January takes the January contract.</p>
+  <p class="note">The delivered price is split into the FOB netback and the shipping costs, per MMBtu loaded at Sabine Pass. The dotted lines mark the feedgas cost at 1.15 × Henry Hub and the full FOB cost with the liquefaction fee. Both are what a long-term offtaker pays. A spot cargo is worth its best netback, so for a trader the money is in the gap between destinations. JKM and TTF are read for the day the cargo arrives, between the two monthly contracts around it.</p>
   {% if lng_asia and lng_gap is not none %}
   <p class="lede">{% if lng_gap >= 0 %}<b>{{ lng_asia.route.replace('US LNG → ', '') }}</b> nets <b>{{ lng_gap|num }} $/MMBtu</b> more than Europe{% else %}Europe nets <b>{{ (-lng_gap)|num }} $/MMBtu</b> more than the best Asian route{% endif %}, for a JKM − TTF spread of <b>{{ spreads.JKM_TTF.value|signed }} $/MMBtu</b>.</p>
   {% endif %}
@@ -40,7 +40,7 @@
 
 {{ m.history(charts, families, units, "For reference, a Hormuz transit costs about <b>" ~ (spreads.WAR_HORMUZ_VLCC.value|num) ~ " $/bbl</b> in war-risk premium for a VLCC.") }}
 
-{{ m.tables(spread_rows, prices, assumptions) }}
+{{ m.tables(spread_rows, prices, assumptions, load_date) }}
 
 <details>
   <summary>Method and limits</summary>
@@ -49,13 +49,14 @@
     <p><b>Delivery terms.</b> Crude and diesel into Rotterdam are sold CIF on the loaded quantity, so the transit loss is the buyer's. Crude into China and LNG are sold delivered, so the seller carries the loss and the boil-off. Products into New York are sold duty paid, so the importer pays the US duty and the RINs. The Houston crude future is priced in the terminal, so 0.35 $/bbl of terminal and dock fees is added to put the oil on the ship. That fee is an assumption.</p>
     <p><b>Freight.</b> A rate override wins when there is one, as a Worldscale rate, $/t, a lump sum or a TCE in $/day. Otherwise the voyage cost is TCE × round-trip days, plus fuel at VLSFO futures in Rotterdam or Singapore, port costs and canal tolls. Distances come from searoute.</p>
     <p><b>EU ETS.</b> Since 2026 owners surrender allowances for half the emissions of a voyage into or out of the EU, and all of them between EU ports. The cost is fuel burnt × 3.114 t CO2 per tonne × 50% × EUA. Charterparties pass it on, so it is added to freight on Rotterdam legs.</p>
-    <p><b>Curve.</b> The cargo is bought on today's price and sold for its arrival date. For crude and products the slope between the first two contracts is applied over the laden days. For JKM and TTF the contract of the arrival month is used. Backwardation is a cost and contango a gain.</p>
-    <p><b>Crude.</b> WTI delivered Rotterdam is valued off Dated Brent, since WTI Midland is in the Dated basket. Into China it competes with Murban delivered, which is Murban plus the Fujairah → Ningbo freight and war risk.</p>
-    <p><b>Products.</b> Gulf Coast ULSD is NYMEX ULSD plus the Gulf Coast up-down future. Diesel is 7.45 bbl/t and gasoline 8.45 bbl/t. The ICE gasoil curve is not available, so the NY Harbor ULSD curve stands in for distillate structure. US import duty is 52.5 c/bbl on gasoline and 10.5 c/bbl on distillate.</p>
-    <p><b>RINs.</b> The obligation per gallon is the 2026 EPA standards applied to RIN prices. That gives 9.08% of D6, 5.24% of D4, 0.79% of D3 and 0.39% of D5. RIN prices are typed in by hand and flagged when they get old. The export route shows what a refiner gains over a domestic sale. It is not a price at which a trader can buy.</p>
+    <p><b>Timing.</b> A cargo bought today loads in about 30 days. The purchase is priced for the loading day and the sale for the landing day, both read off the forward curve. A future is pinned to its expiry, where it meets the spot price. A monthly index or swap settles on the average of its month, so it is pinned to the 15th. Days in between are interpolated. Two prices therefore always refer to the cargo's own dates, and nothing steps when a front contract expires. Curve is the destination price at loading less the same price at landing, so backwardation is a cost and contango a gain.</p>
+    <p><b>Prices.</b> Each contract is taken at its last settlement and not at a live price, so every curve sits on the same evening. A contract that did not trade that day is moved by the change of the nearest one that did. Dated Brent and Eurobob swaps are thin. When a whole curve misses a session it is moved with Brent futures, and the prices table says so on its line.</p>
+    <p><b>Crude.</b> WTI delivered Rotterdam is valued off Dated Brent, since WTI Midland is in the Dated basket. Into China it competes with Murban loaded in Fujairah, outside Hormuz, and landed the same day. That ship is costed at the daily hire a VLCC earns on the Houston voyage. The Baltic rate from inside the Gulf carries a war premium a Fujairah cargo does not pay.</p>
+    <p><b>Products.</b> Gulf Coast ULSD is NYMEX ULSD plus the Gulf Coast up-down future, both for the loading day. Diesel is 7.45 bbl/t and gasoline 8.45 bbl/t. US import duty is 52.5 c/bbl on gasoline and 10.5 c/bbl on distillate.</p>
+    <p><b>RINs.</b> The obligation per gallon is the 2026 EPA standards applied to RIN prices. That gives 9.08% of D6, 5.24% of D4, 0.79% of D3 and 0.39% of D5. The standard is the one of the year the fuel is made or imported. RIN prices are typed in by hand and flagged when they get old. The export route shows what a refiner gains over a domestic sale. It is not a price at which a trader can buy.</p>
     <p><b>LNG.</b> The FOB cost is 1.15 × Henry Hub plus a 2.50 $/MMBtu tolling fee. The fee is sunk in the short run, so a US cargo only gets cancelled when the netback drops below 1.15 × Henry Hub. Boil-off is 0.10% a day on a 174k m³ carrier, and Panama tolls are 800 k$ for the round trip.</p>
     <p><b>Insurance.</b> Cargo insurance is 0.05% of the cargo value. The war-risk premium is a share of the hull value per voyage, spread over the cargo.</p>
-    <p><b>Limits.</b> These are futures, not physical assessments, so the premiums and discounts of real cargoes are missing. Front months do not all roll on the same day, so around an expiry two prices can be for different months. Default TCEs are rough and can be far off in a stressed market. Laytime, demurrage claims and quality claims are not modelled. US excise taxes on imported products are left out.</p>
+    <p><b>Limits.</b> These are futures, not physical assessments, so the premiums and discounts of real cargoes are missing. A closed arb here can still see ships fixed when a grade trades above its benchmark. The 30 days between the deal and loading are one assumption for every commodity. Thin contracts can carry an estimate, as said above. Default TCEs are rough and can be far off in a stressed market. Laytime, demurrage claims and quality claims are not modelled. US excise taxes on imported products are left out.</p>
   </div>
 </details>
 

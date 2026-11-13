@@ -34,7 +34,7 @@
     <tbody>
     {% for r in routes %}
       <tr>
-        <td><b>{{ r.route }}</b><span class="sub">{{ r.vessel }}{% if r.distance_nm %} · {{ r.distance_nm|num(0) }} nm{% endif %}{% if r.voyage_days %} · {{ r.voyage_days|num(0) }} d{% elif r.laden_days %} · {{ r.laden_days|num(0) }} d transit{% endif %}</span>{% if r.private_note %}<span class="sub priv" title="Freight source disclaimer">{{ r.private_note }}</span>{% endif %}</td>
+        <td><b>{{ r.route }}</b><span class="sub">{{ r.vessel }}{% if r.distance_nm %} · {{ r.distance_nm|num(0) }} nm{% endif %}{% if r.voyage_days %} · {{ r.voyage_days|num(0) }} d{% elif r.laden_days %} · {{ r.laden_days|num(0) }} d transit{% endif %}</span>{% if r.load_date %}<span class="sub">loads {{ r.load_date|day }}, lands {{ r.land_date|day }}</span>{% endif %}{% if r.private_note %}<span class="sub priv" title="Freight source disclaimer">{{ r.private_note }}</span>{% endif %}</td>
         <td><span class="pill {{ r.status|status_class }}">{{ r.status }}</span></td>
         {% set trade = r.status in ('Open', 'Marginal', 'Closed', 'Stale price') %}
         <td class="r {{ ('pos' if (r.margin or 0) > 0 else 'neg' if (r.margin or 0) < 0) if trade }}">{{ r.margin|with_unit(r.unit, trade) }}{% if r.status == 'Delivered' %}<span class="sub">delivered cost</span>{% elif r.status == 'Netback' %}<span class="sub">FOB netback</span>{% elif r.whose %}<span class="sub">{{ r.whose }}</span>{% endif %}</td>
@@ -106,9 +106,10 @@
 </section>
 {% endmacro %}
 
-{% macro tables(spread_rows, prices, assumptions) %}
+{% macro tables(spread_rows, prices, assumptions, load_date=None) %}
 <section id="spreads">
   <h2>Key spreads</h2>
+  {% if load_date %}<p class="note">Both sides of a spread are read for {{ load_date|day }}, the day a cargo bought today would load. Front months do not roll on the same day, so two front prices can sit a month apart.</p>{% endif %}
   <div class="scroll"><table>
     <thead><tr><th>Spread</th><th class="r">Value</th><th>Reading</th></tr></thead>
     <tbody>{% for s in spread_rows %}<tr><td>{{ s.label }}</td><td class="r {{ 'neg' if (s.value or 0) < 0 }}">{{ s.value|with_unit(s.unit, True) }}</td><td>{{ s.note }}</td></tr>{% endfor %}</tbody>
@@ -117,7 +118,7 @@
 
 <section id="prices">
   <h2>Prices used</h2>
-  <p class="note">Basis says what the quote includes. Two prices are only comparable once they sit on the same term.</p>
+  <p class="note">Basis says what the quote includes. Two prices are only comparable once they sit on the same term. Each line is the nearest contract of its curve, under its own name, at its last settlement. The routes do not use these front prices. They read each curve for the day the cargo loads or lands.</p>
   <div class="scroll"><table>
     <thead><tr><th>Contract</th><th>Basis</th><th>Symbol</th><th class="r">Price</th><th>Unit</th><th>Source</th><th>Date</th><th>Check</th></tr></thead>
     <tbody>{% for p in prices %}<tr><td>{{ p.label }}</td><td>{{ p.basis or '—' }}</td><td>{{ p.symbol }}</td><td class="r">{{ p.value|num(4 if p.unit in ('$/gal', '$/lb', 'USD per EUR') else 2) }}</td><td>{{ p.unit }}</td><td>{{ p.source }}{% if p.private_note %}<span class="sub priv">{{ p.private_note }}</span>{% endif %}</td><td class="src">{{ p.date }}</td><td><span class="pill {{ 'ok' if p.check == 'ok' else 'warn' }}">{{ p.check }}</span></td></tr>{% endfor %}</tbody>

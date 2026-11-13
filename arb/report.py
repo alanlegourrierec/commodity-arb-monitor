@@ -2,13 +2,13 @@
 
 import json
 from collections import OrderedDict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import plotly.graph_objects as go
 from plotly.offline import get_plotlyjs_version
 
-from .config import BBL_PER_TONNE, GAL_PER_BBL, LICENCE_NOTE, PRIVATE_NOTE, RFS_STANDARDS
+from .config import BBL_PER_TONNE, CURVES, GAL_PER_BBL, LICENCE_NOTE, PRIVATE_NOTE
 from jinja2 import Environment, FileSystemLoader, Undefined, select_autoescape
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -84,6 +84,15 @@ def pct(v, d=0):
 
 def kusd(v):
     return "—" if _bad(v) else f"{float(v) / 1000:,.1f} k$"
+
+
+def day(v):
+    """'2026-12-12' -> '12 Dec'."""
+    try:
+        d = date.fromisoformat(str(v)[:10])
+    except ValueError:
+        return "—"
+    return f"{d.day} {d:%b}"
 
 
 # ---- charts
@@ -407,13 +416,17 @@ def desk_cards(routes, desks):
 
 
 def rin_summary(snapshot, px):
-    """The RIN obligation in the units a products trader uses, or None when RIN prices are missing."""
-    note = next((a for a in snapshot["assumptions"] if a["key"] == "RVO"), None)
-    if not note:
+    """The RIN obligation in the units a products trader uses, or None when RIN prices are missing.
+
+    Around the new year an export cargo and an import cargo can fall under two standards. The page
+    shows the later one, which is the one an import landing in New York pays.
+    """
+    notes = sorted((a for a in snapshot["assumptions"] if a["key"].startswith("RVO_")), key=lambda a: a["key"])
+    if not notes:
         return None
+    note = notes[-1]
     per_gal = note["value"] / 100
-    year = min(max(int(snapshot["prices_asof"][:4]), min(RFS_STANDARDS)), max(RFS_STANDARDS))
-    return dict(cents=note["value"], year=year, date=px.get("RIN_D6", {}).get("date", ""),
+    return dict(cents=note["value"], year=int(note["key"][-4:]), date=px.get("RIN_D6", {}).get("date", ""),
                 gasoline=per_gal * BBL_PER_TONNE["gasoline"] * GAL_PER_BBL,
                 diesel=per_gal * BBL_PER_TONNE["diesel"] * GAL_PER_BBL)
 
@@ -421,7 +434,7 @@ def rin_summary(snapshot, px):
 def _env():
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=select_autoescape(["html"]))
     env.filters.update(num=num, signed=signed, with_unit=with_unit, musd=musd, tce=tce, status_class=status_class,
-                       pct=pct, kusd=kusd)
+                       pct=pct, kusd=kusd, day=day)
     return env
 
 
@@ -433,7 +446,8 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
     built = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     px = {p["key"]: p for p in snapshot["prices"]}
     common = dict(snap=snapshot, private=private, built=built, plotly_js=PLOTLY_JS, px=px, lb=2204.62, st=1.10231,
-                  private_note=PRIVATE_NOTE, licence_note=LICENCE_NOTE)
+                  private_note=PRIVATE_NOTE, licence_note=LICENCE_NOTE, fwd=snapshot.get("forward") or {},
+                  load_date=snapshot.get("load_date"))
     price_rows = lambda group: [p for p in snapshot["prices"] if p["key"] in snapshot["price_keys"][group]]
 
     # energy
@@ -497,7 +511,8 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
                    bulkers=_html(chokepoint_chart(fr["chokepoint_weeks"], "n_dry_bulk", "Bulk carriers")))
     html = env.get_template("freight.html").render(
         **common, page="freight", fr=fr, charts=fcharts, ideas=freight_ideas or [], hormuz=hormuz, td25=td25,
-        all_routes=routes + brows, prices=price_rows("freight"))
+        all_routes=routes + brows, prices=price_rows("freight"),
+        curve_labels={key: c["label"] for key, c in CURVES.items()})
     (out / "freight.html").write_text(html, encoding="utf-8")
 
     # commodity trade ideas

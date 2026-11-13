@@ -40,7 +40,8 @@ def test_brazil_pays_more_freight_than_australia(prices):
 def test_coal_japan_is_valued_off_newcastle_plus_freight(prices):
     result = bulk.evaluate(prices, {"NEWC_JAPAN": override(12.0, "$/t")})
     japan = by_id(result)["COAL_RB_JAPAN"]
-    assert japan["dest_price"] == pytest.approx(prices["NEWC"]["value"] + 12.0, abs=1e-3)
+    discount = BULK_PARAMS["COAL_SA_DISCOUNT_JAPAN"][0]
+    assert japan["dest_price"] == pytest.approx(prices["NEWC"]["value"] + 12.0 - discount, abs=1e-3)
     assert japan["margin"] == pytest.approx(japan["breakeven_freight"] - japan["freight"], abs=1e-3)
 
 

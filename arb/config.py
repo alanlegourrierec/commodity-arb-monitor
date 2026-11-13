@@ -151,9 +151,10 @@ CO2_PER_T_FUEL = 3.114      # t CO2 per t of VLSFO/HFO burnt
 CO2_PER_T_LNG = 2.75        # t CO2 per t of LNG burnt (boil-off as fuel), methane slip ignored
 LNG_T_PER_M3 = 0.45
 
-# Forward curves. `basis` says how a contract maps to a delivery date:
-#   delivery: the contract month is the delivery month (JKM, TTF, coal and iron ore indices)
-#   expiry:   price at a future date is interpolated along the expiries (crude and products futures)
+# Forward curves. `basis` says where a contract sits in time:
+#   delivery: a monthly index or swap, pinned to the middle of its month (JKM, TTF, coal, iron ore)
+#   expiry:   a future that meets the spot price when it expires (crude, products, LME and COMEX metals)
+# `follows` names the liquid curve a thin swap is moved with on a day it did not trade.
 CURVES = {
     "BRENT": dict(exchange="ICEEUR", root="BRN", basis="expiry", unit="$/bbl", label="Brent"),
     "WTI": dict(exchange="NYMEX", root="CL", basis="expiry", unit="$/bbl", label="WTI"),
@@ -167,19 +168,52 @@ CURVES = {
     "NEWC": dict(exchange="ICEEUR", root="NCF", basis="delivery", unit="$/t", label="Newcastle"),
     "IRON_ORE_62": dict(exchange="COMEX", root="TIO", basis="delivery", unit="$/dmt", label="Iron ore 62%"),
     "COKING_COAL": dict(exchange="SGX", root="ACF", basis="delivery", unit="$/t", label="PLV coking coal"),
-    "VLSFO_SG": dict(exchange="NYMEX", root="S5F", basis="delivery", unit="$/t", label="VLSFO Singapore"),
+    "VLSFO_SG": dict(exchange="NYMEX", root="S5F", basis="delivery", unit="$/t", label="VLSFO Singapore",
+                     follows="BRENT"),
     "EUA": dict(exchange="ICEENDEX", root="ECF", basis="expiry", unit="EUR/t", label="EUA"),
+    "WTI_HOUSTON": dict(exchange="ICEEUR", root="HOU", basis="expiry", unit="$/bbl", label="WTI Houston"),
+    "DATED_BRENT": dict(exchange="NYMEX", root="AUB", basis="delivery", unit="$/bbl", label="Dated Brent",
+                        follows="BRENT"),
+    "MURBAN": dict(exchange="ICEAD", root="ADM", basis="delivery", unit="$/bbl", label="Murban"),
+    "GASOIL_ICE": dict(exchange="ICEEUR", root="ULS", basis="expiry", unit="$/t", label="ICE gasoil"),
+    "EUROBOB": dict(exchange="NYMEX", root="B7H", basis="delivery", unit="$/t", label="Eurobob", follows="BRENT"),
+    "ULSD_USGC_UPDOWN": dict(exchange="NYMEX", root="LT", basis="delivery", unit="$/gal", label="Gulf Coast ULSD up-down",
+                             hidden=True),
+    "HRC_US": dict(exchange="COMEX", root="HRC", basis="delivery", unit="$/st", label="US Midwest HRC"),
+    # Read for a cargo's dates only, and left off the curve tables.
+    "HRC_NWE": dict(exchange="LME", root="HN", basis="delivery", unit="$/t", label="HRC NW Europe", hidden=True),
+    "HRC_CHINA": dict(exchange="LME", root="HC", basis="delivery", unit="$/t", label="HRC FOB China", hidden=True),
+    "LME_COPPER": dict(exchange="LME", root="CA", basis="expiry", unit="$/t", label="LME copper", hidden=True),
+    "COMEX_COPPER": dict(exchange="COMEX", root="HG", basis="expiry", unit="$/lb", label="COMEX copper", hidden=True),
+    "LME_ALU": dict(exchange="LME", root="AH", basis="expiry", unit="$/t", label="LME aluminium", hidden=True),
+    "MIDWEST_PREMIUM": dict(exchange="COMEX", root="AUP", basis="delivery", unit="$/lb",
+                            label="US Midwest aluminium premium", hidden=True),
+    "JAPAN_PREMIUM": dict(exchange="COMEX", root="MJP", basis="delivery", unit="$/t",
+                          label="Japan aluminium premium", hidden=True),
+    "ALU_DUP_RDM": dict(exchange="COMEX", root="AEP", basis="delivery", unit="$/t",
+                        label="Rotterdam duty-unpaid aluminium premium", hidden=True),
+    "INDO_4200": dict(exchange="SGX", root="M42F", basis="delivery", unit="$/t", label="Indonesian 4,200 GAR", hidden=True),
+    "DE_POWER": dict(exchange="EEX", root="DEBM", basis="delivery", unit="EUR/MWh", label="German power base", hidden=True),
+    "VLSFO_RDM": dict(exchange="NYMEX", root="R5F", basis="delivery", unit="$/t", label="VLSFO Rotterdam", hidden=True,
+                      follows="BRENT"),
 }
 CURVE_DEPTH = 7     # contracts fetched per curve
+# Curve that prices a benchmark, when its key differs from the curve's.
+PRICE_CURVE = {"WTI_CUSHING": "WTI", "ULSD_NYH": "HO", "TTF_EUR": "TTF"}
+
+# A cargo bought today loads in about a month. Every price is read off its forward curve for the day
+# the cargo loads or lands, so two prices always refer to the same moment and nothing jumps when a
+# front contract expires.
+LOAD_LEAD_DAYS = 30
 
 ROUTES = [
-    dict(id="CRUDE_USGC_NWE", family="Crude", leg="TD25", density="wti", curve="BRENT",
+    dict(id="CRUDE_USGC_NWE", family="Crude", leg="TD25", density="wti", curve="DATED_BRENT",
          name="WTI Houston → Rotterdam", unit="$/bbl", threshold=0.50,
          buy="In terminal, Houston", sell=("CIF", "Rotterdam")),
-    dict(id="CRUDE_USGC_ASIA", family="Crude", leg="TD22", density="wti", curve="BRENT",
+    dict(id="CRUDE_USGC_ASIA", family="Crude", leg="TD22", density="wti", curve="MURBAN",
          name="WTI Houston → Ningbo", unit="$/bbl", threshold=0.50,
          buy="In terminal, Houston", sell=("DAP", "Ningbo")),
-    dict(id="DIESEL_USGC_NWE", family="Products", leg="TC14", density="diesel", curve="HO",
+    dict(id="DIESEL_USGC_NWE", family="Products", leg="TC14", density="diesel", curve="GASOIL_ICE",
          name="ULSD Houston → Rotterdam", unit="$/t", threshold=5.0,
          buy="FOB Houston, export cargo", sell=("CIF", "Rotterdam"), rvo="export",
          whose="for a refiner that exports"),
@@ -209,6 +243,7 @@ METAL_LEGS = {
 BULK_PARAMS = {
     "IRON_ORE_MOISTURE": (0.08, "% of weight", "Iron ore moisture (freight is paid on wet tonnes)"),
     "COAL_MISC": (0.5, "$/t", "Coal inspection, agency and misc"),
+    "COAL_SA_DISCOUNT_JAPAN": (5.0, "$/t", "Discount South African coal gives to Newcastle coal in Japan"),
     "LOSSES_BULK": (0.003, "% of volume", "Transit and handling loss, dry bulk"),
     "LME_LOADOUT": (50.0, "$/t", "LME warehouse load-out and delivery to port"),
     "COPPER_FREIGHT_US": (90.0, "$/t", "Cathode freight Rotterdam → US East Coast"),
@@ -247,6 +282,7 @@ BULK_PARAMS = {
 }
 BULK_PARAM_SOURCES = {
     "LOSSES_BULK": "Assumption, inside the 0.5% weight tolerance usual in coal contracts",
+    "COAL_SA_DISCOUNT_JAPAN": "Assumption. Japanese utilities are built around Australian coal and pay less for other origins",
     "HRC_FOBBING_EU": "Assumption. The European coil index is ex-works, not FOB",
     "COPPER_US_TARIFF": "Cathodes exempt from the Aug 2025 Section 232 copper tariff (check)",
     "ALU_US_TARIFF": "Section 232 rate since June 2025 (check)",

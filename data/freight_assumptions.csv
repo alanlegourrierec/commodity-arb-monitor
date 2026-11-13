@@ -1,10 +1,10 @@
 type,key,label,unit,value,ws_flat_rate,date,source,comment
-freight,TD25,Aframax 70kt Houston → Rotterdam,$/day,,,,,"Units: WS (with ws_flat_rate), $/t, $/voyage or $/day (TCE)"
-freight,TD22,VLCC 270kt USGC → China,$/voyage,,,,,TD22 is assessed as a lump sum
-freight,TD3C,VLCC 270kt MEG → China,$/day,,,,,Used for Murban delivered China
-freight,TC14,MR 38kt USGC → NWE,$/day,,,,,
-freight,TC2,MR 37kt NWE → USAC,$/day,,,,,Gasoline and gasoil to New York
-freight,LNG_ATL,LNG carrier Atlantic spot,$/day,25750,,2026-10-06,"Spark Commodities via Oil & Gas Journal","Atlantic two-stroke spot, Pacific was 39,000"
+freight,TD25,Aframax 70kt Houston → Rotterdam,$/day,107500,,2026-11-06,"Baltic Exchange tanker report, week 45","WS 399, about 107,500 $/day round trip"
+freight,TD22,VLCC 270kt USGC → China,$/voyage,58000000,,2026-11-06,"Baltic Exchange tanker report, week 45","Lump sum just below 58 M$, TCE just below 451,000 $/day"
+freight,TD3C,VLCC 270kt MEG → China,$/day,1303616,,2026-11-06,"Baltic Exchange tanker report, week 45","WS 1,220.63, loaded inside Hormuz. For reference, a Fujairah cargo is costed at the TD22 hire"
+freight,TC14,MR 38kt USGC → NWE,$/day,60800,,2026-11-06,"Baltic Exchange tanker report, week 45",WS 429
+freight,TC2,MR 37kt NWE → USAC,$/day,13600,,2026-11-06,"Baltic Exchange tanker report, week 45",WS 206. Gasoline and gasoil to New York
+freight,LNG_ATL,LNG carrier Atlantic spot,$/day,25750,,2026-10-06,Spark Commodities via Oil & Gas Journal,"Atlantic two-stroke spot, Pacific was 39,000"
 price,EUROBOB,Eurobob oxy NWE barges,$/t,,,,,Needed for the gasoline arb
 price,VLSFO,VLSFO Rotterdam,$/t,,,,,Empty: Brent x 7.33 proxy
 price,ULSD_USGC_DIFF,Gulf Coast ULSD vs NYMEX HO,c/gal,,,,,Empty: -10 c/gal

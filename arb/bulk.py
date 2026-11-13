@@ -26,13 +26,16 @@ decides that trade. Aluminium in Rotterdam also fetches its own premium
 counted as a cost.
 """
 
-from .calc import Context, breakeven_tce, delay_cost, leg_freight, status, time_spread
-from .config import BULK_PARAM_SOURCES, BULK_PARAMS, BULK_ROUTES, LB_PER_TONNE, METAL_LEGS, ST_PER_TONNE
+from datetime import timedelta
+
+from .calc import Context, breakeven_tce, delay_cost, leg_freight, status, timing
+from .config import (BULK_PARAM_SOURCES, BULK_PARAMS, BULK_ROUTES, LB_PER_TONNE, LOAD_LEAD_DAYS, METAL_LEGS,
+                     ST_PER_TONNE)
 from .terms import covers
 
 
-def _param(ctx, key):
-    return ctx.param(key, BULK_PARAMS, BULK_PARAM_SOURCES, scope="Bulk")
+def _param(ctx, key, days=0):
+    return ctx.param(key, BULK_PARAMS, BULK_PARAM_SOURCES, scope="Bulk", days=days)
 
 
 def cbam_per_tonne(ctx):
@@ -59,7 +62,7 @@ def _voyage_row(ctx, route):
     row = _row(route, v["leg"]["name"], v["leg"]["distance_nm"], v["leg"]["vessel"])
     row.update(freight=freight["per_tonne"], freight_source=freight["source"], ets=freight["ets_per_tonne"],
                tce_used=freight["tce"], voyage_days=v["total_days"], laden_days=v["laden_days"],
-               cargo_label=f"{freight['cargo_t'] / 1000:.0f} kt")
+               cargo_label=f"{freight['cargo_t'] / 1000:.0f} kt", **timing(ctx, v["laden_days"])[2])
     return row, freight
 
 
@@ -67,16 +70,17 @@ def iron_ore(ctx, route):
     freight = leg_freight(ctx, route["leg"])
     voyage = freight["voyage"]
     row = _row(route, voyage["leg"]["name"], voyage["leg"]["distance_nm"], voyage["leg"]["vessel"])
-    cfr = ctx.price("IRON_ORE_62")
+    load, land, dates = timing(ctx, voyage["laden_days"])
+    cfr, landed = ctx.at("IRON_ORE_62", load), ctx.at("IRON_ORE_62", land)
     moisture = _param(ctx, "IRON_ORE_MOISTURE")
     per_dmt = freight["per_tonne"] / (1 - moisture)      # freight is paid per wet tonne
     row.update(freight=per_dmt, freight_wmt=freight["per_tonne"], freight_source=freight["source"],
                tce_used=freight["tce"], voyage_days=voyage["total_days"], laden_days=voyage["laden_days"],
-               cargo_label="170 kt")
+               cargo_label="170 kt", **dates)
     if cfr is None:
         row.update(status="Missing price")
         return row
-    structure, _ = time_spread(ctx, "IRON_ORE_62", voyage["laden_days"])
+    structure = cfr - landed                             # the index is taken for the month the cargo lands
     netback = cfr - per_dmt - structure                  # sold CFR, so the buyer insures the cargo
     dry = freight["cargo_t"] * (1 - moisture)
     row.update(dest_price=cfr, insurance=0.0, netback=netback, margin=netback, status="Netback",
@@ -94,18 +98,23 @@ def coal(ctx, route):
     row.update(freight=freight["per_tonne"], freight_source=freight["source"], tce_used=freight["tce"],
                ets=freight["ets_per_tonne"], voyage_days=voyage["total_days"], laden_days=voyage["laden_days"],
                cargo_label=f"{cargo / 1000:.0f} kt")
-    api4 = ctx.price("API4")
+    load, land, dates = timing(ctx, voyage["laden_days"])
+    row.update(dates)
+    api4 = ctx.at("API4", load)
     if route["id"] == "COAL_RB_NWE":
-        dest = ctx.price("API2")
+        dest_at = lambda day: ctx.at("API2", day)
         curve = "API2"
         row["dest_note"] = "API2 CIF ARA"
     else:
-        newc = ctx.price("NEWC")
+        # Japan buys Newcastle coal. A Richards Bay cargo has to match it delivered, less a quality discount.
         curve = "NEWC"
         ref = leg_freight(ctx, "NEWC_JAPAN")
-        dest = None if newc is None else newc + ref["per_tonne"]
-        row["dest_note"] = f"NEWC + Newcastle → Japan freight ({ref['per_tonne']:.2f} $/t)"
-        row["competitor_freight"] = ref["per_tonne"]
+        discount = _param(ctx, "COAL_SA_DISCOUNT_JAPAN")
+        dest_at = lambda day: None if ctx.at("NEWC", day) is None else ctx.at("NEWC", day) + ref["per_tonne"] - discount
+        row["dest_note"] = (f"NEWC + Newcastle → Japan freight ({ref['per_tonne']:.2f} $/t) "
+                            f"less a {discount:.0f} $/t quality discount")
+        row.update(competitor_freight=ref["per_tonne"], quality_discount=discount)
+    dest, landed = dest_at(load), dest_at(land)
     if api4 is None or dest is None:
         row.update(status="Missing price", origin_price=api4, dest_price=dest)
         return row
@@ -118,7 +127,7 @@ def coal(ctx, route):
         other += cargo_insurance
     if covers(term, "DAP"):
         other += losses
-    structure, _ = time_spread(ctx, curve, voyage["laden_days"])
+    structure = dest - landed
     margin = dest - api4 - freight["per_tonne"] - other - structure
     breakeven = dest - api4 - other - structure
     row.update(origin_price=api4, buy_price=api4, dest_price=dest,
@@ -132,29 +141,38 @@ def coal(ctx, route):
 
 
 def metal(ctx, route):
+    """Metal taken out of an LME warehouse in Rotterdam and sold on a premium at destination.
+
+    The metal is paid at the LME price of the day it loads and sold at the price of the day it lands.
+    """
     leg = METAL_LEGS[route["leg"]]
     row = _row(route, leg["name"], leg["distance_nm"], "Container / breakbulk")
     rid = route["id"]
+    load, land, dates = timing(ctx, leg["transit_days"])
     if rid == "COPPER_LME_COMEX":
-        lme, comex = ctx.price("LME_COPPER"), ctx.price("COMEX_COPPER")
-        gross = None if lme is None or comex is None else comex * LB_PER_TONNE - lme
+        lme = ctx.at("LME_COPPER", load)
+        comex = lambda day: ctx.at("COMEX_COPPER", day)
+        dest_at = lambda day: None if lme is None or comex(day) is None else comex(day) * LB_PER_TONNE - lme
         freight = _param(ctx, "COPPER_FREIGHT_US")
         tariff_rate = _param(ctx, "COPPER_US_TARIFF")
         row["dest_note"] = "COMEX - LME spread"
     elif rid == "ALU_LME_MIDWEST":
-        lme, mwp = ctx.price("LME_ALU"), ctx.price("MIDWEST_PREMIUM")
-        gross = None if mwp is None else mwp * LB_PER_TONNE      # Midwest premium is quoted in $/lb
+        lme = ctx.at("LME_ALU", load)
+        mwp = lambda day: ctx.at("MIDWEST_PREMIUM", day)            # quoted in $/lb
+        dest_at = lambda day: None if mwp(day) is None else mwp(day) * LB_PER_TONNE
         freight = _param(ctx, "ALU_FREIGHT_US")
         tariff_rate = _param(ctx, "ALU_US_TARIFF")
         row["dest_note"] = "US Midwest duty-paid premium"
     else:
-        lme, gross = ctx.price("LME_ALU"), ctx.price("JAPAN_PREMIUM")
+        lme = ctx.at("LME_ALU", load)
+        dest_at = lambda day: ctx.at("JAPAN_PREMIUM", day)
         freight = _param(ctx, "ALU_FREIGHT_JAPAN")
         tariff_rate = 0.0
         row["dest_note"] = "Japan premium (MJP)"
-    origin = _param(ctx, "ALU_ORIGIN_PREMIUM") if rid.startswith("ALU") else 0.0
+    origin = _param(ctx, "ALU_ORIGIN_PREMIUM", load) if rid.startswith("ALU") else 0.0
+    gross, landed = dest_at(load), dest_at(land)
     row.update(freight=freight, freight_source="Assumption", voyage_days=leg["transit_days"],
-               cargo_label="per tonne")
+               laden_days=leg["transit_days"], cargo_label="per tonne", **dates)
     if lme is None or gross is None:
         row.update(status="Missing price", dest_price=gross)
         return row
@@ -162,13 +180,14 @@ def metal(ctx, route):
     tariff = tariff_rate * lme
     financing = lme * ctx.param("FINANCING_RATE") * leg["transit_days"] / 360
     insurance = ctx.param("CARGO_INSURANCE") * lme
+    structure = gross - landed
     costs = dict(origin_premium=origin, freight=freight, tariff=tariff, loadout=loadout, financing=financing,
                  insurance=insurance)
-    margin = gross - sum(costs.values())
+    margin = gross - sum(costs.values()) - structure
     # The ladder runs in premium over LME: what the metal fetches where it sits, then each cost on top.
     row.update(origin_price=lme, dest_price=gross, gross=gross, **costs, margin=margin, over_lme=True,
-               buy_price=origin, fobbing=loadout, fobbing_note="warehouse load-out", cargo_insurance=insurance,
-               seller_costs=financing, status=status(margin, route["threshold"]),
+               time_spread=structure, buy_price=origin, fobbing=loadout, fobbing_note="warehouse load-out",
+               cargo_insurance=insurance, seller_costs=financing, status=status(margin, route["threshold"]),
                breakeven_freight=margin + freight, delay_day=lme * ctx.param("FINANCING_RATE") / 360,
                pnl_musd=margin * 1000 / 1e6)   # per 1,000 t parcel
     return row
@@ -177,7 +196,7 @@ def metal(ctx, route):
 def coking_coal(ctx, route):
     """Delivered cost of PLV coking coal: there is no public CFR index to trade against."""
     row, freight = _voyage_row(ctx, route)
-    fob = ctx.price("COKING_COAL")
+    fob = ctx.at("COKING_COAL", timing(ctx, 0)[0])
     row.update(status="Delivered", dest_note="PLV FOB Australia + freight")
     if fob is None:
         row.update(status="Missing price")
@@ -202,7 +221,7 @@ def india_fuel(ctx, routes):
     rows = []
     for route in routes:
         row, freight = _voyage_row(ctx, route)
-        fob = ctx.price(route["fuel"])
+        fob = ctx.at(route["fuel"], timing(ctx, 0)[0])
         mkcal = _param(ctx, cv_key[route["fuel"]]) / 1000         # million kcal per tonne
         row.update(fuel=route["fuel"], mkcal_per_t=mkcal, dest_note="Delivered West India, duty paid")
         if fob is None:
@@ -249,18 +268,22 @@ def steel(ctx, route):
     """Landed cost of imported HRC against the local price. Flat breakbulk freight, no voyage model."""
     row = _row(route, "", None, "Breakbulk")
     rid = route["id"]
+    load, land, dates = timing(ctx, route["transit_days"])
+    row.update(dates)
+    landed = None
     if rid == "HRC_EU_US":
-        mill = ctx.price("HRC_NWE")                      # ex-works, so the coil still has to reach the ship
-        local = ctx.price("HRC_US")
-        local = None if local is None else local * ST_PER_TONNE        # CME HRC is quoted per short ton
+        mill = ctx.at("HRC_NWE", load)                   # ex-works, so the coil still has to reach the ship
+        local, landed = ctx.at("HRC_US", load), ctx.at("HRC_US", land)
+        if local is not None:                            # CME HRC is quoted per short ton
+            local, landed = local * ST_PER_TONNE, landed * ST_PER_TONNE
         fobbing = _param(ctx, "HRC_FOBBING_EU")
         freight = _param(ctx, "HRC_FREIGHT_EU_US")
         duty_rate, cbam = _param(ctx, "US_STEEL_TARIFF"), 0.0
         discount = _param(ctx, "US_IMPORT_DISCOUNT_HRC")
         row["dest_note"] = "US Midwest HRC (CRU), converted to $/t"
     else:
-        mill = ctx.price("HRC_CHINA")
-        local = ctx.price("HRC_NWE")
+        mill = ctx.at("HRC_CHINA", load)
+        local, landed = ctx.at("HRC_NWE", load), ctx.at("HRC_NWE", land)
         fobbing = 0.0
         freight = _param(ctx, "HRC_FREIGHT_CN_EU")
         duty_rate = _param(ctx, "EU_AD_CHINA_HRC")
@@ -279,12 +302,13 @@ def steel(ctx, route):
     financing = fob * ctx.param("FINANCING_RATE") * route["transit_days"] / 360
     # The EU charges duty on the CIF value, the US on the FOB value.
     duty = duty_rate * (fob + freight + insurance if rid != "HRC_EU_US" else fob)
-    landed = fob + freight + insurance + duty + cbam
-    margin = local - discount - landed - financing
-    row.update(origin_price=mill, buy_price=mill, dest_price=local, fobbing=fobbing,
+    cost = fob + freight + insurance + duty + cbam
+    structure = 0.0 if landed is None else local - landed        # the sale is priced for the month it lands
+    margin = local - discount - cost - financing - structure
+    row.update(origin_price=mill, buy_price=mill, dest_price=local, time_spread=structure, fobbing=fobbing,
                fobbing_note="mill to port" if fobbing else None, insurance=insurance, cargo_insurance=insurance,
                duty=duty, duty_note="Section 232 tariff" if rid == "HRC_EU_US" else None, cbam=cbam,
-               delivered=landed, import_discount=discount, financing=financing,
+               delivered=cost, import_discount=discount, financing=financing,
                seller_costs=financing, margin=margin, status=status(margin, route["threshold"]),
                breakeven_freight=margin + freight, delay_day=fob * ctx.param("FINANCING_RATE") / 360,
                pnl_musd=margin * 1000 / 1e6)
@@ -308,9 +332,14 @@ def steel_margins(ctx):
 
 
 def power(ctx):
-    """German clean dark and clean spark spreads (EUR/MWh) and the coal-to-gas switching EUA price."""
-    p = ctx.price
-    api2, ttf, eua, fx, pw = p("API2"), p("TTF_EUR"), p("EUA"), p("EURUSD"), p("DE_POWER")
+    """German clean dark and clean spark spreads (EUR/MWh) and the coal-to-gas switching EUA price.
+
+    Power, gas, coal and carbon are all read for the middle of next month, the first full month ahead.
+    """
+    first = (ctx.today.replace(day=1) + timedelta(days=32)).replace(day=15)
+    day = (first - ctx.today).days
+    p = lambda key: ctx.at(key, day)
+    api2, ttf, eua, fx, pw = p("API2"), p("TTF_EUR"), p("EUA"), ctx.price("EURUSD"), p("DE_POWER")
     if None in (api2, ttf, eua, fx):
         return None
     coal_eff, gas_eff = _param(ctx, "COAL_PLANT_EFF"), _param(ctx, "CCGT_EFF")
@@ -318,9 +347,9 @@ def power(ctx):
     gas_fuel = ttf / gas_eff
     coal_co2 = _param(ctx, "COAL_CO2") / coal_eff                              # t CO2 per MWh of power
     gas_co2 = _param(ctx, "GAS_CO2") / gas_eff
-    out = dict(eua=eua, power=pw, coal_fuel=coal_fuel, gas_fuel=gas_fuel, coal_carbon=coal_co2 * eua,
-               gas_carbon=gas_co2 * eua, coal_cost=coal_fuel + coal_co2 * eua, gas_cost=gas_fuel + gas_co2 * eua,
-               switch_eua=(gas_fuel - coal_fuel) / (coal_co2 - gas_co2))
+    out = dict(eua=eua, power=pw, month=first.strftime("%B %Y"), coal_fuel=coal_fuel, gas_fuel=gas_fuel,
+               coal_carbon=coal_co2 * eua, gas_carbon=gas_co2 * eua, coal_cost=coal_fuel + coal_co2 * eua,
+               gas_cost=gas_fuel + gas_co2 * eua, switch_eua=(gas_fuel - coal_fuel) / (coal_co2 - gas_co2))
     if pw is not None:
         out.update(dark=pw - out["coal_cost"], spark=pw - out["gas_cost"])
     out["cheaper"] = "coal" if out["coal_cost"] < out["gas_cost"] else "gas"
@@ -328,8 +357,9 @@ def power(ctx):
 
 
 def spreads(ctx, rows):
+    """Key spreads, both sides read for the day a cargo bought today would load."""
     by_id = {r["route_id"]: r for r in rows}
-    p = ctx.price
+    p = lambda key: ctx.at(key, LOAD_LEAD_DAYS)
     out = []
 
     def add(key, label, value, unit, note=""):

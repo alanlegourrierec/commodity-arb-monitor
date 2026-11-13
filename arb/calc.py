@@ -13,21 +13,25 @@ TCE $/day), otherwise from a simple round-voyage model:
 
     voyage cost = TCE x round-trip days + bunkers + port costs + canal
 
-EU ETS allowances are added on legs that touch an EU port. The time spread is
-what the forward curve takes away (backwardation) or adds (contango) between
-loading and delivery: the cargo is bought on today's price and sold on the
-price for its arrival date.
+EU ETS allowances are added on legs that touch an EU port.
+
+Timing. A cargo bought today loads in about a month and lands a voyage later.
+Each price is read off its own forward curve for one of those two days, so the
+purchase and the sale never mix contract months and nothing jumps when a front
+contract expires. The time spread is what the destination curve takes away
+(backwardation) or adds (contango) while the cargo is at sea.
 """
 
 from datetime import date, datetime, timedelta
 
 from .config import (ADJUSTMENTS, BBL_PER_TONNE, BBL_PER_TONNE_GENERIC, CO2_PER_T_FUEL, CO2_PER_T_LNG, CURVES,
                      EAST_LEGS, FEEDS, FREIGHT_KEY, GAL_PER_BBL, HULL_SOURCES, LEGS, LNG_FILL, LNG_T_PER_M3,
-                     MMBTU_PER_M3_LNG, MWH_PER_MMBTU, PARAM_SOURCES, PARAMS, RFS_STANDARDS, ROUTES, STALE_DAYS,
-                     VESSELS)
+                     LOAD_LEAD_DAYS, MMBTU_PER_M3_LNG, MWH_PER_MMBTU, PARAM_SOURCES, PARAMS, PRICE_CURVE,
+                     RFS_STANDARDS, ROUTES, STALE_DAYS, VESSELS)
+from .prices import contract_month
 from .terms import covers
 
-MONTH_CODES = "FGHJKMNQUVXZ"
+LEFT_END_DAYS = 7      # an expired future still anchors the curve this long
 
 
 class Context:
@@ -47,7 +51,7 @@ class Context:
             return self.overrides[key]["value"]
         return None
 
-    def param(self, key, table=PARAMS, sources=PARAM_SOURCES, scope="Global"):
+    def param(self, key, table=PARAMS, sources=PARAM_SOURCES, scope="Global", days=0):
         """Assumption value: an override wins, then a live market feed, then the default."""
         value, unit, label = table[key]
         source = sources.get(key, "Model default")
@@ -58,7 +62,7 @@ class Context:
             source = f"{o['source'] or 'Override'} ({o['date'] or 'no date'})"
         elif feed and feed[0] in self.prices:
             p = self.prices[feed[0]]
-            value = p["value"] * feed[1]
+            value = self.at(feed[0], days) * feed[1]
             source = f"{p.get('source', 'Market')} {p.get('symbol', '')} ({p.get('date', '')})".strip()
         shown = value * 100 if unit.startswith("%") else value
         self.note(scope, key, label, shown, unit, source)
@@ -70,22 +74,22 @@ class Context:
         except (TypeError, ValueError):
             return None
 
-    def adjustment(self, key):
-        return self.param(key, ADJUSTMENTS)
+    def adjustment(self, key, days=0):
+        return self.param(key, ADJUSTMENTS, days=days)
 
     def note(self, scope, key, label, value, unit, source):
         if not any(a["scope"] == scope and a["key"] == key for a in self.assumptions):
             self.assumptions.append(dict(scope=scope, key=key, label=label, value=round(value, 6),
                                          unit=unit, source=source))
 
-    def bunker_price(self, hub="RDM"):
+    def bunker_price(self, hub="RDM", days=0):
         if "VLSFO" in self.overrides:
             o = self.overrides["VLSFO"]
             self.note("Global", "VLSFO", "VLSFO bunker price", o["value"], "$/t", f"{o['source']} ({o['date']})")
             return o["value"]
         key = f"VLSFO_{hub}"
         if self.price(key) is not None:
-            return self.price(key)
+            return self.at(key, days)
         brent = self.price("BRENT")
         value = brent * BBL_PER_TONNE_GENERIC * self.param("VLSFO_BRENT_RATIO")
         self.note("Global", "VLSFO", "VLSFO bunker price (Brent proxy)", value, "$/t", "Brent proxy")
@@ -96,27 +100,56 @@ class Context:
         return age is not None and age > (max_days or STALE_DAYS)
 
     def eua_usd(self):
-        eua, fx = self.price("EUA"), self.price("EURUSD")
+        eua, fx = self.at("EUA", LOAD_LEAD_DAYS), self.price("EURUSD")
         if eua is None or fx is None:
             return 0.0
         return eua * fx
 
-    def forward(self, key, days):
-        """(front, price for a cargo arriving in `days`) on curve `key`, or None without a curve."""
-        curve = self.curves.get(key)
-        if not curve or len(curve) < 2:
-            return None
-        front = curve[0]["close"]
-        if CURVES[key]["basis"] == "delivery":
-            arrival = self.today + timedelta(days=days)
-            target = (arrival.year, arrival.month)
-            months = [((int(c["contract"][-4:]), MONTH_CODES.index(c["contract"][-5]) + 1), c["close"]) for c in curve]
-            if target <= months[0][0]:
-                return front, front
-            return front, next((close for ym, close in months if ym == target), months[-1][1])
-        e0, e1 = (datetime.strptime(c["expiry"], "%Y-%m-%d").date() for c in curve[:2])
-        slope = (curve[1]["close"] - front) / max((e1 - e0).days, 1)
-        return front, front + slope * days
+    def at(self, key, days):
+        """Price of `key` for a cargo `days` from today, read off its forward curve.
+
+        Each contract is pinned to a date and the days in between are interpolated, so the price for a
+        given day does not step when a front contract expires. A benchmark without a curve keeps its
+        front price.
+        """
+        name = PRICE_CURVE.get(key, key)
+        points = self.points(name) if name in CURVES else []
+        if not points:
+            return self.price(key)
+        target = self.today + timedelta(days=days)
+        if target <= points[0][0]:
+            return points[0][1]
+        for (d0, p0), (d1, p1) in zip(points, points[1:]):
+            if target <= d1:
+                return p0 + (p1 - p0) * (target - d0).days / max((d1 - d0).days, 1)
+        return points[-1][1]
+
+    def points(self, name):
+        """(date, price) along a curve, nearest first.
+
+        A future meets the spot price when it expires, so it is pinned to its expiry. A monthly index
+        or swap settles on the average of its month, so it is pinned to the 15th, and it still prices
+        cargoes of that month after it stops trading. In both cases the last contract behind today
+        stays as the left end, so nothing moves on the day it drops out.
+        """
+        rows = sorted(self.curves.get(name) or [], key=lambda c: c["expiry"])
+        if CURVES[name]["basis"] == "delivery":
+            months = sorted({contract_month(c["contract"]): c["close"] for c in rows}.items())
+            ahead = [i for i, (month, _) in enumerate(months) if month >= (self.today.year, self.today.month)]
+            first = max(ahead[0] - 1, 0) if ahead else len(months)      # one past month as the left end
+            return [(date(y, m, 15), price) for (y, m), price in months[first:]]
+        today = self.today.isoformat()
+        recent = (self.today - timedelta(days=LEFT_END_DAYS)).isoformat()
+        past = [c for c in rows if recent <= c["expiry"] < today][-1:]
+        return [(date.fromisoformat(c["expiry"]), c["close"]) for c in past + [c for c in rows if c["expiry"] >= today]]
+
+
+def timing(ctx, laden_days):
+    """Days from today to loading and to landing, plus both dates for the page."""
+    load = LOAD_LEAD_DAYS
+    land = load + laden_days
+    day = lambda n: (ctx.today + timedelta(days=round(n))).isoformat()
+    return load, land, dict(load_date=day(load), land_date=day(land))
 
 
 def ets_cost(ctx, leg, ship, sea_days):
@@ -140,7 +173,7 @@ def round_voyage(ctx, leg_id, tce=None):
     total_days = sea_days + ship["port_days"]
     tce = ship["default_tce"] if tce is None else tce
     hub = "SG" if leg_id in EAST_LEGS else "RDM"
-    bunker_price = ctx.bunker_price(hub)
+    bunker_price = ctx.bunker_price(hub, LOAD_LEAD_DAYS)      # fuel is bought when the ship loads
     fuel_t = ship["fuel_t_day"] * sea_days
     bunkers = fuel_t * bunker_price
     ets = ets_cost(ctx, leg, ship, sea_days)
@@ -207,18 +240,13 @@ def breakeven_tce(breakeven_per_tonne, freight):
     return (breakeven_per_tonne * freight["cargo_t"] - v["fixed"] - v["ets"]) / v["total_days"]
 
 
-def time_spread(ctx, curve_key, days, factor=1.0):
-    """What the curve costs between loading and arrival, in route units (positive = backwardation)."""
-    fwd = ctx.forward(curve_key, days) if curve_key else None
-    if fwd is None:
-        return 0.0, None
-    front, later = fwd
-    return (front - later) * factor, later
+def rvo_per_gallon(ctx, days=0):
+    """RINs an obligated party retires for a gallon of gasoline or diesel, in $/gal. None without RIN prices.
 
-
-def rvo_per_gallon(ctx):
-    """RINs an obligated party retires for a gallon of gasoline or diesel, in $/gal. None without RIN prices."""
-    year = min(max(ctx.today.year, min(RFS_STANDARDS)), max(RFS_STANDARDS))
+    The standard is the one of the year the fuel is produced or imported, `days` from today.
+    """
+    year = (ctx.today + timedelta(days=round(days))).year
+    year = min(max(year, min(RFS_STANDARDS)), max(RFS_STANDARDS))
     std = RFS_STANDARDS[year]
     rins = [ctx.price(k) for k in ("RIN_D6", "RIN_D3", "RIN_D4", "RIN_D5")]
     if None in rins:
@@ -228,7 +256,7 @@ def rvo_per_gallon(ctx):
     other_advanced = std["advanced"] - std["bbd"] - std["cellulosic"]
     value = conventional * d6 + std["cellulosic"] * d3 + std["bbd"] * d4 + other_advanced * d5
     quoted = ctx.prices.get("RIN_D6", {}).get("date") or "no date"
-    ctx.note("Global", "RVO", "RINs owed on a gallon of gasoline or diesel", value * 100, "c/gal",
+    ctx.note("Global", f"RVO_{year}", f"RINs owed on a gallon of gasoline or diesel in {year}", value * 100, "c/gal",
              f"{year} standards (EPA, 1 April 2026) x RIN prices of {quoted}")
     return value
 
@@ -258,39 +286,51 @@ def _base_row(route, voyage):
                 whose=route.get("whose", ""))
 
 
-def _oil_prices(ctx, route, gal_per_t):
+def _oil_prices(ctx, route, gal_per_t, load, land):
+    """(purchase price at loading, destination price at loading, destination price at landing, note)."""
     rid = route["id"]
-    p = ctx.price
+    at = ctx.at
+
+    def pair(dest):
+        return dest(load), dest(land)
+
     if rid == "CRUDE_USGC_NWE":
-        # WTI Midland cargoes in Rotterdam price off Dated Brent. Front-month Brent only if Dated is missing.
-        dated = p("DATED_BRENT")
-        base, name = (dated, "Dated Brent") if dated is not None else (p("BRENT"), "Brent futures")
-        dest = None if base is None else base + ctx.adjustment("WTI_MIDLAND_CIF_DIFF")
-        return p("WTI_HOUSTON"), dest, f"{name} + WTI Midland CIF diff"
+        # WTI Midland cargoes in Rotterdam price off Dated Brent. Brent futures only if Dated is missing.
+        key, name = ("DATED_BRENT", "Dated Brent") if ctx.price("DATED_BRENT") is not None else ("BRENT", "Brent futures")
+        diff = ctx.adjustment("WTI_MIDLAND_CIF_DIFF")
+        dest = lambda d: None if at(key, d) is None else at(key, d) + diff
+        return (at("WTI_HOUSTON", load), *pair(dest), f"{name} + WTI Midland CIF diff")
     if rid == "CRUDE_USGC_ASIA":
-        # A Chinese refiner compares WTI with Murban delivered: Murban FOB + TD3C freight + war risk.
-        td3c = leg_freight(ctx, "TD3C")
-        bbl = td3c["cargo_t"] * BBL_PER_TONNE["murban"]
-        freight_bbl = td3c["per_tonne"] / BBL_PER_TONNE["murban"]
-        war_bbl = war_risk(ctx, "TD3C") / bbl
-        murban = p("MURBAN")
-        dest = None if murban is None else murban + freight_bbl + war_bbl + ctx.adjustment("MURBAN_QUALITY_DIFF")
-        return p("WTI_HOUSTON"), dest, f"Murban + TD3C freight ({freight_bbl:.2f}) + war risk ({war_bbl:.2f}) $/bbl"
+        # A Chinese refiner compares WTI with Murban landed the same day. Murban loads in Fujairah, outside
+        # Hormuz, so its ship is costed at the daily rate a VLCC earns on the Houston voyage. The Baltic TD3C
+        # rate loads inside the Gulf and carries a war premium that a Fujairah cargo does not pay.
+        own = leg_freight(ctx, route["leg"])
+        voyage = round_voyage(ctx, "TD3C", tce=max(own["tce"], 0.0))
+        cargo = voyage["ship"]["cargo_t"]
+        freight_bbl = voyage["cost"] / cargo / BBL_PER_TONNE["murban"]
+        war_bbl = war_risk(ctx, "TD3C") / (cargo * BBL_PER_TONNE["murban"])
+        extra = freight_bbl + war_bbl + ctx.adjustment("MURBAN_QUALITY_DIFF")
+        sail = voyage["laden_days"]                      # the Murban cargo loads this much before it lands
+        dest = lambda d: None if at("MURBAN", d - sail) is None else at("MURBAN", d - sail) + extra
+        note = f"Murban + Fujairah → Ningbo freight ({freight_bbl:.2f} $/bbl) at the daily hire of the Houston voyage"
+        if war_bbl:
+            note += f" + war risk ({war_bbl:.2f})"
+        return (at("WTI_HOUSTON", load), *pair(dest), note)
     if rid == "DIESEL_USGC_NWE":
-        ho = p("ULSD_NYH")
-        origin = None if ho is None else (ho + ctx.adjustment("ULSD_USGC_DIFF") / 100) * gal_per_t
-        gasoil = p("GASOIL_ICE")
-        dest = None if gasoil is None else gasoil + ctx.adjustment("GASOIL_CARGO_DIFF")
-        return origin, dest, "ICE gasoil + cargo diff"
+        ho = at("ULSD_NYH", load)
+        origin = None if ho is None else (ho + ctx.adjustment("ULSD_USGC_DIFF", load) / 100) * gal_per_t
+        diff = ctx.adjustment("GASOIL_CARGO_DIFF")
+        dest = lambda d: None if at("GASOIL_ICE", d) is None else at("GASOIL_ICE", d) + diff
+        return (origin, *pair(dest), "ICE gasoil + cargo diff")
     if rid == "DIESEL_NWE_USAC":
-        gasoil = p("GASOIL_ICE")
+        gasoil = at("GASOIL_ICE", load)
         origin = None if gasoil is None else gasoil + ctx.adjustment("GASOIL_CARGO_DIFF")
-        ho = p("ULSD_NYH")
-        return origin, None if ho is None else ho * gal_per_t, "NYMEX ULSD (NY Harbor)"
+        dest = lambda d: None if at("ULSD_NYH", d) is None else at("ULSD_NYH", d) * gal_per_t
+        return (origin, *pair(dest), "NYMEX ULSD (NY Harbor)")
     if rid == "GASOLINE_NWE_USAC":
-        rbob = p("RBOB")
-        dest = None if rbob is None else rbob * gal_per_t - ctx.adjustment("RBOB_QUALITY_ADJ")
-        return p("EUROBOB"), dest, "NYMEX RBOB - blending cost"
+        adj = ctx.adjustment("RBOB_QUALITY_ADJ")
+        dest = lambda d: None if at("RBOB", d) is None else at("RBOB", d) * gal_per_t - adj
+        return (at("EUROBOB", load), *pair(dest), "NYMEX RBOB - blending cost")
     raise KeyError(rid)
 
 
@@ -299,7 +339,8 @@ def oil_route(ctx, route):
     gal_per_t = bbl_per_t * GAL_PER_BBL
     freight = leg_freight(ctx, route["leg"])
     voyage = freight["voyage"]
-    origin, dest, dest_note = _oil_prices(ctx, route, gal_per_t)
+    load, land, dates = timing(ctx, voyage["laden_days"])
+    origin, dest, landed, dest_note = _oil_prices(ctx, route, gal_per_t, load, land)
 
     crude = route["family"] == "Crude"
     to_unit = bbl_per_t if crude else 1.0        # $/t -> route unit
@@ -307,7 +348,7 @@ def oil_route(ctx, route):
     row = _base_row(route, voyage)
     row.update(dest_note=dest_note, freight=freight["per_tonne"] / to_unit, freight_source=freight["source"],
                ets=freight["ets_per_tonne"] / to_unit, tce_used=freight["tce"],
-               cargo_label=f"{freight['cargo_t'] / 1000:.0f} kt")
+               cargo_label=f"{freight['cargo_t'] / 1000:.0f} kt", **dates)
     if origin is None or dest is None:
         row.update(status="Missing price", origin_price=origin, dest_price=dest)
         return row
@@ -316,7 +357,7 @@ def oil_route(ctx, route):
     # pipeline price less the obligation. An importer into New York owes them in full.
     rvo = 0.0
     if route.get("rvo"):
-        per_gal = rvo_per_gallon(ctx)
+        per_gal = rvo_per_gallon(ctx, load if route["rvo"] == "export" else land)
         row["rvo_missing"] = per_gal is None
         rvo_t = (per_gal or 0.0) * gal_per_t
         if route["rvo"] == "export":
@@ -326,8 +367,7 @@ def oil_route(ctx, route):
             rvo = rvo_t
     duty = ctx.param(route["duty"]) * bbl_per_t if route.get("duty") else 0.0
 
-    curve_factor = {"HO": gal_per_t, "RBOB": gal_per_t}.get(route.get("curve"), 1.0)
-    structure, _ = time_spread(ctx, route.get("curve"), voyage["laden_days"], curve_factor)
+    structure = dest - landed                    # what the destination curve does while the cargo sails
 
     units = freight["cargo_t"] * to_unit
     fobbing = ctx.param("CRUDE_DOCK_FEE") if crude else 0.0      # the Houston price is in the terminal
@@ -362,16 +402,21 @@ def lng_route(ctx, route):
     voyage = round_voyage(ctx, route["leg"], tce=o["value"] if o else None)
     ship = voyage["ship"]
     loaded = ship["cargo_m3"] * LNG_FILL * MMBTU_PER_M3_LNG
-    hh = ctx.price("HENRY_HUB")
+    load, land, dates = timing(ctx, voyage["laden_days"])
+    hh = ctx.at("HENRY_HUB", load)
     feedgas = None if hh is None else ctx.param("HH_MULTIPLIER") * hh
     fee = ctx.param("LIQUEFACTION_FEE")
     if route["id"] == "LNG_US_NWE":
-        ttf = ctx.price("TTF_USD")
-        dest = None if ttf is None else ttf - ctx.param("REGAS_EUROPE")
+        regas = ctx.param("REGAS_EUROPE")
+
+        def dest_at(day):
+            usd = ttf_usd(ctx, day)
+            return None if usd is None else usd - regas
         dest_note = "TTF - regas"
     else:
-        dest = ctx.price("JKM")
+        dest_at = lambda day: ctx.at("JKM", day)
         dest_note = "JKM (DES Japan/Korea)"
+    dest, landed = dest_at(load), dest_at(land)
 
     row = _base_row(route, voyage)
     source = "Model"
@@ -379,7 +424,7 @@ def lng_route(ctx, route):
         age = ctx.age(o["date"])
         source = f"{o['source']} TCE ({o['date']})" + (f", {age} days old" if age is not None and age > STALE_DAYS else "")
     row.update(dest_note=dest_note, freight_source=source,
-               tce_used=voyage["tce"], cargo_label=f"{loaded / 1e6:.2f} TBtu")
+               tce_used=voyage["tce"], cargo_label=f"{loaded / 1e6:.2f} TBtu", **dates)
     if dest is None or feedgas is None:
         row.update(status="Missing price", origin_price=feedgas, dest_price=dest)
         return row
@@ -390,21 +435,20 @@ def lng_route(ctx, route):
     ballast_fuel = bor * loaded * voyage["laden_days"] * feedgas   # heel burnt on the way back
     hire = voyage["tce"] * voyage["total_days"]
     ship_costs = hire + ship["port_costs"] + voyage["leg"]["canal"] + ballast_fuel + voyage["ets"]
-    factor = ctx.price("EURUSD") * MWH_PER_MMBTU if route.get("curve") == "TTF" and ctx.price("EURUSD") else 1.0
-    structure, _ = time_spread(ctx, route.get("curve"), voyage["laden_days"], factor)
-    cargo_insurance = ctx.param("CARGO_INSURANCE") * dest
+    structure = dest - landed                          # the cargo is sold at the price of the day it lands
+    cargo_insurance = ctx.param("CARGO_INSURANCE") * landed
     war_usd = war_risk(ctx, route["leg"])
     insurance = cargo_insurance + war_usd / loaded
     financing = (feedgas + fee) * ctx.param("FINANCING_RATE") * voyage["laden_days"] / 360
-    shipping = ship_costs / loaded + dest * boil_off
+    shipping = ship_costs / loaded + landed * boil_off
     netback = dest - shipping - insurance - financing - structure    # $/MMBtu loaded, FOB basis
     margin_variable = netback - feedgas
     margin = margin_variable - fee
     fixed = ship["port_costs"] + voyage["leg"]["canal"] + ballast_fuel + war_usd + voyage["ets"]
-    per_loaded = feedgas + fee + cargo_insurance + financing + structure
-    tce_be = (delivered * dest - fixed - loaded * per_loaded) / voyage["total_days"]
+    per_loaded = feedgas + fee + cargo_insurance + financing
+    tce_be = (delivered * landed - fixed - loaded * per_loaded) / voyage["total_days"]
     row.update(origin_price=feedgas + fee, dest_price=dest, spread=dest - feedgas - fee, time_spread=structure,
-               buy_price=feedgas + fee, freight=shipping, hire=hire / loaded, boil_off=dest * boil_off,
+               buy_price=feedgas + fee, freight=shipping, hire=hire / loaded, boil_off=landed * boil_off,
                ets=voyage["ets"] / loaded, canal=voyage["leg"]["canal"] / loaded, port=ship["port_costs"] / loaded,
                ballast_fuel=ballast_fuel / loaded, insurance=insurance, cargo_insurance=cargo_insurance,
                war_risk=war_usd / loaded, financing=financing, seller_costs=financing,
@@ -412,13 +456,27 @@ def lng_route(ctx, route):
                margin_variable=margin_variable, netback=netback, feedgas=feedgas, liquefaction_fee=fee,
                boil_off_pct=boil_off * 100, status=status(margin, route["threshold"]),
                breakeven_freight=dest - feedgas - fee - insurance - financing - structure, breakeven_tce=tce_be,
-               delay_day=delay_cost(ctx, voyage["tce"], loaded, feedgas + fee) + dest * bor,
+               delay_day=delay_cost(ctx, voyage["tce"], loaded, feedgas + fee) + landed * bor,
                pnl_musd=margin * loaded / 1e6)
     return row
 
 
+def ttf_usd(ctx, days):
+    """TTF in $/MMBtu for a day `days` from today."""
+    ttf, fx = ctx.at("TTF_EUR", days), ctx.price("EURUSD")
+    if ttf is None or fx is None:
+        return ctx.price("TTF_USD")
+    return ttf * fx * MWH_PER_MMBTU
+
+
 def spreads(ctx):
-    p = ctx.price
+    """Key spreads, both sides read for the day a cargo bought today would load.
+
+    Front months do not roll on the same day, so a spread between two front prices can compare
+    November with December. Reading both curves for one date removes that.
+    """
+    day = LOAD_LEAD_DAYS
+    p = lambda key: ctx.at(key, day)
     gal_d = BBL_PER_TONNE["diesel"] * GAL_PER_BBL
     gal_g = BBL_PER_TONNE["gasoline"] * GAL_PER_BBL
     rows = []
@@ -430,15 +488,16 @@ def spreads(ctx):
 
     ho_t = None if p("ULSD_NYH") is None else p("ULSD_NYH") * gal_d
     rb_t = None if p("RBOB") is None else p("RBOB") * gal_g
-    hh = p("HENRY_HUB")
+    hh, ttf = p("HENRY_HUB"), ttf_usd(ctx, day)
     add("BRENT_WTIH", "Brent - WTI Houston", p("BRENT"), p("WTI_HOUSTON"), "$/bbl", "Compare with TD25 in $/bbl")
     add("WTIH_WTIC", "WTI Houston - WTI Cushing", p("WTI_HOUSTON"), p("WTI_CUSHING"), "$/bbl",
         "Implied pipeline cost Cushing → Gulf Coast")
     add("MURBAN_WTIH", "Murban - WTI Houston", p("MURBAN"), p("WTI_HOUSTON"), "$/bbl", "East-West light sweet spread")
-    add("HO_GASOIL", "ULSD NYH - ICE gasoil", ho_t, p("GASOIL_ICE"), "$/t", "When positive, Europe can ship diesel to the US")
-    add("RBOB_EBOB", "RBOB - Eurobob", rb_t, p("EUROBOB"), "$/t", "Compare with TC2")
-    add("JKM_TTF", "JKM - TTF", p("JKM"), p("TTF_USD"), "$/MMBtu", "Compare with the Asia vs Europe shipping gap")
-    add("TTF_HH", "TTF - 1.15 x HH", p("TTF_USD"), None if hh is None else 1.15 * hh, "$/MMBtu",
+    add("HO_GASOIL", "ULSD NYH - ICE gasoil", ho_t, p("GASOIL_ICE"), "$/t",
+        "Has to pay the freight and the RINs before Europe ships diesel to the US")
+    add("RBOB_EBOB", "RBOB - Eurobob", rb_t, p("EUROBOB"), "$/t", "Has to pay TC2, the blending cost and the RINs")
+    add("JKM_TTF", "JKM - TTF", p("JKM"), ttf, "$/MMBtu", "Compare with the Asia vs Europe shipping gap")
+    add("TTF_HH", "TTF - 1.15 x HH", ttf, None if hh is None else 1.15 * hh, "$/MMBtu",
         "Gross margin before shipping and liquefaction")
     vlcc = VESSELS["VLCC"]
     hormuz = ctx.param("WAR_GULF") * vlcc["hull_value"] / (vlcc["cargo_t"] * BBL_PER_TONNE_GENERIC)

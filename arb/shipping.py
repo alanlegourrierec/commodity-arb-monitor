@@ -183,7 +183,7 @@ def vessel_costs(prices, overrides, routes):
 def curve_table(curves):
     rows = []
     for key, curve in curves.items():
-        if key not in CURVES or len(curve) < 2:
+        if key not in CURVES or len(curve) < 2 or CURVES[key].get("hidden"):
             continue
         c = CURVES[key]
         m1, m2 = curve[0]["close"], curve[1]["close"]

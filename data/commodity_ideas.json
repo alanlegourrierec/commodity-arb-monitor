@@ -2,198 +2,203 @@
   {
     "id": "crude-destock",
     "desk": "Crude",
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "title": "Empty the tanks into the backwardation",
-    "trade": "Sell 1 Mbbl of WTI from Cushing tanks for December, buy February WTI to refill",
+    "trade": "Sell 1 Mbbl of WTI from Cushing tanks on the December contract, buy the February contract to refill",
     "vessel": "No ship, pipeline and tank",
     "laycan": "December delivery, refill in February",
     "economics": {
       "curve": "WTI",
-      "near": 0,
-      "far": 2,
+      "near": "Z2026",
+      "far": "G2027",
       "volume": 1000000,
       "unit": "$/bbl"
     },
     "why": [
-      "WTI is backwardated by about 1 $/bbl a month, so the market pays to release barrels now.",
-      "Hormuz has been shut since March. PortWatch counted 27 transits in the week to 8 November, against 527 a year earlier.",
+      "WTI is backwardated by about 1.2 $/bbl a month, so the market pays to release barrels now.",
+      "Both export arbs are shut. WTI lands in Rotterdam and in Ningbo above the local alternative, so the barrel is worth more sold at home.",
+      "Hormuz has been shut since March, which keeps the front of the curve tight. PortWatch counted 27 transits in the week to 8 November, against 527 a year earlier.",
       "US crude stocks rose 9 Mbbl in the week to 6 November (API), so the refill should not be short."
     ],
-    "hedge": "The February futures are the hedge, swapped for physical (EFP) at refill. Tank rent and financing saved come on top if the tank can be sublet.",
+    "hedge": "The February futures are the refill. They are swapped for physical (EFP) when the barrels come back.",
     "risks": [
-      "Cushing physical trades over futures by February.",
-      "A refinery client needs the barrels before the refill arrives."
+      "The tank is empty for two months. If a customer or a blend needs the barrels in January, they are bought back at the prompt price.",
+      "Cushing physical trades over futures at the refill.",
+      "The tank rent runs whether the tank is full or not."
     ],
     "good": {
       "delta": 0.4,
       "case": "refill at a discount after more stock builds"
     },
     "bad": {
-      "delta": -1.0,
-      "case": "refill at a premium or buy back early"
+      "delta": -3.5,
+      "case": "barrels needed in January, bought back in a squeeze 3.5 $/bbl over February"
     },
     "horizon": "3 months"
   },
   {
     "id": "diesel-destock",
     "desk": "Products",
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "title": "Sell diesel prompt, buy it back in February",
-    "trade": "Sell 37 kt of ULSD from New York Harbor tanks for December, buy February NYMEX ULSD to refill",
+    "trade": "Sell 37 kt of ULSD from New York Harbor tanks on the December contract, buy February NYMEX ULSD to refill",
     "vessel": "No ship, tank and barge",
     "laycan": "December delivery, refill in February",
     "economics": {
       "curve": "HO",
-      "near": 0,
-      "far": 2,
+      "near": "Z2026",
+      "far": "G2027",
       "factor": 312.9,
       "volume": 37000,
       "unit": "$/t"
     },
     "why": [
       "The distillate curve is the steepest on the board, about 2% a month in New York Harbor.",
-      "Russian refining is down about 30% since late October after drone strikes.",
-      "Hormuz and the Red Sea cut Middle East and Indian diesel flows to Europe."
+      "ICE gasoil for November expired 91 $/t over December on 12 November. Prompt barrels are short on both sides of the Atlantic.",
+      "No cargo pays across the Atlantic in either direction once freight and RINs are counted, so the tank is the outlet.",
+      "Russian refining is down about 30% since late October after drone strikes."
     ],
-    "hedge": "February NYMEX ULSD futures, rolled into physical by EFP at refill.",
+    "hedge": "The February NYMEX ULSD futures are the refill, swapped for physical by EFP.",
     "risks": [
-      "New York barges trade over futures at refill.",
-      "A January squeeze forces an early buy-back."
+      "A cold January pulls heating oil demand forward and the barrels are bought back early, at the prompt price.",
+      "New York barges trade over futures at the refill."
     ],
     "good": {
       "delta": 10,
       "case": "refill at a discount as imports arrive"
     },
     "bad": {
-      "delta": -25,
-      "case": "buy back early in a January squeeze"
+      "delta": -90,
+      "case": "bought back early in a squeeze the size of November gasoil's, 91 $/t over the next month"
     },
     "horizon": "3 months"
   },
   {
-    "id": "lng-asia-december",
+    "id": "lng-asia",
     "desk": "LNG",
-    "date": "2026-11-12",
-    "title": "Send a December US cargo to Asia instead of Europe",
-    "trade": "Buy a FOB Sabine Pass cargo at its European netback, sell DES Japan or Korea on December JKM",
+    "date": "2026-11-13",
+    "title": "A mid-December US cargo pays more in Asia than in Europe",
+    "trade": "Buy a FOB Sabine Pass cargo at its European netback, sell DES Japan or Korea on JKM for the day it lands",
     "vessel": "174k m³ carrier via Panama",
-    "laycan": "Load 20-30 Nov, arrive before end-December",
+    "laycan": "Load around 12 December, land in the first days of January",
     "route_id": "LNG_US_ASIA_PANAMA",
     "compare_route_id": "LNG_US_NWE",
     "buy_at": "alternative",
     "why": [
       "A spot US cargo is priced off Europe, its usual outlet. 57% of US exports went there in September.",
-      "December JKM trades about 2.6 $/MMBtu over TTF, and January JKM is 2.66 $/MMBtu below December.",
-      "Panama delivers in about 22 days, so the cargo still prices December."
+      "For mid-December, JKM is about 1.5 $/MMBtu over TTF. Japan through Panama costs about 0.65 more to reach than Rotterdam.",
+      "JKM is backwardated, with January 0.87 below December. A cargo landing on 3 January is priced between the two, which takes about 0.5 off."
     ],
-    "hedge": "At loading, sell December JKM and buy December TTF for the cargo size.",
+    "hedge": "At loading, sell JKM and buy TTF for the landing month, for the cargo size.",
     "risks": [
-      "Arrival slips into January and the cargo loses 2.66 $/MMBtu on the curve.",
-      "A European cold spell closes the JKM − TTF gap.",
-      "Sold DES, the boil-off and any Panama delay are the seller's."
+      "No Panama slot. Round the Cape the voyage takes two weeks more and the cargo would have been better off in Europe.",
+      "Sold DES, the boil-off and any delay are the seller's.",
+      "A cold spell in Europe closes the gap before the hedge is on."
     ],
     "good": {
-      "delta": 2.0,
-      "case": "JKM − TTF widens by 2 on Asian tenders"
+      "delta": 1.0,
+      "case": "JKM − TTF widens by 1 on Asian tenders before the hedge is on"
     },
     "bad": {
-      "delta": -2.66,
-      "case": "the cargo lands in January"
+      "route_id": "LNG_US_ASIA_CAPE",
+      "case": "no Panama slot, the cargo goes round the Cape"
     },
     "horizon": "6 weeks"
   },
   {
     "id": "coal-rb-japan",
     "desk": "Coal",
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "title": "South African coal goes east, not to Europe",
-    "trade": "Buy 150 kt FOB Richards Bay on API4, sell CFR Japan at Newcastle plus freight",
+    "trade": "Buy 150 kt FOB Richards Bay on API4, sell CFR Japan at Newcastle plus freight, less a quality discount",
     "vessel": "Capesize, 150 kt",
-    "laycan": "December loading",
+    "laycan": "Load around 12 December, land in early January",
     "route_id": "COAL_RB_JAPAN",
     "compare_route_id": "COAL_RB_NWE",
     "why": [
-      "Europe is shut. API2 − API4 is about 9 $/t against 24 $/t of Capesize freight to Rotterdam.",
-      "Japan pays Newcastle plus the Panamax freight from Australia, which leaves room for a Capesize from Richards Bay.",
-      "API4 is backwardated, with November at 127 and December at 123 $/t, so December loading buys cheaper."
+      "Europe is shut. API2 − API4 is about 11 $/t against 24 $/t of Capesize freight to Rotterdam.",
+      "Japan pays Newcastle plus the Panamax freight from Australia. Sold 5 $/t under that, a Capesize from Richards Bay still clears its costs.",
+      "API4 is backwardated, 128.6 for November against 126.6 for December, so a December cargo is bought cheaper."
     ],
-    "hedge": "Buy API4 swaps against the purchase and sell NEWC swaps against the sale. Fix the Capesize at today's 5TC.",
+    "hedge": "Buy API4 swaps against the purchase and sell NEWC swaps against the sale. Fix the Capesize the day the cargo is bought.",
     "risks": [
-      "Each +10k $/day on the Capesize costs about 3.9 $/t.",
-      "Newcastle weakens if Chinese domestic output recovers.",
-      "Sold CFR, the freight is the seller's risk from the day the price is agreed."
+      "The discount is the trade. Japanese boilers are tuned to Australian coal, and a utility that does not need the cargo asks 10 $/t.",
+      "Coal that Transnet has not railed keeps the ship waiting off Richards Bay. The claim against the supplier is paid late and at the contract rate.",
+      "Until the ship is fixed, each +10k $/day on the Capesize costs about 3.9 $/t."
     ],
     "good": {
       "delta": 3.9,
-      "case": "Capesize 5TC 10k $/day lower"
+      "case": "Capesize fixed 10k $/day lower"
     },
     "bad": {
-      "delta": -6.0,
-      "case": "5TC +10k $/day and NEWC −2"
+      "delta": -5.0,
+      "delay_days": 14,
+      "case": "the buyer asks 10 $/t and the ship waits two weeks off Richards Bay"
     },
     "horizon": "2 months"
   },
   {
     "id": "hrc-eu-us",
     "desk": "Ferrous",
-    "date": "2026-11-12",
+    "date": "2026-11-13",
     "title": "European coil still lands under US prices after the tariff",
-    "trade": "Buy 30 kt of coil ex-works in the Ruhr, sell duty paid in Houston on a CME-linked price",
+    "trade": "Buy 30 kt of coil ex-works in the Ruhr, sell duty paid in Houston on the CME price of the landing month",
     "vessel": "Breakbulk, Antwerp → Houston",
-    "laycan": "January shipment",
+    "laycan": "Ship around 12 December, land at the end of the month",
     "route_id": "HRC_EU_US",
     "volume": 30000,
     "why": [
-      "US Midwest coil is about 1,351 $/st. After 30 $/t to reach the ship, 45 $/t of freight and the 50% tariff, European coil still lands below it.",
-      "The EU's new steel regime, with a 50% out-of-quota duty since 1 July, shut Chinese coil out of Europe. European mills have tonnes to place.",
-      "The CME curve is in contango, with January near 1,430 $/st, so a sale priced on arrival pays more than today."
+      "US Midwest coil is 1,401 $/st for December, about 1,545 $/t. European coil costs 853 $/t at the mill, then 30 to reach the ship, 45 of freight and 442 of tariff.",
+      "The EU's steel regime, with a 50% out-of-quota duty since 1 July, shut Chinese coil out of Europe. European mills have tonnes to place.",
+      "The CME curve is in contango, with January at 1,430 $/st, so a sale priced on landing pays more than today."
     ],
-    "hedge": "Sell CME HRC futures for the arrival month when the purchase is fixed.",
+    "hedge": "Sell CME HRC futures for the landing month when the purchase is fixed. They cover the US price, not the discount an import sells at.",
     "risks": [
-      "US mills cut prices before the cargo lands.",
+      "Unhedged, a fall in US prices before the cargo lands comes straight out of the margin.",
       "Sold duty paid, the tariff is the seller's. A rate change before customs clearance hits the margin.",
       "A US anti-dumping case on European flat steel."
     ],
     "good": {
-      "delta": 80,
-      "case": "sale priced on the January contract"
+      "delta": 40,
+      "case": "the buyer takes it 40 $/t closer to domestic coil"
     },
     "bad": {
-      "delta": -150,
-      "case": "US prices fall about 140 $/st before arrival"
+      "delta": -165,
+      "case": "unhedged, US coil falls 150 $/st before the cargo lands"
     },
-    "horizon": "3 months"
+    "horizon": "2 months"
   },
   {
     "id": "copper-tariff-option",
     "desk": "Base metals",
-    "date": "2026-11-12",
-    "title": "Cathodes to the US, a cheap option on the copper tariff",
-    "trade": "Take 5 kt of copper out of an LME warehouse in Rotterdam, clear it through US customs and hold it against COMEX",
+    "date": "2026-11-13",
+    "title": "Copper into the US before a tariff, an option the curve already prices",
+    "trade": "Take 5 kt of copper out of an LME warehouse in Rotterdam, land it in Baltimore before 1 January and hold it against COMEX",
     "vessel": "Containers, Rotterdam → Baltimore",
-    "laycan": "Ship by mid-December",
+    "laycan": "Ship by 12 December, land before the year ends",
     "route_id": "COPPER_LME_COMEX",
     "volume": 5000,
     "days": 49,
     "days_basis": "until the tariff decision",
+    "until": "2026-11-17",
     "why": [
-      "COMEX − LME is about +65 $/t, so the market prices almost no tariff on refined copper.",
       "Commerce recommended 15% on refined copper from 1 January 2027. The White House has not decided.",
-      "Getting the metal there costs about 175 $/t and the spread pays back 65, so the option costs about 110 $/t."
+      "COMEX is only about 25 $/t over the LME for December, but about 300 $/t over for March. On a 15% tariff worth 2,000 $/t, the curve gives it roughly one chance in seven.",
+      "Landing metal before the deadline costs about 135 $/t more than the December spread pays back. That is the price of the option."
     ],
-    "hedge": "Sell COMEX March and buy LME 3-month against the shipment. Only the spread stays open.",
+    "hedge": "Buy LME December and sell LME March against the metal, so only the US premium stays open. Selling COMEX March instead locks about 300 $/t and gives the option away.",
     "risks": [
-      "No tariff, and the spread can go to a discount while the carry is lost.",
+      "No tariff. The March spread falls back to where December is and three months of carry are lost.",
       "The metal must clear customs before the tariff starts, or the duty lands on the trader.",
-      "A queue at LME Rotterdam delays the load-out past the decision."
+      "A queue at the LME warehouse in Rotterdam delays the load-out past the deadline."
     ],
     "good": {
       "delta": 2000,
       "case": "15% tariff confirmed for 1 January 2027"
     },
     "bad": {
-      "delta": -120,
-      "case": "no decision, COMEX at a discount"
+      "delta": -170,
+      "case": "no tariff, and the metal is carried to March for nothing"
     },
     "horizon": "7 weeks"
   }

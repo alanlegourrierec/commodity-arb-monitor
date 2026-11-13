@@ -114,3 +114,12 @@ def test_a_cif_sale_leaves_the_transit_loss_with_the_buyer(prices):
         costs = r["fobbing"] + r["freight"] + r["insurance"] + r["seller_costs"] + r["time_spread"]
         costs += r["losses"] if pays_loss else 0.0
         assert r["margin"] == pytest.approx(r["dest_price"] - r["origin_price"] - costs, abs=1e-3)
+
+
+def test_murban_from_fujairah_is_costed_at_the_houston_daily_hire(prices):
+    row = by_id(calc.evaluate(prices, {"TD22": override(37_687_500, "$/voyage")}))["CRUDE_USGC_ASIA"]
+    ctx = calc.Context(prices, {})
+    voyage = calc.round_voyage(ctx, "TD3C", tce=row["tce_used"])
+    freight = voyage["cost"] / 270_000 / BBL_PER_TONNE["murban"]
+    assert row["dest_price"] == pytest.approx(prices["MURBAN"]["value"] + freight, abs=1e-2)
+    assert row["tce_used"] > 250_000          # the lump sum implies a daily hire far above a normal market

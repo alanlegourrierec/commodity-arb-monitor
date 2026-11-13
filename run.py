@@ -8,11 +8,12 @@
 import argparse
 import json
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from arb import bulk, calc, history, ideas, inputs, prices, report, shipping, terms
-from arb.config import FREIGHT_KEY, LICENCE_NOTE, LICENSED, PRICE_BOUNDS, PRIVATE_NOTE, SUPRAMAX_LEGS
+from arb.config import (FREIGHT_KEY, LICENCE_NOTE, LICENSED, LOAD_LEAD_DAYS, PRICE_BOUNDS, PRIVATE_NOTE,
+                        SUPRAMAX_LEGS)
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
@@ -64,12 +65,15 @@ def main(argv=None):
     if args.prices_file:
         asof, fetched, curves = prices.load_prices_file(args.prices_file)
         today = date.fromisoformat(asof[:10])
+        pricing = curves
     else:
         fetched = {**prices.fetch_yahoo(), **prices.fetch_tradingview()}
-        curves = prices.fetch_curves()
+        curves, expired = prices.fetch_curves()
         asof = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
         today = datetime.now(timezone.utc).date()
-    px = prices.assemble(fetched, manual)
+        # contracts that stopped trading still price the cargoes of their month
+        pricing = prices.with_settled(curves, expired, DATA / "settled.csv", today, save=not args.no_history)
+    px = prices.assemble(prices.name_fronts(fetched, curves), manual)
 
     private = Path(args.private) if args.private else None
     override_files = [DATA / "freight_assumptions.csv"]
@@ -82,9 +86,9 @@ def main(argv=None):
             px[key] = dict(value=o["value"], unit=o["unit"], label=o["label"], symbol="override",
                            source=f"{o['source']} ({o['date']})", date=o["date"])
 
-    result = calc.evaluate(px, overrides, curves, today)
+    result = calc.evaluate(px, overrides, pricing, today)
     routes = result["routes"]
-    dry = bulk.evaluate(px, overrides, curves, today)
+    dry = bulk.evaluate(px, overrides, pricing, today)
     all_routes = routes + dry["routes"]
     for r in all_routes:
         r["ladder"] = terms.ladder(r)
@@ -102,8 +106,14 @@ def main(argv=None):
     if not private:
         mark_public_substitutes(all_routes, price_rows)
 
+    # benchmark prices for the day a cargo bought today loads, for the figures quoted on the pages
+    ctx = calc.Context(px, overrides, pricing, today)
+    forward = {key: ctx.at(key, LOAD_LEAD_DAYS) for key in px}
+    load_date = (today + timedelta(days=LOAD_LEAD_DAYS)).isoformat()
+
     snapshot = dict(
-        prices_asof=asof, routes=routes, spreads=result["spreads"], assumptions=result["assumptions"],
+        prices_asof=asof, load_date=load_date, forward=forward,
+        routes=routes, spreads=result["spreads"], assumptions=result["assumptions"],
         bulk=dry, freight=freight, prices=price_rows, price_keys=PRICE_GROUPS, supramax_gap=supramax_gap,
         summary=dict(routes=len(routes), open=sum(r["status"] == "Open" for r in routes),
                      freight_overrides=sum(1 for r in routes if r["freight_source"] != "Model")),
@@ -115,7 +125,7 @@ def main(argv=None):
 
     out = Path(args.out) if args.out else ROOT / ("build_private" if private else "site")
     freight_ideas = ideas.load_freight_ideas(private / "trade_ideas.json") if private else []
-    desk_ideas = ideas.load_commodity_ideas(DATA / "commodity_ideas.json", all_routes, curves)
+    desk_ideas = ideas.load_commodity_ideas(DATA / "commodity_ideas.json", all_routes, curves, today)
     page = report.build(snapshot, rows, out, freight_ideas=freight_ideas, desk_ideas=desk_ideas,
                         private=bool(private))
     (out / "snapshot.json").write_text(json.dumps(snapshot, indent=1, ensure_ascii=False, default=str),

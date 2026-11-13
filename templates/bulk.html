@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
 {% block title %}Dry bulk & metals · Commodity Arbitrage Monitor{% endblock %}
-{% macro v(key, d=2) %}{% if px[key] %}{{ px[key].value|num(d) }}{% else %}—{% endif %}{% endmacro %}
+{% macro v(key, d=2) %}{% if fwd[key] is defined and fwd[key] is not none %}{{ fwd[key]|num(d) }}{% elif px[key] %}{{ px[key].value|num(d) }}{% else %}—{% endif %}{% endmacro %}
 {% macro supramax_note() %}{% if snap.supramax_gap %}<p class="disclaimer">{% if private %}{{ licence_note }} on the legs marked below.{% else %}<span class="tag">Supramax freight</span> {{ private_note }}.{% endif %}</p>{% endif %}{% endmacro %}
 {% block content %}
 <header>
@@ -11,7 +11,7 @@
   {% if best_coal %}A Richards Bay coal cargo nets the most going <b>{{ best_coal.route.replace('Coal Richards Bay → ', 'to ') }}</b>, at {{ best_coal.netback|num }} $/t FOB against API4 at {{ best_coal.origin_price|num }}.{% endif %}
   {% if india_best %}Into India, <b>{{ india_best.route.replace(' → India', '') }}</b> is the cheapest delivered energy at {{ india_best.per_mkcal|num }} $ per million kcal.{% endif %}
   {% if power %}German coal plants burn cheaper than gas until carbon reaches <b>{{ power.switch_eua|num(0) }} €/t</b>, against {{ power.eua|num(0) }} today.{% endif %}</p>
-  <p class="meta">Prices as of {{ snap.prices_asof }}, front-month futures, delayed. Bulk freight is a Capesize, Panamax or Supramax voyage model unless a rate is given. Metal and steel freight are flat assumptions.</p>
+  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. A cargo bought today loads around {{ load_date|day }}. The prices quoted on this page are for that day, and each route reads its curves for the day the cargo loads or lands. Bulk freight is a Capesize, Panamax or Supramax voyage model unless a rate is given. Metal and steel freight are flat assumptions.</p>
 </header>
 
 {{ m.cards(cards) }}
@@ -37,7 +37,7 @@
 
   <section id="coal">
     <h3>Where should a Richards Bay cargo go</h3>
-    <p class="note">South Africa swings between Europe and Asia. Europe pays API2, a CIF price. In Japan the cargo competes with Newcastle coal, so it is worth NEWC plus the Newcastle → Japan freight, a CFR price. Each bar is that delivered value, split into what is left at Richards Bay and what the voyage costs. The Rotterdam leg includes EU allowances. The arb is open when the netback beats API4. API2 and NEWC are taken for the month the cargo arrives.</p>
+    <p class="note">South Africa swings between Europe and Asia. Europe pays API2, a CIF price. In Japan the cargo competes with Newcastle coal, so it is worth NEWC plus the Newcastle → Japan freight, a CFR price, less a discount. Japanese boilers are set up for Australian coal and pay less for other origins. The discount is an assumption. Each bar is that delivered value, split into what is left at Richards Bay and what the voyage costs. The Rotterdam leg includes EU allowances. The arb is open when the netback beats API4. API2 and NEWC are read for the day the cargo arrives.</p>
     {{ charts.coal|safe }}
   </section>
 
@@ -58,9 +58,9 @@
   {% if power %}
   <section id="carbon">
     <h3>Carbon, coal against gas in German power</h3>
-    <p class="note">Cost of a MWh of power from a 38% coal plant and a 50% gas plant, fuel plus allowances, against the German baseload price. Coal stays cheaper than gas as long as EUA is below the switching price. This is what keeps API2 bid.</p>
+    <p class="note">Cost of a MWh of power from a 38% coal plant and a 50% gas plant, fuel plus allowances, against the German baseload price. Coal stays cheaper than gas as long as EUA is below the switching price. This is what keeps API2 bid. Power, gas, coal and carbon are all taken for {{ power.month }}.</p>
     <dl class="strip">
-      <div><dt>German power, front month</dt><dd>{{ power.power|num(1) }} €/MWh</dd></div>
+      <div><dt>German power, {{ power.month }}</dt><dd>{{ power.power|num(1) }} €/MWh</dd></div>
       <div><dt>Clean dark spread</dt><dd class="{{ 'pos' if (power.dark or 0) > 0 else 'neg' }}">{{ power.dark|signed(1) }}</dd><span class="sub">coal plant margin</span></div>
       <div><dt>Clean spark spread</dt><dd class="{{ 'pos' if (power.spark or 0) > 0 else 'neg' }}">{{ power.spark|signed(1) }}</dd><span class="sub">gas plant margin</span></div>
       <div><dt>Switching EUA</dt><dd>{{ power.switch_eua|num(0) }} €/t</dd><span class="sub">gas cheaper above this</span></div>
@@ -83,12 +83,12 @@
     <div><dt>Rebar FOB Turkey</dt><dd>{{ v('REBAR_TURKEY', 1) }}</dd></div>
     <div><dt>HRC FOB China</dt><dd>{{ v('HRC_CHINA', 0) }}</dd></div>
     <div><dt>HRC NW Europe, ex-works</dt><dd>{{ v('HRC_NWE', 0) }}</dd></div>
-    <div><dt>HRC US Midwest, ex-works</dt><dd>{% if px.HRC_US %}{{ (px.HRC_US.value * st)|num(0) }}{% else %}—{% endif %}</dd><span class="sub">$/t ({{ v('HRC_US', 0) }} $/st)</span></div>
+    <div><dt>HRC US Midwest, ex-works</dt><dd>{% if fwd.HRC_US %}{{ (fwd.HRC_US * st)|num(0) }}{% else %}—{% endif %}</dd><span class="sub">$/t ({{ v('HRC_US', 0) }} $/st)</span></div>
   </dl>
 
   <section id="ore">
     <h3>Iron ore, what is left for the miner</h3>
-    <p class="note">The 62% index is CFR China, so both origins get the same delivered price and the freight decides the netback. The buyer insures the cargo. Freight is paid on wet tonnes and converted to dry tonnes with the moisture assumption. The index is taken for the month the cargo arrives.
+    <p class="note">The 62% index is CFR China, so both origins get the same delivered price and the freight decides the netback. The buyer insures the cargo. Freight is paid on wet tonnes and converted to dry tonnes with the moisture assumption. The index is read for the day the cargo arrives.
     {% for r in routes if r.family == 'Iron ore' and r.freight_share %}From {{ r.route.replace('Iron ore ', '').split(' → ')[0] }}, freight is {{ r.freight_share|num(1) }} % of the delivered price. {% endfor %}</p>
     {{ charts.ore|safe }}
   </section>
@@ -124,13 +124,13 @@
     <div><dt>LME copper</dt><dd>{{ v('LME_COPPER', 0) }}</dd></div>
     <div><dt>COMEX − LME copper</dt><dd>{{ spreads.COMEX_LME.value|signed(0) }}</dd><span class="sub">$/t</span></div>
     <div><dt>LME aluminium</dt><dd>{{ v('LME_ALU', 0) }}</dd></div>
-    <div><dt>US Midwest premium</dt><dd>{% if px.MIDWEST_PREMIUM %}{{ (px.MIDWEST_PREMIUM.value * 100)|num(1) }} c/lb{% else %}—{% endif %}</dd></div>
+    <div><dt>US Midwest premium</dt><dd>{% if fwd.MIDWEST_PREMIUM %}{{ (fwd.MIDWEST_PREMIUM * 100)|num(1) }} c/lb{% else %}—{% endif %}</dd></div>
     <div><dt>Japan premium (MJP)</dt><dd>{{ v('JAPAN_PREMIUM', 0) }}</dd></div>
     <div><dt>US tariff on a tonne of alu</dt><dd>{{ spreads.ALU_TARIFF.value|num(0) }}</dd></div>
   </dl>
   <section id="metals">
     <h3>Does the premium pay for the trip</h3>
-    <p class="note">A tonne in an LME warehouse in Rotterdam, shipped to the US or Japan. The diamond is what the destination pays over LME. For copper that is COMEX − LME, for aluminium the regional premium. The bars are what it costs to get there, starting with the Rotterdam premium the metal would fetch if sold where it sits. When the bars run past the diamond, the trade does not work. The US tariff is charged on the metal value, not on the premium.</p>
+    <p class="note">A tonne in an LME warehouse in Rotterdam, shipped to the US or Japan. The diamond is what the destination pays over LME. For copper that is COMEX − LME, for aluminium the regional premium. The bars are what it costs to get there, starting with the Rotterdam premium the metal would fetch if sold where it sits. When the bars run past the diamond, the trade does not work. The US tariff is charged on the metal value, not on the premium. The metal is paid at the LME price of the day it loads and sold at the premium of the day it lands, which matters when a premium curve falls as fast as the Midwest one.</p>
     {{ charts.metals|safe }}
   </section>
 </section>
@@ -141,20 +141,21 @@
 
 {{ m.history(charts, families, units) }}
 
-{{ m.tables(spread_rows, prices, assumptions) }}
+{{ m.tables(spread_rows, prices, assumptions, load_date) }}
 
 <details>
   <summary>Method and limits</summary>
   <div class="method">
+    <p><b>Timing.</b> A cargo bought today loads in about 30 days. The purchase is priced for the loading day and the sale for the landing day, both read off the forward curve. A monthly index is pinned to the 15th of its month and a future to its expiry, and days in between are interpolated. Nothing steps when a front contract expires.</p>
     <p><b>Delivery terms.</b> Every index comes with a term, shown in the prices table. API2 is CIF, so the seller insures the cargo. Iron ore and scrap are CFR, so the buyer does. India is compared duty paid, with a 0.3% handling loss on the way. Coil is bought ex-works and sold duty paid. Costs past the sale term are the buyer's.</p>
     <p><b>Iron ore.</b> Netback = 62% CFR China − freight per dry tonne − curve. Port Hedland → Qingdao is Baltic C5 and Tubarão → Qingdao is C3, both on a 170 kt Capesize. Grade differences, such as 65% Brazilian ore, are ignored.</p>
-    <p><b>Thermal coal.</b> Richards Bay → Rotterdam on a 150 kt Capesize, paid at API2. Richards Bay → Japan competes with Newcastle coal, so the delivered value is NEWC plus the Panamax freight from Newcastle to Kashima. All three indices are 6,000 kcal NAR, so there is no calorific adjustment.</p>
+    <p><b>Thermal coal.</b> Richards Bay → Rotterdam on a 150 kt Capesize, paid at API2. Richards Bay → Japan competes with Newcastle coal, so the delivered value is NEWC plus the Panamax freight from Newcastle to Kashima, less 5 $/t. That discount is an assumption for a buyer whose boilers are tuned to Australian coal. All three indices are 6,000 kcal NAR, so there is no calorific adjustment.</p>
     <p><b>India fuel.</b> Landed cost per million kcal. South African coal is API4 at 6,000 NAR, Indonesian 4,200 GAR is taken as 3,800 NAR, and US Gulf petcoke 6.5% S as 7,900. Sulphur, ash and plant constraints are not priced, which matters for petcoke.</p>
     <p><b>Coking coal.</b> SGX TSI premium hard coking coal FOB Australia plus freight and insurance. Mid-vol and US high-vol coals are not covered.</p>
-    <p><b>Carbon and power.</b> A tonne of 6,000 kcal coal holds 6.978 MWh of heat. Coal emits 0.341 t CO2 per MWh of heat and gas 0.202. Switching EUA = (gas fuel cost − coal fuel cost) / (coal CO2 − gas CO2), all per MWh of power.</p>
+    <p><b>Carbon and power.</b> A tonne of 6,000 kcal coal holds 6.978 MWh of heat. Coal emits 0.341 t CO2 per MWh of heat and gas 0.202. Switching EUA = (gas fuel cost − coal fuel cost) / (coal CO2 − gas CO2), all per MWh of power. The four prices are for the first full month ahead.</p>
     <p><b>Scrap and steel.</b> Scrap freight is a Supramax trip. Coil freight is a flat breakbulk assumption. US coil futures are per short ton and converted. EU duties use the "all other companies" rate of Regulations 2023/1122 and 2023/1123, while named Chinese mills pay 18.1% to 35.9%. CBAM certificates = default emissions × 1.10 − 0.975 × benchmark, from Implementing Regulation 2025/2621, priced at the EUA future as a proxy for the quarterly certificate price.</p>
     <p><b>Metals.</b> Margin = destination premium − Rotterdam duty-unpaid premium (aluminium) − load-out − freight − insurance − tariff − financing. The Rotterdam premium is the CME duty-unpaid premium future. Freight and tariffs are assumptions you can override in the freight file.</p>
-    <p><b>Limits.</b> Front-month futures, delayed. No quality premiums, no LME queue or warrant costs, no letters of credit. A handling loss and port costs are assumptions, not quotes.</p>
+    <p><b>Limits.</b> Settlement prices, a day old. Steel and scrap contracts on the LME are thin and their curves are close to flat. No quality premiums, no LME queue or warrant costs, no letters of credit. A handling loss and port costs are assumptions, not quotes.</p>
   </div>
 </details>
 {% endblock %}
