@@ -5,8 +5,9 @@
 <header>
   <p class="eyebrow">Crude · Refined products · LNG</p>
   <h1>Energy arbitrages</h1>
-  <p class="lede">{{ snap.summary.open }} of {{ snap.summary.routes }} routes are open this morning.
-  {% if best %}The best spot arb is <b>{{ best.route }}</b> at <b>{{ best.margin|with_unit(best.unit, True) }}</b>, about <b>{{ best.pnl_musd|musd }}</b> per cargo.{% endif %}
+  {% set spot = routes|rejectattr('whose')|list %}
+  <p class="lede">{{ spot|selectattr('status', 'equalto', 'Open')|list|length }} of {{ spot|length }} spot arbs are open this morning.
+  {% if best and best.status == 'Open' %}The best is <b>{{ best.route }}</b> at <b>{{ best.margin|with_unit(best.unit, True) }}</b>, about <b>{{ best.pnl_musd|musd }}</b> per cargo.{% elif best %}The closest is <b>{{ best.route }}</b> at <b>{{ best.margin|with_unit(best.unit, True) }}</b>.{% endif %}
   {% if export %}A Gulf Coast refiner nets <b>{{ export.margin|num(0) }} $/t</b> more by exporting diesel to Rotterdam than by selling it at home.{% endif %}
   {% if lng_asia and lng_gap is not none %}A US LNG cargo nets <b>{{ lng_gap|abs|num }} $/MMBtu</b> more in {{ 'Asia' if lng_gap >= 0 else 'Europe' }} than in {{ 'Europe' if lng_gap >= 0 else 'Asia' }}.{% endif %}
   {% if killed %}The curve alone shuts {% for r in killed %}<b>{{ r.route }}</b>{{ ', ' if not loop.last }}{% endfor %}. The spread pays for the ship but not for the backwardation over the voyage.{% endif %}</p>
@@ -54,7 +55,7 @@
     <p><b>RINs.</b> The obligation per gallon is the 2026 EPA standards applied to RIN prices. That gives 9.08% of D6, 5.24% of D4, 0.79% of D3 and 0.39% of D5. RIN prices are typed in by hand and flagged when they get old. The export route shows what a refiner gains over a domestic sale. It is not a price at which a trader can buy.</p>
     <p><b>LNG.</b> The FOB cost is 1.15 × Henry Hub plus a 2.50 $/MMBtu tolling fee. The fee is sunk in the short run, so a US cargo only gets cancelled when the netback drops below 1.15 × Henry Hub. Boil-off is 0.10% a day on a 174k m³ carrier, and Panama tolls are 800 k$ for the round trip.</p>
     <p><b>Insurance.</b> Cargo insurance is 0.05% of the cargo value. The war-risk premium is a share of the hull value per voyage, spread over the cargo.</p>
-    <p><b>Limits.</b> These are futures, not physical assessments, so the premiums and discounts of real cargoes are missing. Default TCEs are rough and can be far off in a stressed market. Laytime, demurrage claims and quality claims are not modelled. US excise taxes on imported products are left out.</p>
+    <p><b>Limits.</b> These are futures, not physical assessments, so the premiums and discounts of real cargoes are missing. Front months do not all roll on the same day, so around an expiry two prices can be for different months. Default TCEs are rough and can be far off in a stressed market. Laytime, demurrage claims and quality claims are not modelled. US excise taxes on imported products are left out.</p>
   </div>
 </details>
 
