@@ -1,4 +1,5 @@
-"""Static HTML pages (Jinja2 templates + Plotly charts): energy, dry bulk & metals, freight and trade ideas."""
+"""Static HTML pages (Jinja2 templates + Plotly charts): overview, energy, dry bulk & metals, freight,
+supply and demand, and trade ideas."""
 
 import json
 from collections import OrderedDict
@@ -86,6 +87,18 @@ def pct(v, d=0):
 
 def kusd(v):
     return "—" if _bad(v) else f"{float(v) / 1000:,.1f} k$"
+
+
+def rate(v, unit):
+    """A freight rate in the unit it is quoted in: $/day, $/voyage or $/t."""
+    if _bad(v):
+        return "—"
+    v = float(v)
+    if unit == "$/day":
+        return f"{v / 1000:,.1f} k$/d"
+    if unit in ("$/voyage", "$"):
+        return f"{v / 1e6:,.1f} M$" if v >= 1e6 else f"{v / 1000:,.0f} k$"
+    return f"{v:,.2f} {unit}"
 
 
 def day(v):
@@ -297,7 +310,7 @@ def curve_chart(curves, keys=None, title=None):
     return fig
 
 
-def chokepoint_chart(data, field, title):
+def chokepoint_chart(data, field, title, names=None):
     """Weekly transits as an index of the pre-war average (= 100), so a small strait and a big one compare."""
     if not data or not data.get("baseline"):
         return None
@@ -305,7 +318,7 @@ def chokepoint_chart(data, field, title):
     fig = go.Figure()
     for i, (name, rows) in enumerate(data["weeks"].items()):
         b = base.get(name, {}).get(field)
-        if not b:
+        if not b or (names is not None and name not in names):
             continue
         idx = [r[field] / b * 100 for r in rows]
         smooth = [sum(idx[max(0, k - 3):k + 1]) / len(idx[max(0, k - 3):k + 1]) for k in range(len(idx))]
@@ -315,6 +328,45 @@ def chokepoint_chart(data, field, title):
     fig.add_hline(y=100, **REF_LINE)
     _layout(fig, 320, title=dict(text=f"{title}, 4-week average", x=0, font_size=13), yaxis_title="pre-war average = 100")
     fig.update_yaxes(rangemode="tozero")
+    return fig
+
+
+def strip_chart(strips):
+    """Curves by delivery month, as a % of the first contract. One market, a few related curves."""
+    if not strips:
+        return None
+    fig = go.Figure()
+    for i, c in enumerate(strips):
+        pts = c["points"]
+        fig.add_scatter(x=[p["month"] for p in pts], y=[p["close"] / pts[0]["close"] * 100 - 100 for p in pts],
+                        mode="lines+markers", name=c["label"], line=dict(color=PALETTE[i % len(PALETTE)], width=2),
+                        customdata=[[p["contract"], p["close"]] for p in pts],
+                        hovertemplate=f"{c['label']}<br>%{{customdata[0]}} at %{{customdata[1]:,.2f}}<br>"
+                                      "%{y:+.1f} % vs the first contract<extra></extra>")
+    fig.add_hline(y=0, **REF_LINE)
+    _layout(fig, 290, yaxis_title="% vs first contract")
+    fig.update_xaxes(type="date", tickformat="%b %y", dtick="M1")
+    return fig
+
+
+def flow_chart(groups):
+    """Port flows of one market as a four-week average, one line per group of ports. Arrivals are dashed."""
+    groups = [g for g in groups if len(g["series"]) >= 8]
+    if not groups:
+        return None
+    fig = go.Figure()
+    for i, g in enumerate(groups):
+        scale = 1 if g["calls"] else 1000
+        raw = [v / scale for v in g["series"]]
+        smooth = [sum(raw[k - 3:k + 1]) / 4 for k in range(3, len(raw))]
+        dash = "dot" if g["direction"] == "imports" else None
+        fig.add_scatter(x=g["weeks"][3:], y=smooth, mode="lines", name=g["label"],
+                        line=dict(color=PALETTE[i % len(PALETTE)], width=2, dash=dash), customdata=raw[3:],
+                        hovertemplate=f"{g['label']}<br>week to %{{x}}<br>%{{y:,.2f}} {g['unit']}, 4-week average "
+                                      "(%{customdata:,.2f} that week)<extra></extra>")
+    _layout(fig, 290 if len(groups) <= 4 else 340, yaxis_title=groups[0]["unit"])
+    fig.update_yaxes(rangemode="tozero")
+    fig.update_xaxes(type="date", tickformat="%b %y")
     return fig
 
 
@@ -436,11 +488,51 @@ def rin_summary(snapshot, px):
 def _env():
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=select_autoescape(["html"]))
     env.filters.update(num=num, signed=signed, with_unit=with_unit, musd=musd, tce=tce, status_class=status_class,
-                       pct=pct, kusd=kusd, day=day)
+                       pct=pct, kusd=kusd, day=day, rate=rate)
     return env
 
 
-def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, private=False):
+def board(routes, brows):
+    """Every route of the site by desk, for the overview."""
+    desks = [("Crude", "energy.html", ["Crude"], routes), ("Refined products", "energy.html", ["Products"], routes),
+             ("LNG", "energy.html", ["LNG"], routes),
+             ("Coal", "bulk.html", ["Coal", "India fuel", "Coking coal"], brows),
+             ("Ferrous", "bulk.html", ["Iron ore", "Scrap", "Steel"], brows),
+             ("Base metals", "bulk.html", ["Metals"], brows)]
+    out = []
+    for name, page, families, rows in desks:
+        rows = [r for r in rows if r["family"] in families]
+        trades = [r for r in rows if r["status"] in ("Open", "Marginal", "Closed")]
+        out.append(dict(name=name, page=page, routes=rows, open=sum(r["status"] == "Open" for r in trades),
+                        trades=len(trades)))
+    return out
+
+
+def since_last_run(history, routes, today):
+    """Mark each route with its move against the last run before today. Returns the date of that run."""
+    days = sorted({row["date"] for row in history if row["date"] < today})
+    if not days:
+        return None
+    before = {row["route_id"]: row for row in history if row["date"] == days[-1]}
+    for r in routes:
+        old = before.get(r["route_id"])
+        if old and r.get("margin") is not None and not _bad(old.get("margin")):
+            r["change"], r["was"] = r["margin"] - float(old["margin"]), old["status"]
+    return days[-1]
+
+
+def balance_charts(balance, chokepoint_weeks):
+    """Charts of the supply and demand page, by section id."""
+    out = {}
+    for s in balance["sections"]:
+        field, label = ("n_dry_bulk", "Bulk carriers") if s["ship"] == "bulk" else ("n_tanker", "Tankers")
+        names = [c["name"] for c in s["chokepoints"]]
+        out[s["id"]] = dict(curve=_html(strip_chart(s["strips"])), flows=_html(flow_chart(s["flows"])),
+                            straits=_html(chokepoint_chart(chokepoint_weeks, field, label, names)) if names else "")
+    return out
+
+
+def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, private=False, balance=None):
     paths = json.loads(PATHS_FILE.read_text(encoding="utf-8")) if PATHS_FILE.exists() else {}
     env = _env()
     out = Path(out_dir)
@@ -474,7 +566,7 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
         killed=[r for r in curve_cost if r["margin"] < 0 < r["margin"] + r["time_spread"]],
         spreads={s["key"]: s for s in snapshot["spreads"]}, spread_rows=snapshot["spreads"], prices=price_rows("energy"),
         assumptions=snapshot["assumptions"], families=ENERGY_FAMILIES, units=UNITS)
-    (out / "index.html").write_text(html, encoding="utf-8")
+    (out / "energy.html").write_text(html, encoding="utf-8")
 
     # dry bulk & metals
     bulk = snapshot["bulk"]
@@ -517,7 +609,24 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
         curve_labels={key: c["label"] for key, c in CURVES.items()})
     (out / "freight.html").write_text(html, encoding="utf-8")
 
+    # supply and demand
+    if balance:
+        age = (date.fromisoformat(snapshot["prices_asof"][:10]) - date.fromisoformat(balance["written"])).days
+        html = env.get_template("balance.html").render(
+            **common, page="balance", bal=balance, charts=balance_charts(balance, fr["chokepoint_weeks"]), age=age,
+            ideas=desk_ideas or [])
+        (out / "balance.html").write_text(html, encoding="utf-8")
+
     # commodity trade ideas
     html = env.get_template("ideas.html").render(**common, page="ideas", ideas=desk_ideas or [])
     (out / "ideas.html").write_text(html, encoding="utf-8")
+
+    # overview, the page the site opens on
+    trades = [r for r in routes + brows if r["status"] in ("Open", "Marginal", "Closed") and not r.get("whose")]
+    last_run = since_last_run(history, routes + brows, snapshot["prices_asof"][:10])
+    html = env.get_template("overview.html").render(
+        **common, page="overview", desks=board(routes, brows), bal=balance, ideas=desk_ideas or [],
+        opened=[r for r in trades if r["status"] == "Open"], trade_count=len(trades), last_run=last_run,
+        flipped=[r for r in trades if r.get("was") and "Open" in (r["status"], r["was"]) and r["status"] != r["was"]])
+    (out / "index.html").write_text(html, encoding="utf-8")
     return out / "index.html"
