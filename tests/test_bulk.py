@@ -93,6 +93,44 @@ def test_india_fuel_margin_is_room_against_the_next_cheapest(prices):
     assert cheapest["margin"] == pytest.approx((second - cheapest["per_mkcal"]) * cheapest["mkcal_per_t"], abs=1e-3)
 
 
+def test_coal_to_india_is_a_trip_from_both_origins(prices):
+    rate = override(20_000, "$/day")
+    r = by_id(bulk.evaluate(prices, {"RB_INDIA": rate, "KALI_INDIA": rate}))
+    sa, indo = r["INDIA_SA"], r["INDIA_INDO"]
+    assert sa["voyage_days"] == pytest.approx(sa["laden_days"] + 6.0, abs=1e-3)               # nobody pays the way back
+    ballast = 1000 / (12.5 * 24)
+    assert indo["voyage_days"] == pytest.approx(indo["laden_days"] + ballast + 6.0, abs=1e-3)  # delivered around Singapore
+    assert indo["freight"] / sa["freight"] == pytest.approx(indo["voyage_days"] / sa["voyage_days"], rel=0.05)
+
+
+def test_a_ballast_bonus_is_added_to_the_voyage_not_to_the_hire(prices):
+    rate = {"RB_INDIA": override(21_500, "$/day")}
+    plain = by_id(bulk.evaluate(prices, rate))["INDIA_SA"]
+    paid = by_id(bulk.evaluate(prices, dict(rate, BB_RB_INDIA=override(215_000, "$"))))["INDIA_SA"]
+    assert paid["freight"] - plain["freight"] == pytest.approx(215_000 / 55_000, abs=1e-3)
+    assert paid["tce_used"] == pytest.approx(21_500, abs=0.5)
+    assert "ballast bonus" in paid["freight_source"]
+
+
+def test_a_rate_per_tonne_already_holds_the_ballast_bonus(prices):
+    rate = {"RB_INDIA": override(18.0, "$/t")}
+    plain = by_id(bulk.evaluate(prices, rate))["INDIA_SA"]
+    paid = by_id(bulk.evaluate(prices, dict(rate, BB_RB_INDIA=override(215_000, "$"))))["INDIA_SA"]
+    assert paid["freight"] == pytest.approx(plain["freight"]) == pytest.approx(18.0)
+    assert paid["tce_used"] < plain["tce_used"]
+
+
+def test_a_trip_without_a_rate_takes_the_hire_of_its_sister_trip(prices):
+    rates = {"USG_INDIA": override(34_000, "$/day")}
+    scrap = by_id(bulk.evaluate(prices, rates))["SCRAP_US_INDIA"]
+    assert scrap["tce_used"] == pytest.approx(34_000, abs=0.5)
+    assert "Port Arthur" in scrap["freight_source"]
+    own = by_id(bulk.evaluate(prices, dict(rates, SCRAP_US_IN=override(25_000, "$/day"))))["SCRAP_US_INDIA"]
+    assert own["tce_used"] == pytest.approx(25_000, abs=0.5)
+    per_tonne = by_id(bulk.evaluate(prices, {"USG_INDIA": override(40.0, "$/t")}))["SCRAP_US_INDIA"]
+    assert per_tonne["freight_source"] == "Model"
+
+
 def test_stale_manual_price_is_flagged(prices):
     prices["PETCOKE_USG"] = dict(value=79.0, unit="$/t", date="2026-06-03")
     rows = by_id(bulk.evaluate(prices, {}, today=date(2026, 11, 12)))
