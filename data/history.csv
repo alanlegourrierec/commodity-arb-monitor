@@ -68,15 +68,15 @@ date,route_id,route,family,unit,status,margin,freight,freight_source,insurance,w
 2026-11-14,HRC_CN_EU_OUT,"China HRC → EU, out of quota",Steel,$/t,Closed,-351.7593,55.0,Assumption,0.2393,,
 2026-11-14,HRC_CN_EU_QUOTA,"China HRC → EU, in quota",Steel,$/t,Closed,-84.8896,55.0,Assumption,0.2393,,
 2026-11-14,HRC_EU_US,EU HRC → US Gulf,Steel,$/t,Open,117.6114,45.0,Assumption,0.4422,,
-2026-11-14,INDIA_INDO,Indonesian coal → India,India fuel,$/t,Closed,-11.6492,20.9115,Model,0.0395,,20000.0
-2026-11-14,INDIA_PETCOKE,US petcoke → India,India fuel,$/t,Stale price,58.8402,38.6444,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0395,,34000.0
-2026-11-14,INDIA_SA,South African coal → India,India fuel,$/t,Open,18.3935,13.6988,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0631,,21500.0
+2026-11-14,INDIA_INDO,Indonesian coal → India,India fuel,$/t,Closed,-1.6983,13.7309,"Baltic Exchange bulk report, week 46 TCE (2026-11-13)",0.0395,,17000.0
+2026-11-14,INDIA_PETCOKE,US petcoke → India,India fuel,$/t,Stale price,56.3493,38.6444,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.043,,34000.0
+2026-11-14,INDIA_SA,South African coal → India,India fuel,$/t,Open,2.6816,17.6079,"Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06), ballast bonus included",0.0631,,21500.0
 2026-11-14,LNG_US_ASIA_CAPE,US LNG → Asia (Cape),LNG,$/MMBtu,Open,21.3583,1.8646,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 39 days old",0.0147,0.0,25750.0
 2026-11-14,LNG_US_ASIA_PANAMA,US LNG → Asia (Panama),LNG,$/MMBtu,Open,22.5515,1.3646,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 39 days old",0.0151,0.0,25750.0
 2026-11-14,LNG_US_NWE,US LNG → Europe,LNG,$/MMBtu,Open,22.0778,0.7198,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 39 days old",0.0145,0.0,25750.0
 2026-11-14,ORE_AUS_CHINA,Iron ore Port Hedland → Qingdao,Iron ore,$/dmt,Netback,74.0067,15.8152,"Baltic Exchange bulk report, week 46 $/t (2026-11-13)",0.0,,55058.6538
 2026-11-14,ORE_BRA_CHINA,Iron ore Tubarão → Qingdao,Iron ore,$/dmt,Netback,51.6436,38.0435,"Baltic Exchange bulk report, week 46 $/t (2026-11-13)",0.0,,47563.4873
-2026-11-14,SCRAP_EU_INDIA,Scrap Rotterdam → India,Scrap,$/t,Netback,353.8699,36.1301,Model,0.0,,20000.0
+2026-11-14,SCRAP_EU_INDIA,Scrap Rotterdam → India,Scrap,$/t,Netback,338.901,51.099,"Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06), hire of Rotterdam → Iskenderun",0.0,,36000.0
 2026-11-14,SCRAP_EU_TURKEY,Scrap Rotterdam → Turkey,Scrap,$/t,Netback,379.2587,21.2413,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.0,,36000.0
-2026-11-14,SCRAP_US_INDIA,Scrap New York → India,Scrap,$/t,Netback,355.176,34.824,Model,0.0,,20000.0
+2026-11-14,SCRAP_US_INDIA,Scrap New York → India,Scrap,$/t,Netback,341.428,48.572,"Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06), hire of Port Arthur → Mundra (Cape)",0.0,,34000.0
 2026-11-14,SCRAP_US_TURKEY,Scrap New York → Turkey,Scrap,$/t,Netback,370.2356,30.2644,"Baltic Exchange bulk report, week 46 TCE (2026-11-13)",0.0,,42000.0
