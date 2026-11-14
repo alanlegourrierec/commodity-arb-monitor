@@ -15,18 +15,18 @@ def _tables():
 
 
 class Reply:
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, content):
+        self.content = content
 
     def raise_for_status(self):
         pass
 
-    def json(self):
-        return json.loads(self.text)
-
 
 class Site:
-    """Serves the saved report tables, or fails on the ones named in `down`."""
+    """Serves the saved report tables, or fails on the ones named in `down`.
+
+    The real storage file starts with a byte order mark, so this one does too.
+    """
 
     def __init__(self, down=()):
         self.down = down
@@ -35,7 +35,8 @@ class Site:
         name = url.rsplit("/", 1)[-1]
         if any(part in name for part in self.down):
             raise requests.ConnectionError(name)
-        return Reply((FIXTURES / f"eia_{name}").read_text(encoding="utf-8"))
+        mark = b"\xef\xbb\xbf" if name.endswith(".json") else b""
+        return Reply(mark + (FIXTURES / f"eia_{name}").read_bytes())
 
 
 def test_stocks_are_read_with_the_week_before_and_the_year_before():
@@ -61,6 +62,11 @@ def test_gas_storage_comes_with_its_five_year_average():
     gas = eia.parse_storage(json.loads((FIXTURES / "eia_wngsr.json").read_text(encoding="utf-8")))
     assert (gas["week"], gas["value"], gas["previous"], gas["year_ago"], gas["five_year"]) == \
         ("2026-11-06", 3862, 3801, 3954, 3787)
+
+
+def test_the_storage_file_is_read_past_its_byte_order_mark(tmp_path):
+    data = eia.update_weekly(tmp_path / "us_weekly.json", date(2026, 11, 14), Site())
+    assert data["gas"]["value"] == 3862 and data["series"]["crude_stocks"]["value"] == 414.417
 
 
 def test_rows_compare_stocks_on_the_week_and_flows_on_four_weeks(tmp_path):
