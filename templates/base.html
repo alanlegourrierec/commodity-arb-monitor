@@ -76,10 +76,19 @@
   .method p { margin: 0; }
   footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
   a { color: var(--accent); }
-  nav { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
-  nav a { text-decoration: none; color: var(--muted); padding: 5px 12px; border-radius: 999px; border: 1px solid transparent; font-weight: 500; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  nav a { text-decoration: none; color: var(--muted); padding: 5px 12px; border-radius: 999px; border: 1px solid transparent; font-weight: 500; white-space: nowrap; }
   nav a.on { color: var(--fg); border-color: var(--line); background: var(--panel); }
-  nav .brand { margin-right: auto; font-weight: 600; color: var(--fg); }
+  nav .brand { margin-right: auto; padding-left: 0; font-weight: 600; color: var(--fg); }
+  nav .links { display: flex; gap: 4px; align-items: center; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  nav .links::-webkit-scrollbar, .subnav::-webkit-scrollbar { display: none; }
+  .subnav { position: sticky; top: 0; z-index: 20; display: flex; gap: 2px; align-items: center; overflow-x: auto; scrollbar-width: none;
+            margin: -30px 0 -18px; padding: 8px 0; background: var(--bg); border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  .subnav a { text-decoration: none; color: var(--muted); padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .subnav a:hover { color: var(--fg); }
+  .subnav a.on { color: var(--fg); background: var(--panel); }
+  .subnav i { flex: none; width: 1px; height: 14px; margin: 0 4px; background: var(--line); }
+  section[id], details[id], article[id] { scroll-margin-top: 56px; }
   .legend-note { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); }
   .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
   .desk { display: grid; gap: 28px; padding-top: 8px; border-top: 2px solid var(--fg); }
@@ -105,23 +114,73 @@
   .econ .sale { color: var(--fg); font-weight: 600; border-top: 1px solid var(--line); padding-top: 4px; }
   .at { font-weight: 600; border-bottom: 2px solid var(--accent); padding-bottom: 1px; }
   td.off { color: var(--muted); }
+  .sub.w { white-space: normal; min-width: 150px; max-width: 220px; margin-left: auto; }
+  td .mini { margin-left: auto; }
+  .state { display: inline-block; padding: 1px 10px; border-radius: 999px; border: 1px solid currentColor; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .state.tight { color: var(--warn); } .state.long { color: var(--accent); } .state.mixed { color: var(--muted); }
+  .market > header { gap: 8px; }
+  .market > header .head { justify-content: flex-start; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; align-items: start; }
+  .facts > div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+  .facts h4, .board h4 { margin: 0; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .facts ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 13px; }
+  .cite { display: block; color: var(--muted); font-size: 11.5px; text-decoration: none; }
+  a.cite:hover { color: var(--accent); text-decoration: underline; }
+  .panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+  .panels > * { min-width: 0; display: grid; gap: 10px; align-content: start; }
+  .panels > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  @media (max-width: 860px) { .panels { grid-template-columns: minmax(0, 1fr); } }
+  .glance td { vertical-align: middle; }
+  .glance tr.group td { padding-top: 18px; color: var(--muted); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--fg); }
+  .glance a { color: var(--fg); text-decoration: none; font-weight: 600; }
+  .glance a:hover { color: var(--accent); }
+  .glance .read { min-width: 220px; max-width: 46ch; }
+  .glance .brief { display: none; }
+  @media (max-width: 700px) {            /* on a phone the last columns fold under the name */
+    .glance th:nth-child(n+4), .glance td:nth-child(n+4), .fold th:first-child, .fold td:first-child,
+    .fold th:last-child, .fold td:last-child { display: none; }
+    .glance .brief { display: block; }
+    .glance .sub, .glance .brief { white-space: normal; }
+    .glance td:first-child { width: 48%; }
+    .sub.w { min-width: 110px; }
+  }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; align-items: start; }
+  .board article { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; }
+  .board .head { align-items: baseline; }
+  .board ul { margin: 0; padding: 0; list-style: none; font-size: 13px; }
+  .board li { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; border-top: 1px solid var(--line); }
+  .board li .name { flex: 1; min-width: 0; }
+  .board li .val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .board li .chg { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .board li .dot { flex: none; margin: 0; align-self: center; }
+  .more { font-size: 12.5px; text-decoration: none; }
+  .pages { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .pages a { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--fg); align-content: start; }
+  .pages a:hover { border-color: var(--accent); }
+  .pages b { font-weight: 600; } .pages span { color: var(--muted); font-size: 12.5px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <nav aria-label="Pages">
-  <span class="brand">Commodity Arbitrage Monitor</span>
-  <a href="index.html" class="{{ 'on' if page == 'energy' }}">Energy</a>
-  <a href="bulk.html" class="{{ 'on' if page == 'bulk' }}">Dry bulk &amp; metals</a>
-  <a href="freight.html" class="{{ 'on' if page == 'freight' }}">Freight</a>
-  <a href="ideas.html" class="{{ 'on' if page == 'ideas' }}">Trade ideas</a>
-  {% if private %}<span class="badge">private build</span>{% endif %}
+  <a class="brand" href="index.html">Commodity Arbitrage Monitor</a>
+  <div class="links">
+    <a href="index.html" class="{{ 'on' if page == 'overview' }}">Overview</a>
+    <a href="energy.html" class="{{ 'on' if page == 'energy' }}">Energy</a>
+    <a href="bulk.html" class="{{ 'on' if page == 'bulk' }}">Dry bulk &amp; metals</a>
+    <a href="freight.html" class="{{ 'on' if page == 'freight' }}">Freight</a>
+    <a href="balance.html" class="{{ 'on' if page == 'balance' }}">Supply &amp; demand</a>
+    <a href="ideas.html" class="{{ 'on' if page == 'ideas' }}">Trade ideas</a>
+    {% if private %}<span class="badge">private build</span>{% endif %}
+  </div>
 </nav>
+{% set sections %}{% block subnav %}{% endblock %}{% endset %}
+{% if sections|trim %}<div class="subnav" role="navigation" aria-label="On this page">{{ sections }}</div>{% endif %}
 
 {% block content %}{% endblock %}
 
-<footer>Prices come from Yahoo Finance and TradingView, delayed, plus manual inputs. Built {{ built }}. Not investment advice. Source on <a href="https://github.com/alanlegourrierec/commodity-arb-monitor">GitHub</a>.</footer>
+<footer>Prices come from Yahoo Finance and TradingView, delayed, plus manual inputs. Port flows and chokepoint counts come from IMF PortWatch, and US weekly balances from the EIA. Built {{ built }}. Not investment advice. Source on <a href="https://github.com/alanlegourrierec/commodity-arb-monitor">GitHub</a>.</footer>
 </div>
 
 <script>
@@ -145,6 +204,28 @@
         if (window.innerWidth < 640) makeRoomForLegend(gd);
       });
     });
+    // On a phone the menu scrolls sideways, so bring the current page into view.
+    var here = document.querySelector("nav .links a.on");
+    if (here) here.parentElement.scrollLeft = here.offsetLeft - here.parentElement.offsetLeft - 16;
+    // The bar under the menu follows the section being read.
+    var bar = document.querySelector(".subnav");
+    if (bar && "IntersectionObserver" in window) {
+      var links = {};
+      bar.querySelectorAll("a").forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
+      var watch = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          Object.keys(links).forEach(function (id) { links[id].classList.remove("on"); });
+          var link = links[entry.target.id];
+          link.classList.add("on");
+          bar.scrollLeft = link.offsetLeft - bar.clientWidth / 2 + link.offsetWidth / 2;
+        });
+      }, { rootMargin: "-15% 0px -75% 0px" });
+      Object.keys(links).forEach(function (id) {
+        var target = document.getElementById(id);
+        if (target) watch.observe(target);
+      });
+    }
     var select = document.getElementById("family");
     if (!select) return;
     var units = JSON.parse(select.dataset.units);

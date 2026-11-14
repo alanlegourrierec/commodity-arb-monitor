@@ -3,6 +3,7 @@
 {% block title %}Dry bulk & metals · Commodity Arbitrage Monitor{% endblock %}
 {% macro v(key, d=2) %}{% if fwd[key] is defined and fwd[key] is not none %}{{ fwd[key]|num(d) }}{% elif px[key] %}{{ px[key].value|num(d) }}{% else %}—{% endif %}{% endmacro %}
 {% macro supramax_note() %}{% if snap.supramax_gap %}<p class="disclaimer">{% if private %}{{ licence_note }} on the legs marked below.{% else %}<span class="tag">Supramax freight</span> {{ private_note }}.{% endif %}</p>{% endif %}{% endmacro %}
+{% block subnav %}<a href="#map">Map</a><a href="#coal-desk">Coal</a><a href="#ferrous-desk">Ferrous</a><a href="#metals-desk">Base metals</a><a href="#routes">Routes</a><a href="#terms">Delivery terms</a><a href="#history">History</a><a href="#spreads">Spreads</a><a href="#prices">Prices</a><a href="#method">Method</a>{% endblock %}
 {% block content %}
 <header>
   <p class="eyebrow">Coal · Ferrous · Base metals</p>
@@ -23,6 +24,7 @@
   <header>
     <p class="eyebrow">Desk</p>
     <h2>Coal</h2>
+    <p class="note">Supply and demand behind this desk, for <a href="balance.html#coal">thermal coal</a> and <a href="balance.html#coking">coking coal</a>.</p>
   </header>
   <dl class="strip">
     <div><dt>API2 CIF ARA</dt><dd>{{ v('API2') }}</dd></div>
@@ -75,6 +77,7 @@
   <header>
     <p class="eyebrow">Desk</p>
     <h2>Ferrous</h2>
+    <p class="note">Supply and demand behind this desk, for <a href="balance.html#ore">iron ore</a> and <a href="balance.html#steel">steel and scrap</a>.</p>
   </header>
   <dl class="strip">
     <div><dt>Iron ore 62% CFR</dt><dd>{{ v('IRON_ORE_62') }}</dd></div>
@@ -119,6 +122,7 @@
   <header>
     <p class="eyebrow">Desk</p>
     <h2>Base metals</h2>
+    <p class="note">Supply and demand behind this desk, for <a href="balance.html#copper">copper</a> and <a href="balance.html#aluminium">aluminium</a>.</p>
   </header>
   <dl class="strip">
     <div><dt>LME copper</dt><dd>{{ v('LME_COPPER', 0) }}</dd></div>
@@ -143,7 +147,7 @@
 
 {{ m.tables(spread_rows, prices, assumptions, load_date) }}
 
-<details>
+<details id="method">
   <summary>Method and limits</summary>
   <div class="method">
     <p><b>Timing.</b> A cargo bought today loads in about 30 days. The purchase is priced for the loading day and the sale for the landing day, both read off the forward curve. A monthly index is pinned to the 15th of its month and a future to its expiry, and days in between are interpolated. Nothing steps when a front contract expires.</p>

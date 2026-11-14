@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Trade ideas · Commodity Arbitrage Monitor{% endblock %}
+{% block subnav %}{% for i in ideas %}<a href="#{{ i.id }}">{{ i.desk }}</a>{% endfor %}<a href="#method">How to read an idea</a>{% endblock %}
 {% block content %}
 <header>
   <p class="eyebrow">One physical trade per desk</p>
@@ -11,7 +12,7 @@
 <div class="ideas">
 {% for i in ideas %}
   {% set e = i.economics %}
-  <article class="idea">
+  <article class="idea" id="{{ i.id }}">
     <div>
       <p class="eyebrow">{{ i.desk }} · written {{ i.date }}</p>
       <h3>{{ i.title }}</h3>
@@ -43,12 +44,12 @@
     <div><h4>Why</h4><ul>{% for line in i.why %}<li>{{ line }}</li>{% endfor %}</ul></div>
     <div><h4>Hedge</h4><p>{{ i.hedge }}</p></div>
     <div><h4>What kills it</h4><ul>{% for line in i.risks %}<li>{{ line }}</li>{% endfor %}</ul></div>
-    <p class="note">Horizon {{ i.horizon }}.</p>
+    <p class="note">Horizon {{ i.horizon }}.{% if i.market %} The balance behind it is under <a href="balance.html#{{ i.market }}">supply and demand</a>.{% endif %}</p>
   </article>
 {% endfor %}
 </div>
 
-<details>
+<details id="method">
   <summary>How to read an idea</summary>
   <div class="method">
     <p><b>The deal sheet</b> runs from the purchase to the sale. Each line is a delivery term and what it adds. FOB is on board at the load port. CFR adds the freight, CIF the cargo insurance, DAP what is lost on the way, and duty paid the import duties. The cargo stops at the term it is sold on. Whatever comes after is the buyer's cost and stays out of the margin. Financing and inspection stay with the seller on every term.</p>

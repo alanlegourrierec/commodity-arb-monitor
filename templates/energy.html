@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
 {% block title %}Energy · Commodity Arbitrage Monitor{% endblock %}
+{% block subnav %}<a href="#map">Map</a><a href="#routes">Routes</a><a href="#terms">Delivery terms</a>{% if rvo %}<a href="#rins">RINs</a>{% endif %}<a href="#lng">LNG</a><a href="#history">History</a><a href="#spreads">Spreads</a><a href="#prices">Prices</a><a href="#method">Method</a>{% endblock %}
 {% block content %}
 <header>
   <p class="eyebrow">Crude · Refined products · LNG</p>
@@ -11,14 +12,14 @@
   {% if export %}A Gulf Coast refiner nets <b>{{ export.margin|num(0) }} $/t</b> more by exporting diesel to Rotterdam than by selling it at home.{% endif %}
   {% if lng_asia and lng_gap is not none %}A US LNG cargo nets <b>{{ lng_gap|abs|num }} $/MMBtu</b> more in {{ 'Asia' if lng_gap >= 0 else 'Europe' }} than in {{ 'Europe' if lng_gap >= 0 else 'Asia' }}.{% endif %}
   {% if killed %}The curve alone shuts {% for r in killed %}<b>{{ r.route }}</b>{{ ', ' if not loop.last }}{% endfor %}. The spread pays for the ship but not for the backwardation over the voyage.{% endif %}</p>
-  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. A cargo bought today loads around {{ load_date|day }}, and every price is read off its forward curve for the day the cargo loads or lands. Freight comes from rate overrides on {{ snap.summary.freight_overrides }} routes and from the voyage model on the others. Margins include EU allowances on European legs.</p>
+  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. A cargo bought today loads around {{ load_date|day }}, and every price is read off its forward curve for the day the cargo loads or lands. Freight comes from rate overrides on {{ snap.summary.freight_overrides }} routes and from the voyage model on the others. Margins include EU allowances on European legs. Why the spreads are where they are is on the Supply &amp; demand page, for <a href="balance.html#crude">crude</a>, <a href="balance.html#diesel">diesel</a>, <a href="balance.html#gasoline">gasoline</a> and <a href="balance.html#gas">gas and LNG</a>.</p>
 </header>
 
 {{ m.cards(cards) }}
 
 {{ m.route_map(charts.map) }}
 
-{{ m.route_table(routes, "Margin is what is left after freight with EU allowances, the costs of the term the cargo is sold on, financing and the curve. Curve is what the forward price gains or loses between loading and arrival. Break-even is the highest freight that keeps the arb open. The green part of the bar runs up to it and the black mark is today's freight. Break-even TCE compares directly with Baltic assessments in $/day. Two margins belong to someone other than a spot trader, and say so. The LNG one is earned by an offtaker with a tolling contract, who pays Henry Hub plus a fee whatever the market does. The Gulf Coast diesel one is earned by the refiner that exports.") }}
+{{ m.route_table(routes, "Margin is what is left after freight with EU allowances, the costs of the term the cargo is sold on, financing and the curve. Curve is what the forward price gains or loses between loading and arrival. Break-even is the highest freight that keeps the arb open. The bar under it is green up to that level and the black mark is today's freight. Break-even TCE compares directly with Baltic assessments in $/day. Two margins belong to someone other than a spot trader, and say so. The LNG one is earned by an offtaker with a tolling contract, who pays Henry Hub plus a fee whatever the market does. The Gulf Coast diesel one is earned by the refiner that exports.") }}
 
 {{ m.terms_table(routes, "Each column is what the cargo has cost by the time it reaches that term. FOB is on board at the load port. CFR adds the freight, CIF the cargo insurance, DAP what is lost on the way, and duty paid the import duty and the RINs an importer owes in the US. The underlined figure is the term the route is sold on. Costs to its right are the buyer's and stay out of the margin. Margin is the sale price less the underlined cost, financing, inspection and the curve. One day late is the hire and the interest for one more day.") }}
 
@@ -42,7 +43,7 @@
 
 {{ m.tables(spread_rows, prices, assumptions, load_date) }}
 
-<details>
+<details id="method">
   <summary>Method and limits</summary>
   <div class="method">
     <p><b>Margin.</b> Sale price less purchase price, freight, the costs of the sale term, financing, inspection and the curve. Crude is in $/bbl, products in $/t and LNG in $/MMBtu loaded.</p>
