@@ -67,5 +67,5 @@ def test_a_live_run_builds_from_the_feed(tmp_path, monkeypatch):
     brent = next(p for p in snap["prices"] if p["key"] == "BRENT")
     assert brent["symbol"].startswith("BRN") and len(brent["symbol"]) == 8      # a named contract, not BRN1!
     assert all(r.get("margin") is not None for r in snap["routes"])
-    for page in ("index.html", "bulk.html", "freight.html", "ideas.html"):
+    for page in ("index.html", "energy.html", "bulk.html", "freight.html", "balance.html", "ideas.html"):
         assert (out / page).stat().st_size > 20_000
