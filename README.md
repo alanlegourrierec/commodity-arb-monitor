@@ -35,7 +35,7 @@ Freight comes from a rate override when there is one, as a Worldscale rate with 
 voyage cost = TCE x days + fuel x sea days x VLSFO + port costs + canal (+ EU allowances)
 ```
 
-Round voyages pay the ballast leg. Trip charters, such as petcoke and scrap to India, do not. Distances and map lanes come from `searoute`. Vessel, route and cost assumptions are in `arb/config.py`.
+Round voyages pay the ballast leg. Trip charters, such as coal, petcoke and scrap to India, pay the days on hire only, plus a ballast bonus when the fixture carries one (a `BB_<leg>` row in the freight file). Distances and map lanes come from `searoute`. Vessel, route and cost assumptions are in `arb/config.py`.
 
 ### Delivery terms
 
