@@ -1,0 +1,173 @@
+{
+ "source": "EIA",
+ "fetched": "2026-11-14",
+ "series": {
+  "crude_stocks": {
+   "label": "Commercial crude stocks",
+   "unit": "Mbbl",
+   "week": "2026-11-06",
+   "value": 414.417,
+   "previous": 409.76,
+   "year_ago": 427.581
+  },
+  "spr": {
+   "label": "Strategic reserve",
+   "unit": "Mbbl",
+   "week": "2026-11-06",
+   "value": 279.535,
+   "previous": 282.184,
+   "year_ago": 410.393
+  },
+  "gasoline_stocks": {
+   "label": "Gasoline stocks",
+   "unit": "Mbbl",
+   "week": "2026-11-06",
+   "value": 210.757,
+   "previous": 208.958,
+   "year_ago": 205.064
+  },
+  "distillate_stocks": {
+   "label": "Distillate stocks",
+   "unit": "Mbbl",
+   "week": "2026-11-06",
+   "value": 103.33,
+   "previous": 99.259,
+   "year_ago": 110.909
+  },
+  "jet_stocks": {
+   "label": "Jet fuel stocks",
+   "unit": "Mbbl",
+   "week": "2026-11-06",
+   "value": 41.979,
+   "previous": 41.782,
+   "year_ago": 42.816
+  },
+  "cushing": {
+   "label": "Cushing crude stocks",
+   "unit": "Mbbl",
+   "week": "2026-11-06",
+   "value": 27.356,
+   "previous": 27.25,
+   "year_ago": 22.519
+  },
+  "crude_production": {
+   "label": "Crude production",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 14013.0,
+   "previous": 14003.0,
+   "year_ago": 13862.0,
+   "four_week": 13819.0,
+   "four_week_year_ago": 13697.0
+  },
+  "crude_imports": {
+   "label": "Crude imports",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 6698.0,
+   "previous": 6374.0,
+   "year_ago": 5222.0,
+   "four_week": 6301.0,
+   "four_week_year_ago": 5529.0
+  },
+  "crude_exports": {
+   "label": "Crude exports",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 3455.0,
+   "previous": 3675.0,
+   "year_ago": 2816.0,
+   "four_week": 3857.0,
+   "four_week_year_ago": 3937.0
+  },
+  "refinery_input": {
+   "label": "Crude runs",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 17047.0,
+   "previous": 16725.0,
+   "year_ago": 15973.0,
+   "four_week": 16737.0,
+   "four_week_year_ago": 15545.0
+  },
+  "product_exports": {
+   "label": "Product exports",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 7543.0,
+   "previous": 7196.0,
+   "year_ago": 7208.0,
+   "four_week": 7455.0,
+   "four_week_year_ago": 7063.0
+  },
+  "gasoline_supplied": {
+   "label": "Gasoline supplied",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 8767.0,
+   "previous": 8808.0,
+   "year_ago": 9028.0,
+   "four_week": 8729.0,
+   "four_week_year_ago": 8820.0
+  },
+  "distillate_supplied": {
+   "label": "Distillate supplied",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 3411.0,
+   "previous": 4439.0,
+   "year_ago": 4018.0,
+   "four_week": 3947.0,
+   "four_week_year_ago": 3789.0
+  },
+  "jet_supplied": {
+   "label": "Jet fuel supplied",
+   "unit": "kb/d",
+   "week": "2026-11-06",
+   "value": 1889.0,
+   "previous": 1728.0,
+   "year_ago": 1636.0,
+   "four_week": 1777.0,
+   "four_week_year_ago": 1746.0
+  },
+  "utilisation": {
+   "label": "Refinery utilisation",
+   "unit": "%",
+   "week": "2026-11-06",
+   "value": 95.2,
+   "previous": 94.5,
+   "year_ago": 89.4,
+   "four_week": 94.0,
+   "four_week_year_ago": 87.6
+  }
+ },
+ "gas": {
+  "label": "Working gas in storage",
+  "unit": "bcf",
+  "week": "2026-11-06",
+  "value": 3862,
+  "previous": 3801,
+  "year_ago": 3954,
+  "five_year": 3787
+ },
+ "history": {
+  "2026-11-06": {
+   "crude_stocks": 414.417,
+   "spr": 279.535,
+   "gasoline_stocks": 210.757,
+   "distillate_stocks": 103.33,
+   "jet_stocks": 41.979,
+   "cushing": 27.356,
+   "crude_production": 14013.0,
+   "crude_imports": 6698.0,
+   "crude_exports": 3455.0,
+   "refinery_input": 17047.0,
+   "product_exports": 7543.0,
+   "gasoline_supplied": 8767.0,
+   "distillate_supplied": 3411.0,
+   "jet_supplied": 1889.0,
+   "utilisation": 95.2
+  }
+ },
+ "week": "2026-11-06"
+}

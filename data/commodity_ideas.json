@@ -1,8 +1,9 @@
 [
   {
     "id": "crude-destock",
+    "market": "crude",
     "desk": "Crude",
-    "date": "2026-11-13",
+    "date": "2026-11-14",
     "title": "Empty the tanks into the backwardation",
     "trade": "Sell 1 Mbbl of WTI from Cushing tanks on the December contract, buy the February contract to refill",
     "vessel": "No ship, pipeline and tank",
@@ -17,8 +18,8 @@
     "why": [
       "WTI is backwardated by about 1.4 $/bbl a month, so the market pays to release barrels now.",
       "Both export arbs are shut. WTI lands in Rotterdam and in Ningbo above the local alternative, so the barrel is worth more sold at home.",
-      "Hormuz has been shut since March, which keeps the front of the curve tight. PortWatch counted 27 transits in the week to 8 November, against 527 a year earlier.",
-      "US crude stocks rose 9 Mbbl in the week to 6 November (API), so the refill should not be short."
+      "Gulf exports are still 26% under pre-war and stocks on land are the lowest since 2016 (IEA, 13 November). That keeps the front of the curve paid.",
+      "US crude stocks rose 4.7 Mbbl in the week to 6 November (EIA) and the IEA sees a surplus this quarter, so the refill should not be short."
     ],
     "hedge": "The February futures are the refill. They are swapped for physical (EFP) when the barrels come back.",
     "risks": [
@@ -38,6 +39,7 @@
   },
   {
     "id": "diesel-destock",
+    "market": "diesel",
     "desk": "Products",
     "date": "2026-11-13",
     "title": "Sell diesel prompt, buy it back in February",
@@ -75,8 +77,9 @@
   },
   {
     "id": "lng-asia",
+    "market": "gas",
     "desk": "LNG",
-    "date": "2026-11-13",
+    "date": "2026-11-14",
     "title": "A mid-December US cargo pays more in Asia than in Europe",
     "trade": "Buy a FOB Sabine Pass cargo at its European netback, sell DES Japan or Korea on JKM for the day it lands",
     "vessel": "174k m³ carrier via Panama",
@@ -85,8 +88,8 @@
     "compare_route_id": "LNG_US_NWE",
     "buy_at": "alternative",
     "why": [
-      "A spot US cargo is priced off Europe, its usual outlet. 57% of US exports went there in September.",
-      "For mid-December, JKM is about 1.9 $/MMBtu over TTF. Japan through Panama costs about 0.65 more to reach than Rotterdam.",
+      "A spot US cargo is priced off Europe, its usual outlet. 54% of US exports went there in September.",
+      "For mid-December, JKM is about 1.9 $/MMBtu over TTF. Japan through Panama costs about 0.7 more to reach than Rotterdam.",
       "JKM is backwardated, with January 1.75 below December. A cargo landing in the first days of January is priced between the two, which takes about 1.1 off."
     ],
     "hedge": "At loading, sell JKM and buy TTF for the landing month, for the cargo size.",
@@ -107,6 +110,7 @@
   },
   {
     "id": "coal-rb-japan",
+    "market": "coal",
     "desk": "Coal",
     "date": "2026-11-13",
     "title": "South African coal goes east, not to Europe",
@@ -139,6 +143,7 @@
   },
   {
     "id": "hrc-eu-us",
+    "market": "steel",
     "desk": "Ferrous",
     "date": "2026-11-13",
     "title": "European coil still lands under US prices after the tariff",
@@ -170,6 +175,7 @@
   },
   {
     "id": "copper-tariff-option",
+    "market": "copper",
     "desk": "Base metals",
     "date": "2026-11-13",
     "title": "Copper into the US before a tariff, an option the curve already prices",
