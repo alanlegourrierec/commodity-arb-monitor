@@ -11,7 +11,7 @@ import logging
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from arb import bulk, calc, history, ideas, inputs, prices, report, shipping, terms
+from arb import balance, bulk, calc, eia, flows, history, ideas, inputs, prices, report, shipping, terms
 from arb.config import (FREIGHT_KEY, LICENCE_NOTE, LICENSED, LOAD_LEAD_DAYS, PRICE_BOUNDS, PRIVATE_NOTE,
                         SUPRAMAX_LEGS)
 
@@ -57,7 +57,7 @@ def main(argv=None):
     ap.add_argument("--private", help="folder with freight.csv / trade_ideas.json (kept out of git)")
     ap.add_argument("--out", help="output folder (default site/, or build_private/ with --private)")
     ap.add_argument("--no-history", action="store_true", help="do not write the history file")
-    ap.add_argument("--offline", action="store_true", help="do not call PortWatch, use data/chokepoints.json")
+    ap.add_argument("--offline", action="store_true", help="do not call PortWatch or the EIA, use the files in data/")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -94,9 +94,14 @@ def main(argv=None):
         r["ladder"] = terms.ladder(r)
         r["buyer_side"] = terms.beyond(r)
 
-    choke_file = DATA / "chokepoints.json"
-    chokepoints = (shipping.load_chokepoints(choke_file) if args.offline or args.prices_file
-                   else shipping.update_chokepoints(choke_file, today))
+    offline = args.offline or args.prices_file
+    choke_file, flows_file, weekly_file = DATA / "chokepoints.json", DATA / "port_flows.json", DATA / "us_weekly.json"
+    if offline:
+        chokepoints = shipping.load_chokepoints(choke_file)
+        port_flows, us_weekly = flows.load_flows(flows_file), eia.load_weekly(weekly_file)
+    else:
+        chokepoints = shipping.update_chokepoints(choke_file, today)
+        port_flows, us_weekly = flows.update_flows(flows_file, today), eia.update_weekly(weekly_file, today)
     freight = dict(chokepoints=shipping.chokepoint_summary(chokepoints), chokepoint_weeks=chokepoints,
                    vessels=shipping.vessel_costs(px, overrides, all_routes), curves=shipping.curve_table(curves),
                    storage=shipping.storage_check(curves, px), headroom=shipping.headroom(all_routes))
@@ -111,8 +116,13 @@ def main(argv=None):
     forward = {key: ctx.at(key, LOAD_LEAD_DAYS) for key in px}
     load_date = (today + timedelta(days=LOAD_LEAD_DAYS)).isoformat()
 
+    # supply and demand: the curve, the measured flows and the dated facts, market by market
+    markets = balance.assemble(balance.load_notes(DATA / "balance.json"), ctx, curves, flows.summary(port_flows),
+                               us_weekly, all_routes, overrides, freight["chokepoints"])
+
     snapshot = dict(
         prices_asof=asof, load_date=load_date, forward=forward,
+        port_flows=dict(latest_day=(port_flows or {}).get("latest_day"), fetched=(port_flows or {}).get("fetched")),
         routes=routes, spreads=result["spreads"], assumptions=result["assumptions"],
         bulk=dry, freight=freight, prices=price_rows, price_keys=PRICE_GROUPS, supramax_gap=supramax_gap,
         summary=dict(routes=len(routes), open=sum(r["status"] == "Open" for r in routes),
@@ -127,7 +137,7 @@ def main(argv=None):
     freight_ideas = ideas.load_freight_ideas(private / "trade_ideas.json") if private else []
     desk_ideas = ideas.load_commodity_ideas(DATA / "commodity_ideas.json", all_routes, curves, today)
     page = report.build(snapshot, rows, out, freight_ideas=freight_ideas, desk_ideas=desk_ideas,
-                        private=bool(private))
+                        private=bool(private), balance=markets)
     (out / "snapshot.json").write_text(json.dumps(snapshot, indent=1, ensure_ascii=False, default=str),
                                        encoding="utf-8")
 

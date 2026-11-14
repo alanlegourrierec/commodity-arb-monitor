@@ -1,12 +1,14 @@
 # Commodity Arbitrage Monitor
 
-Every weekday morning this checks whether moving a cargo from one region to another still pays once the ship, the allowances, the duties and the forward curve are paid for. It is built the way a physical desk looks at its book, in four pages.
+Every weekday morning this checks whether moving a cargo from one region to another still pays once the ship, the allowances, the duties and the forward curve are paid for. It is built the way a physical desk looks at its book, in six pages.
 
 | Page | What it answers |
 |---|---|
+| Overview | Every arb by desk with its move since the last run, the state of each market in one line, and today's result on the trade ideas |
 | Energy | Does US crude pay into Europe or China, do products cross the Atlantic, and should a US LNG cargo go to Europe or Asia |
 | Dry bulk & metals | Where a Richards Bay coal cargo should go, the cheapest delivered energy into India, coking coal, the coal-to-gas switch in German power, iron ore and scrap netbacks, imported coil against local prices, copper and aluminium out of LME Rotterdam |
 | Freight | Chokepoint traffic from IMF PortWatch, which trades can pay more for ships, what a day at sea costs, curve structure and floating storage |
+| Supply & demand | Why the spreads are where they are. For each market and each ship class, the slope of the curve, port loadings from IMF PortWatch, the US weekly balance from the EIA and dated, sourced facts |
 | Trade ideas | One physical trade per desk, laid out from the purchase to the sale, with the P&L per cargo today, if it works and if it goes wrong |
 
 The live page is at https://alanlegourrierec.github.io/commodity-arb-monitor/
@@ -22,6 +24,9 @@ calc.py      voyage model, EU ETS, RINs, prices for the day a cargo loads and la
 bulk.py      coal, India fuel, coking coal, carbon, iron ore, scrap, steel, base metals
 terms.py     what each benchmark includes, and the cost of a cargo from FOB to duty paid
 shipping.py  PortWatch chokepoints, vessel day costs, curve table, storage check, freight headroom
+flows.py     PortWatch port loadings and arrivals, grouped by trade (data/port_flows.json)
+eia.py       US weekly petroleum and gas storage reports (data/us_weekly.json)
+balance.py   supply and demand by market: curve slope, measured flows, dated facts (data/balance.json)
 ideas.py     trade ideas, a live deal sheet behind dated text
 tools/       LSEG pull for the private build, Windows scheduling
 history.py   one row per route per run (data/history.csv)
@@ -70,7 +75,7 @@ Some benchmarks sit below FOB. The Houston crude future is priced in the termina
 
 ## Data
 
-Prices come from Yahoo Finance and TradingView's scanner, for the first contracts of each curve. That covers crude with Dated Brent and the Houston price, products with Eurobob and the Gulf Coast ULSD up-down, gas, coal, coking coal, iron ore, LME and COMEX metals with the Rotterdam aluminium premium, coil, rebar and scrap, EUA, German power, marine fuels and the TC20 tanker future. Chokepoint transits come from IMF PortWatch and are kept in `data/chokepoints.json`.
+Prices come from Yahoo Finance and TradingView's scanner, for the first contracts of each curve. That covers crude with Dated Brent and the Houston price, products with Eurobob and the Gulf Coast ULSD up-down, gas, coal, coking coal, iron ore, LME and COMEX metals with the Rotterdam aluminium premium, coil, rebar and scrap, EUA, German power, marine fuels and the TC20 tanker future. Chokepoint transits and port flows come from IMF PortWatch and are kept in `data/chokepoints.json` and `data/port_flows.json`. US weekly balances come from the EIA and are kept in `data/us_weekly.json`.
 
 Each contract is taken at its last settlement. The feed's close is a live price while a session is open, and each contract trades at its own pace, so the contracts already trading today step back one bar. That puts every curve on the same evening. A thin contract that did not trade in the last session is moved by the change of the nearest one that did. When a whole curve misses a session, which happens to the Dated Brent, Eurobob and Rotterdam fuel oil swaps, it is moved with Brent futures. The price table says so on the line and shows the older date. The feed's continuous symbols roll on their own calendar, so each benchmark is shown as the nearest contract of its curve, under that contract's name.
 
@@ -79,6 +84,14 @@ A monthly contract often stops trading before its month starts, while cargoes of
 A fetched price outside its sanity bounds is dropped and the manual level in `data/market_inputs.csv` takes over. Petcoke and RINs have no public feed and are typed in by hand. Any manual price older than ten days is flagged on the page.
 
 Regulatory inputs are taken from the texts and computed, not guessed. That means the EU anti-dumping and countervailing duty on Chinese hot-rolled coil (Regulations 2023/1122 and 2023/1123), CBAM certificates per tonne (Implementing Regulation 2025/2621) priced at the live EUA, the US import duty on gasoline and distillate, and the EPA renewable fuel standards for 2026 and 2027.
+
+### Supply and demand
+
+The page reads each market three ways and keeps them apart, because they do not have the same standing.
+
+- **The curve** is computed. It is the slope between the day a cargo bought today loads and 90 days later, on the same interpolated curve as the arbs, quoted a month and as a % of the price at loading.
+- **Physical flows** are measured. IMF PortWatch estimates from AIS and draught how many tonnes each ship class loads and discharges in a port. `arb/flows.py` groups ports by the trade they are known for, so dry bulk leaving Port Hedland reads as iron ore supply and dry bulk landing at Mundra as Indian coal demand, and compares the last four weeks with the same weeks a year earlier. It does not know the cargo, and it does not see a ship that sails with its transponder off, which is why Gulf and Russian loadings are labelled as seen by AIS. The EIA weekly reports give US stocks, production, trade, refinery runs and gas storage. Both are fetched without a key and kept in `data/`, so a failed fetch leaves the last reading.
+- **Dated facts** are typed by hand into `data/balance.json`, each with its source and link, under Supply, Demand, Stocks and Watch. The state of a market, tight or long, is a judgment written with them. The daily run does not touch them, and the page says how old they are once they pass ten days. A test checks that every curve, port group, route and rate the file names still exists, and that the prose keeps to the site's punctuation.
 
 ### Public and private builds
 
@@ -111,11 +124,11 @@ The codes in use are the Baltic tanker routes and C3/C5, the Capesize 5TC FFA, P
 ```
 pip install -r requirements-dev.txt
 pytest
-python run.py                        # fetch prices and PortWatch, update history, build site/
+python run.py                        # fetch prices, PortWatch and the EIA, update history, build site/
 python run.py --prices-file tests/fixtures/prices_2026-11-12.json --no-history
 ```
 
-`.github/workflows/daily.yml` does the same on weekdays at 06:40 UTC. It runs the tests, builds, commits the history, the chokepoint data and the settled contracts, and deploys to GitHub Pages.
+`.github/workflows/daily.yml` does the same on weekdays at 06:40 UTC. It runs the tests, builds, commits the history, the PortWatch and EIA data and the settled contracts, and deploys to GitHub Pages.
 
 ## Limits
 
@@ -124,6 +137,7 @@ python run.py --prices-file tests/fixtures/prices_2026-11-12.json --no-history
 - Public tanker rates are the Baltic Exchange's weekly report, so they can be a week old in a market that moves 20% in a week. The private build reads the day's rates.
 - The 30 days between the deal and loading are one assumption for every commodity.
 - There are no vessel positions, fixture lists or port line-ups, so nothing on how many ships are open in a loading area.
+- The supply and demand page builds no balance sheet and forecasts nothing in barrels or tonnes. Its port flows are estimates by port, not by cargo, and its dated facts go stale until someone rewrites them.
 - Default TCEs are rough. In a stressed market like the 2026 Hormuz crisis they can be far off, which is what the rate overrides are for.
 - Terminal fees, the cost of bringing coil to a ship, the discounts on imported coil and on South African coal in Japan, and the dry bulk handling loss are assumptions.
 - Quality is not priced. That covers Brazilian 65% ore, coal sulphur and ash, and petcoke sulphur.
