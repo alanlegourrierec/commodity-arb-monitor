@@ -15,7 +15,7 @@
       "unit": "$/bbl"
     },
     "why": [
-      "WTI is backwardated by about 1.2 $/bbl a month, so the market pays to release barrels now.",
+      "WTI is backwardated by about 1.4 $/bbl a month, so the market pays to release barrels now.",
       "Both export arbs are shut. WTI lands in Rotterdam and in Ningbo above the local alternative, so the barrel is worth more sold at home.",
       "Hormuz has been shut since March, which keeps the front of the curve tight. PortWatch counted 27 transits in the week to 8 November, against 527 a year earlier.",
       "US crude stocks rose 9 Mbbl in the week to 6 November (API), so the refill should not be short."
@@ -55,7 +55,7 @@
     "why": [
       "The distillate curve is the steepest on the board, about 2% a month in New York Harbor.",
       "ICE gasoil for November expired 91 $/t over December on 12 November. Prompt barrels are short on both sides of the Atlantic.",
-      "No cargo pays across the Atlantic in either direction once freight and RINs are counted, so the tank is the outlet.",
+      "A cargo across the Atlantic pays little or nothing once freight and RINs are counted. Gulf Coast diesel to Rotterdam is the closest, at about 2 $/t for a refiner, so the tank is the better outlet.",
       "Russian refining is down about 30% since late October after drone strikes."
     ],
     "hedge": "The February NYMEX ULSD futures are the refill, swapped for physical by EFP.",
@@ -80,14 +80,14 @@
     "title": "A mid-December US cargo pays more in Asia than in Europe",
     "trade": "Buy a FOB Sabine Pass cargo at its European netback, sell DES Japan or Korea on JKM for the day it lands",
     "vessel": "174k m³ carrier via Panama",
-    "laycan": "Load around 12 December, land in the first days of January",
+    "laycan": "Load in mid-December, land in the first days of January",
     "route_id": "LNG_US_ASIA_PANAMA",
     "compare_route_id": "LNG_US_NWE",
     "buy_at": "alternative",
     "why": [
       "A spot US cargo is priced off Europe, its usual outlet. 57% of US exports went there in September.",
-      "For mid-December, JKM is about 1.5 $/MMBtu over TTF. Japan through Panama costs about 0.65 more to reach than Rotterdam.",
-      "JKM is backwardated, with January 0.87 below December. A cargo landing on 3 January is priced between the two, which takes about 0.5 off."
+      "For mid-December, JKM is about 1.9 $/MMBtu over TTF. Japan through Panama costs about 0.65 more to reach than Rotterdam.",
+      "JKM is backwardated, with January 1.75 below December. A cargo landing in the first days of January is priced between the two, which takes about 1.1 off."
     ],
     "hedge": "At loading, sell JKM and buy TTF for the landing month, for the cargo size.",
     "risks": [
@@ -112,13 +112,13 @@
     "title": "South African coal goes east, not to Europe",
     "trade": "Buy 150 kt FOB Richards Bay on API4, sell CFR Japan at Newcastle plus freight, less a quality discount",
     "vessel": "Capesize, 150 kt",
-    "laycan": "Load around 12 December, land in early January",
+    "laycan": "Load in mid-December, land in early January",
     "route_id": "COAL_RB_JAPAN",
     "compare_route_id": "COAL_RB_NWE",
     "why": [
       "Europe is shut. API2 − API4 is about 11 $/t against 25.5 $/t of Capesize freight to Rotterdam.",
       "Japan pays Newcastle plus the Panamax freight from Australia. Sold 5 $/t under that, a Capesize from Richards Bay still clears its costs.",
-      "API4 is backwardated, 128.6 for November against 126.6 for December, so a December cargo is bought cheaper."
+      "API4 is backwardated, 127.3 for November against 126.1 for December, so a December cargo is bought cheaper."
     ],
     "hedge": "Buy API4 swaps against the purchase and sell NEWC swaps against the sale. Fix the Capesize the day the cargo is bought.",
     "risks": [
@@ -144,11 +144,11 @@
     "title": "European coil still lands under US prices after the tariff",
     "trade": "Buy 30 kt of coil ex-works in the Ruhr, sell duty paid in Houston on the CME price of the landing month",
     "vessel": "Breakbulk, Antwerp → Houston",
-    "laycan": "Ship around 12 December, land at the end of the month",
+    "laycan": "Ship in mid-December, land at the end of the month",
     "route_id": "HRC_EU_US",
     "volume": 30000,
     "why": [
-      "US Midwest coil is 1,401 $/st for December, about 1,545 $/t. European coil costs 853 $/t at the mill, then 30 to reach the ship, 45 of freight and 442 of tariff.",
+      "US Midwest coil is 1,401 $/st for December, about 1,545 $/t. European coil costs 854 $/t at the mill, then 30 to reach the ship, 45 of freight and 442 of tariff.",
       "The EU's steel regime, with a 50% out-of-quota duty since 1 July, shut Chinese coil out of Europe. European mills have tonnes to place.",
       "The CME curve is in contango, with January at 1,430 $/st, so a sale priced on landing pays more than today."
     ],
@@ -183,10 +183,10 @@
     "until": "2026-11-17",
     "why": [
       "Commerce recommended 15% on refined copper from 1 January 2027. The White House has not decided.",
-      "COMEX is only about 25 $/t over the LME for December, but about 300 $/t over for March. On a 15% tariff worth 2,000 $/t, the curve gives it roughly one chance in seven.",
-      "Landing metal before the deadline costs about 135 $/t more than the December spread pays back. That is the price of the option."
+      "COMEX is about 30 $/t under the LME for mid-December, but about 250 $/t over for March. On a 15% tariff worth 2,000 $/t, the curve gives it roughly one chance in eight.",
+      "Landing metal before the deadline costs about 190 $/t more than the December spread pays back. That is the price of the option."
     ],
-    "hedge": "Buy LME December and sell LME March against the metal, so only the US premium stays open. Selling COMEX March instead locks about 300 $/t and gives the option away.",
+    "hedge": "Buy LME December and sell LME March against the metal, so only the US premium stays open. Selling COMEX March instead locks about 250 $/t and gives the option away.",
     "risks": [
       "No tariff. The March spread falls back to where December is and three months of carry are lost.",
       "The metal must clear customs before the tariff starts, or the duty lands on the trader.",

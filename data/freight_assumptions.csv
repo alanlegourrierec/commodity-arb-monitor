@@ -30,10 +30,11 @@ param,ALU_US_TARIFF,US Section 232 tariff on aluminium,% of value,,,,,Empty: 50%
 param,ALU_ORIGIN_PREMIUM,Aluminium duty-unpaid premium in warehouse Rotterdam,$/t,,,,,Empty: 500
 freight,HP_CHINA,Capesize 150kt Hay Point → China,$/day,42800,,2026-11-13,"Baltic Exchange bulk report, week 46",BCI 5TC close
 freight,HP_INDIA,Panamax 75kt Hay Point → India,$/day,19000,,2026-11-13,"Baltic Exchange bulk report, week 46",Australian trip on a 77k dwt at the close
-freight,RB_INDIA,Supramax 55kt Richards Bay → India,$/day,21500,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),"RB → Pakistan fixture, ballast bonus ignored"
-freight,KALI_INDIA,Supramax 55kt Kalimantan → India,$/day,,,,,Empty: 20000 $/day model default
+freight,RB_INDIA,Supramax 55kt Richards Bay → India,$/day,21500,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),"RB → Pakistan fixture on a 57k dwt, paid with the ballast bonus below"
+freight,BB_RB_INDIA,Ballast bonus Richards Bay → India,$,215000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Lump sum paid to bring the ship to Richards Bay
+freight,KALI_INDIA,Supramax 55kt Kalimantan → India,$/day,17000,,2026-11-13,"Baltic Exchange bulk report, week 46","Indonesian trip on a 76k dwt, no Supramax fixture reported. Delivered around Singapore"
 freight,USG_INDIA,Supramax 60kt US Gulf → India (petcoke),$/day,34000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Petcoke trip to India
 freight,SCRAP_US_TR,Supramax 45kt US East Coast → Turkey,$/day,42000,,2026-11-13,"Baltic Exchange bulk report, week 46","Petcoke trip to East Med on a 61k dwt, grains to the Continent paid 39,000 to 40,000"
-freight,SCRAP_US_IN,Supramax 45kt US East Coast → India,$/day,,,,,Empty: 20000 $/day model default
+freight,SCRAP_US_IN,Supramax 45kt US East Coast → India,$/day,,,,,Empty: hire of the US Gulf → India trip
 freight,SCRAP_EU_TR,Supramax 45kt Rotterdam → Turkey,$/day,36000,,2026-11-06,Baltic Exchange weekly highlights (Safety4Sea),Scrap Tilbury → East Med trip
-freight,SCRAP_EU_IN,Supramax 45kt Rotterdam → India,$/day,,,,,Empty: 20000 $/day model default
+freight,SCRAP_EU_IN,Supramax 45kt Rotterdam → India,$/day,,,,,Empty: hire of the Rotterdam → Turkey trip
