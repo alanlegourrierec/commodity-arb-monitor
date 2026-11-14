@@ -116,6 +116,13 @@ def parse_storage(payload):
                 five_year=series["calculated"].get("5yr-avg"))
 
 
+def _read(session, url):
+    """Text of a report. The storage file starts with a byte order mark, which r.json() chokes on."""
+    r = session.get(url, timeout=30)
+    r.raise_for_status()
+    return r.content.decode("utf-8-sig")
+
+
 def update_weekly(path, today=None, session=None):
     """Refresh data/us_weekly.json. A report that fails keeps its last reading."""
     path = Path(path)
@@ -128,9 +135,7 @@ def update_weekly(path, today=None, session=None):
     try:
         tables = {}
         for name in sorted({t for t, *_ in SERIES.values()}):
-            r = session.get(WPSR.format(name), timeout=30)
-            r.raise_for_status()
-            tables[name] = r.text
+            tables[name] = _read(session, WPSR.format(name))
         fresh = parse_petroleum(tables)
         if "crude_stocks" not in fresh:
             raise ValueError("no stocks in table 1")
@@ -138,9 +143,7 @@ def update_weekly(path, today=None, session=None):
     except (requests.RequestException, ValueError, KeyError, IndexError) as exc:
         log.warning("EIA petroleum update failed, keeping the last report: %s", exc)
     try:
-        r = session.get(STORAGE, timeout=30)
-        r.raise_for_status()
-        data["gas"] = parse_storage(r.json())
+        data["gas"] = parse_storage(json.loads(_read(session, STORAGE)))
     except (requests.RequestException, ValueError, KeyError, StopIteration) as exc:
         log.warning("EIA gas storage update failed, keeping the last report: %s", exc)
     if not data["series"] and not data["gas"]:
