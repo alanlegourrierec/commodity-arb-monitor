@@ -25,7 +25,7 @@ class Reply:
 class Site:
     """Serves the saved report tables, or fails on the ones named in `down`.
 
-    The real storage file starts with a byte order mark, so this one does too.
+    The real tables are Windows-1252 and the storage file is UTF-8 behind a byte order mark, so these are too.
     """
 
     def __init__(self, down=()):
@@ -35,8 +35,8 @@ class Site:
         name = url.rsplit("/", 1)[-1]
         if any(part in name for part in self.down):
             raise requests.ConnectionError(name)
-        mark = b"\xef\xbb\xbf" if name.endswith(".json") else b""
-        return Reply(mark + (FIXTURES / f"eia_{name}").read_bytes())
+        text = (FIXTURES / f"eia_{name}").read_text(encoding="utf-8")
+        return Reply(b"\xef\xbb\xbf" + text.encode("utf-8") if name.endswith(".json") else text.encode("cp1252"))
 
 
 def test_stocks_are_read_with_the_week_before_and_the_year_before():
@@ -64,9 +64,10 @@ def test_gas_storage_comes_with_its_five_year_average():
         ("2026-11-06", 3862, 3801, 3954, 3787)
 
 
-def test_the_storage_file_is_read_past_its_byte_order_mark(tmp_path):
+def test_both_encodings_are_read(tmp_path):
+    assert b"\x96" in Site().get("table2.csv").content          # the dash the tables use where a change means nothing
     data = eia.update_weekly(tmp_path / "us_weekly.json", date(2026, 11, 14), Site())
-    assert data["gas"]["value"] == 3862 and data["series"]["crude_stocks"]["value"] == 414.417
+    assert data["gas"]["value"] == 3862 and data["series"]["utilisation"]["value"] == 95.2
 
 
 def test_rows_compare_stocks_on_the_week_and_flows_on_four_weeks(tmp_path):
