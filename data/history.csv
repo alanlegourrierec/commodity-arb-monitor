@@ -71,9 +71,9 @@ date,route_id,route,family,unit,status,margin,freight,freight_source,insurance,w
 2026-11-14,INDIA_INDO,Indonesian coal → India,India fuel,$/t,Closed,-1.6983,13.7309,"Baltic Exchange bulk report, week 46 TCE (2026-11-13)",0.0395,,17000.0
 2026-11-14,INDIA_PETCOKE,US petcoke → India,India fuel,$/t,Stale price,56.3493,38.6444,Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06),0.043,,34000.0
 2026-11-14,INDIA_SA,South African coal → India,India fuel,$/t,Open,2.6816,17.6079,"Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06), ballast bonus included",0.0631,,21500.0
-2026-11-14,LNG_US_ASIA_CAPE,US LNG → Asia (Cape),LNG,$/MMBtu,Open,21.3583,1.8646,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 39 days old",0.0147,0.0,25750.0
-2026-11-14,LNG_US_ASIA_PANAMA,US LNG → Asia (Panama),LNG,$/MMBtu,Open,22.5515,1.3646,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 39 days old",0.0151,0.0,25750.0
-2026-11-14,LNG_US_NWE,US LNG → Europe,LNG,$/MMBtu,Open,22.0778,0.7198,"Spark Commodities via Oil & Gas Journal TCE (2026-10-06), 39 days old",0.0145,0.0,25750.0
+2026-11-14,LNG_US_ASIA_CAPE,US LNG → Asia (Cape),LNG,$/MMBtu,Open,21.2519,1.9709,Spark Commodities via Reuters TCE (2026-11-13),0.0147,0.0,31000.0
+2026-11-14,LNG_US_ASIA_PANAMA,US LNG → Asia (Panama),LNG,$/MMBtu,Open,22.4872,1.4288,Spark Commodities via Reuters TCE (2026-11-13),0.0151,0.0,31000.0
+2026-11-14,LNG_US_NWE,US LNG → Europe,LNG,$/MMBtu,Open,22.0416,0.7559,Spark Commodities via Reuters TCE (2026-11-13),0.0145,0.0,31000.0
 2026-11-14,ORE_AUS_CHINA,Iron ore Port Hedland → Qingdao,Iron ore,$/dmt,Netback,74.0067,15.8152,"Baltic Exchange bulk report, week 46 $/t (2026-11-13)",0.0,,55058.6538
 2026-11-14,ORE_BRA_CHINA,Iron ore Tubarão → Qingdao,Iron ore,$/dmt,Netback,51.6436,38.0435,"Baltic Exchange bulk report, week 46 $/t (2026-11-13)",0.0,,47563.4873
 2026-11-14,SCRAP_EU_INDIA,Scrap Rotterdam → India,Scrap,$/t,Netback,338.901,51.099,"Baltic Exchange weekly highlights (Safety4Sea) TCE (2026-11-06), hire of Rotterdam → Iskenderun",0.0,,36000.0
