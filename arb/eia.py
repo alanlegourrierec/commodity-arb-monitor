@@ -117,10 +117,13 @@ def parse_storage(payload):
 
 
 def _read(session, url):
-    """Text of a report. The storage file starts with a byte order mark, which r.json() chokes on."""
+    """Text of a report. The storage file is UTF-8 behind a byte order mark, the tables are Windows-1252."""
     r = session.get(url, timeout=30)
     r.raise_for_status()
-    return r.content.decode("utf-8-sig")
+    try:
+        return r.content.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return r.content.decode("cp1252")
 
 
 def update_weekly(path, today=None, session=None):
