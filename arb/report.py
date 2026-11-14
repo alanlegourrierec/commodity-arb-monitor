@@ -60,6 +60,8 @@ def with_unit(v, unit, sign=False):
 def musd(v):
     if _bad(v):
         return "—"
+    if abs(float(v)) < 0.1:                      # a 1,000 t metal parcel earns thousands, not millions
+        return f"{signed(float(v) * 1000, 0)} k$"
     return f"{signed(v, 0 if abs(float(v)) >= 10 else 1)} M$"
 
 

@@ -25,9 +25,9 @@ contract expires. The time spread is what the destination curve takes away
 from datetime import date, datetime, timedelta
 
 from .config import (ADJUSTMENTS, BBL_PER_TONNE, BBL_PER_TONNE_GENERIC, CO2_PER_T_FUEL, CO2_PER_T_LNG, CURVES,
-                     EAST_LEGS, FEEDS, FREIGHT_KEY, GAL_PER_BBL, HULL_SOURCES, LEGS, LNG_FILL, LNG_T_PER_M3,
-                     LOAD_LEAD_DAYS, MMBTU_PER_M3_LNG, MWH_PER_MMBTU, PARAM_SOURCES, PARAMS, PRICE_CURVE,
-                     RFS_STANDARDS, ROUTES, STALE_DAYS, VESSELS)
+                     EAST_LEGS, FEEDS, FREIGHT_KEY, FREIGHT_PROXY, GAL_PER_BBL, HULL_SOURCES, LEGS, LNG_FILL,
+                     LNG_T_PER_M3, LOAD_LEAD_DAYS, MMBTU_PER_M3_LNG, MWH_PER_MMBTU, PARAM_SOURCES, PARAMS,
+                     PRICE_CURVE, RFS_STANDARDS, ROUTES, STALE_DAYS, VESSELS)
 from .prices import contract_month
 from .terms import covers
 
@@ -165,11 +165,18 @@ def ets_cost(ctx, leg, ship, sea_days):
 
 
 def round_voyage(ctx, leg_id, tce=None):
-    """Round voyage, or a one-way trip for legs fixed on a trip basis (no ballast leg paid)."""
+    """Round voyage, or a one-way trip for legs fixed on a trip basis.
+
+    A trip pays hire from delivery to redelivery. The way back is the owner's, and the run to the
+    load port is paid either as days on hire (`ballast_nm`) or as a ballast bonus (a BB_<leg> row).
+    """
     leg = LEGS[leg_id]
     ship = VESSELS[leg["vessel"]]
     laden_days = leg["distance_nm"] / (ship["speed_kn"] * 24)
-    sea_days = laden_days if leg.get("trip") else 2 * laden_days
+    if leg.get("trip"):
+        sea_days = laden_days + leg.get("ballast_nm", 0) / (ship["speed_kn"] * 24)
+    else:
+        sea_days = 2 * laden_days
     total_days = sea_days + ship["port_days"]
     tce = ship["default_tce"] if tce is None else tce
     hub = "SG" if leg_id in EAST_LEGS else "RDM"
@@ -177,10 +184,14 @@ def round_voyage(ctx, leg_id, tce=None):
     fuel_t = ship["fuel_t_day"] * sea_days
     bunkers = fuel_t * bunker_price
     ets = ets_cost(ctx, leg, ship, sea_days)
-    fixed = bunkers + ship["port_costs"] + leg["canal"]
+    bonus = ctx.overrides.get(f"BB_{leg_id}")
+    if bonus:
+        ctx.note(leg_id, f"BB_{leg_id}", bonus["label"], bonus["value"], "$", f"{bonus['source']} ({bonus['date']})")
+    bonus = bonus["value"] if bonus else 0.0
+    fixed = bunkers + ship["port_costs"] + leg["canal"] + bonus
     return dict(leg=leg, ship=ship, laden_days=laden_days, sea_days=sea_days, total_days=total_days,
                 tce=tce, bunkers=bunkers, fuel_t=fuel_t, bunker_price=bunker_price, bunker_hub=hub, ets=ets,
-                fixed=fixed, cost=tce * total_days + fixed)
+                ballast_bonus=bonus, fixed=fixed, cost=tce * total_days + fixed)
 
 
 def war_risk(ctx, leg_id):
@@ -206,6 +217,12 @@ def leg_freight(ctx, leg_id):
     voyage = round_voyage(ctx, leg_id)
     cargo = voyage["leg"].get("cargo_t", voyage["ship"]["cargo_t"])
     o = ctx.overrides.get(FREIGHT_KEY.get(leg_id, leg_id))
+    proxy = None
+    if not o:
+        proxy = FREIGHT_PROXY.get(leg_id)
+        o = ctx.overrides.get(proxy)
+        if not o or o["unit"].lower().replace(" ", "") not in ("$/day", "usd/day", "tce"):
+            o = proxy = None                     # only a daily hire carries over to another route
     source = "Model"
     per_tonne = voyage["cost"] / cargo
     if o:
@@ -223,6 +240,10 @@ def leg_freight(ctx, leg_id):
             voyage = round_voyage(ctx, leg_id, tce=o["value"])
             per_tonne = voyage["cost"] / cargo
             source = f"{o['source']} TCE ({o['date']})"
+            if voyage["ballast_bonus"]:
+                source += ", ballast bonus included"
+            if proxy:
+                source += f", hire of {LEGS[proxy]['name']}"
         else:
             source = f"Model (unknown unit '{o['unit']}')"
         age = ctx.age(o["date"])

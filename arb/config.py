@@ -124,7 +124,10 @@ LEGS = {
     "HP_INDIA": dict(name="Hay Point → Paradip", vessel="Panamax", distance_nm=4899, canal=0, cargo_t=75_000),
     "RB_INDIA": dict(name="Richards Bay → Mundra", vessel="Supramax", distance_nm=3891, canal=0, cargo_t=55_000,
                      trip=True),
-    "KALI_INDIA": dict(name="Taboneo → Mundra", vessel="Supramax", distance_nm=3651, canal=0, cargo_t=55_000),
+    # An Indonesian trip is also one way. The ship is delivered around Singapore, so the run down to
+    # Kalimantan is on hire, and it is redelivered in India.
+    "KALI_INDIA": dict(name="Taboneo → Mundra", vessel="Supramax", distance_nm=3651, canal=0, cargo_t=55_000,
+                       trip=True, ballast_nm=1000),
     # Petcoke to India is fixed on a trip basis (delivery US Gulf, redelivery India), so no ballast leg.
     "USG_INDIA": dict(name="Port Arthur → Mundra (Cape)", vessel="Supramax", distance_nm=12275, canal=0,
                       cargo_t=60_000, trip=True),
@@ -140,6 +143,9 @@ LEGS = {
 
 # The three US LNG legs share one Atlantic spot rate.
 FREIGHT_KEY = {"LNG_NWE": "LNG_ATL", "LNG_PANAMA": "LNG_ATL", "LNG_CAPE": "LNG_ATL"}
+# A trip with no hire of its own takes the hire of a trip that delivers in the same area, so two
+# cargoes leaving the same coast are not compared at two different freight markets.
+FREIGHT_PROXY = {"SCRAP_US_IN": "USG_INDIA", "SCRAP_EU_IN": "SCRAP_EU_TR"}
 
 # EU ETS for shipping: from 2026 owners surrender allowances for 100% of emissions on voyages between
 # EU ports and 50% on voyages into or out of the EU. `eu_ets` on a leg is that share. Charterparties
