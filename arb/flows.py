@@ -24,6 +24,7 @@ PORTS_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services
 WINDOW_DAYS = 430          # a year back for the comparison, plus the weeks before it for the average
 AVERAGE_WEEKS = 4
 PAUSES = (5, 30)           # seconds before the second and the third try
+BUDGET = 240               # seconds an update may take before it gives up and keeps the last file
 CALLS = "portcalls_tanker"
 MEASURES = {"export_tanker": "Tanker cargo loaded", "export_dry_bulk": "Dry bulk loaded",
             "import_dry_bulk": "Dry bulk discharged", CALLS: "Tanker calls"}
@@ -163,8 +164,10 @@ def update_flows(path, today=None, session=None, groups=GROUPS):
     fields = sorted({g["field"] for g in groups.values()})
     ports = sorted({p for g in groups.values() for p in g["ports"]})
     try:
-        by_port, latest = {}, ""
+        by_port, latest, started = {}, "", time.monotonic()
         for port in ports:
+            if time.monotonic() - started > BUDGET:
+                raise ValueError("PortWatch is too slow today")
             rows = fetch_port(port, today - timedelta(days=WINDOW_DAYS), fields, session)
             by_port[port] = weekly(rows, fields)
             latest = max([latest] + [_day(r["date"]) for r in rows if r.get("date")])
