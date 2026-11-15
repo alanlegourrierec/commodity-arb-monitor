@@ -11,6 +11,7 @@ from pathlib import Path
 
 import requests
 
+from . import flows
 from .calc import Context
 from .config import CO2_PER_T_FUEL, CURVES, PARAMS, VESSELS
 
@@ -52,9 +53,7 @@ def fetch_portwatch(start, session=requests):
     while True:
         params = dict(where=where, outFields="date,portname," + ",".join(FIELDS), orderByFields="date",
                       resultOffset=offset, resultRecordCount=2000, f="json")
-        r = session.get(PORTWATCH, params=params, timeout=30)
-        r.raise_for_status()
-        payload = r.json()
+        payload = flows.get(PORTWATCH, params, session)
         batch = [f["attributes"] for f in payload.get("features", [])]
         rows += batch
         if not payload.get("exceededTransferLimit") or not batch:

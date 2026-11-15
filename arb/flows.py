@@ -23,7 +23,7 @@ PORTS_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services
              "Daily_Ports_Data/FeatureServer/0/query")
 WINDOW_DAYS = 430          # a year back for the comparison, plus the weeks before it for the average
 AVERAGE_WEEKS = 4
-TRIES = 3
+PAUSES = (5, 30)           # seconds before the second and the third try
 CALLS = "portcalls_tanker"
 MEASURES = {"export_tanker": "Tanker cargo loaded", "export_dry_bulk": "Dry bulk loaded",
             "import_dry_bulk": "Dry bulk discharged", CALLS: "Tanker calls"}
@@ -73,7 +73,7 @@ def fetch_port(port_id, start, fields, session=requests):
     while True:
         params = dict(where=where, outFields="date," + ",".join(fields), orderByFields="date", returnGeometry="false",
                       resultOffset=offset, resultRecordCount=1000, f="json")
-        payload = _get(session, params)
+        payload = get(PORTS_URL, params, session)
         batch = [f["attributes"] for f in payload.get("features", [])]
         rows += batch
         if not payload.get("exceededTransferLimit") or not batch:
@@ -81,20 +81,24 @@ def fetch_port(port_id, start, fields, session=requests):
         offset += len(batch)
 
 
-def _get(session, params):
-    """One query, tried again after a pause. The service drops a request now and then."""
-    for attempt in range(TRIES):
+def get(url, params, session=requests):
+    """One PortWatch query, tried again after a pause.
+
+    The service drops a request now and then. When it is busy it answers "Too many requests" in the
+    body of a normal reply, so the body is checked as well.
+    """
+    for attempt in range(len(PAUSES) + 1):
         try:
-            r = session.get(PORTS_URL, params=params, timeout=30)
+            r = session.get(url, params=params, timeout=30)
             r.raise_for_status()
             payload = r.json()
             if "error" in payload:
                 raise ValueError(payload["error"].get("message", "PortWatch error"))
             return payload
         except (requests.RequestException, ValueError):
-            if attempt == TRIES - 1:
+            if attempt == len(PAUSES):
                 raise
-            time.sleep(2 * (attempt + 1))
+            time.sleep(PAUSES[attempt])
 
 
 def _day(value):
