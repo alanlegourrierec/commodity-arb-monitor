@@ -104,6 +104,16 @@ def test_a_failed_update_keeps_the_last_file(tmp_path, monkeypatch):
     assert data["groups"] == {"ORE": [1]}
 
 
+def test_a_slow_update_gives_up_and_keeps_the_last_file(tmp_path, monkeypatch):
+    clock = iter(range(0, 10_000, 200))                            # every look at the clock is 200 s later
+    monkeypatch.setattr(flows.time, "monotonic", lambda: next(clock))
+    path = tmp_path / "port_flows.json"
+    path.write_text(json.dumps(dict(weeks=["2026-11-01"], groups={"ORE": [1]}, ports={})), encoding="utf-8")
+    service = Service()
+    data = flows.update_flows(path, date(2026, 11, 14), service, GROUPS)
+    assert data["groups"] == {"ORE": [1]} and len(service.asked) == 1
+
+
 def test_a_dropped_request_is_tried_again(tmp_path, monkeypatch):
     monkeypatch.setattr(flows.time, "sleep", lambda s: None)
     service = Service(fail=2)
