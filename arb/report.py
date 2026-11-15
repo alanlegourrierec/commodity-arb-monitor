@@ -447,17 +447,6 @@ def idea_geometry(idea):
                 spot=pos(idea["spot_ref"]) if idea.get("spot_ref") is not None else None)
 
 
-def family_cards(routes, families):
-    cards = []
-    for fam in families:
-        rows = [r for r in routes if r["family"] == fam]
-        priced = [r for r in rows if r.get("margin") is not None]
-        best = max(priced, key=lambda r: r["margin"]) if priced else None
-        cards.append(dict(family=fam, best=best, open=sum(r["status"] == "Open" for r in rows), total=len(rows),
-                          note=best.get("whose", "") if best else ""))
-    return cards
-
-
 def desk_cards(routes, desks):
     cards = []
     for desk, fams in desks.items():
@@ -492,32 +481,82 @@ def _env():
     return env
 
 
-def board(routes, brows):
-    """Every route of the site by desk, for the overview."""
+TRADES = ("Open", "Marginal", "Closed")
+# The straits that decide each fleet's voyage length. The table on the page keeps all seven.
+TANKER_STRAITS = ("Hormuz", "Bab el-Mandeb", "Suez", "Cape of Good Hope")
+BULK_STRAITS = ("Panama", "Cape of Good Hope", "Suez", "Bab el-Mandeb")
+
+
+def board(routes, brows, lng):
+    """The arbs a trader can put on, by desk, for the overview.
+
+    Netbacks, delivered costs and margins that belong to a refiner or an offtaker stay on their own
+    pages. LNG is shown as what its trade really is, the gap between the two destinations.
+    """
     desks = [("Crude", "energy.html", ["Crude"], routes), ("Refined products", "energy.html", ["Products"], routes),
              ("LNG", "energy.html", ["LNG"], routes),
              ("Coal", "bulk.html", ["Coal", "India fuel", "Coking coal"], brows),
              ("Ferrous", "bulk.html", ["Iron ore", "Scrap", "Steel"], brows),
              ("Base metals", "bulk.html", ["Metals"], brows)]
     out = []
-    for name, page, families, rows in desks:
-        rows = [r for r in rows if r["family"] in families]
-        trades = [r for r in rows if r["status"] in ("Open", "Marginal", "Closed")]
-        out.append(dict(name=name, page=page, routes=rows, open=sum(r["status"] == "Open" for r in trades),
-                        trades=len(trades)))
+    for name, page, families, source in desks:
+        every = [r for r in source if r["family"] in families]
+        spot = [r for r in every if r["status"] in TRADES and not r.get("whose")]
+        rows = [dict(route=r["route"], margin=r["margin"], unit=r["unit"], pill=r["status"],
+                     pill_class=status_class(r["status"])) for r in spot]
+        if name == "LNG" and lng:
+            rows.append(lng)
+        out.append(dict(name=name, page=page, rows=rows, total=len(every), trades=len(spot),
+                        open=sum(r["status"] == "Open" for r in spot)))
     return out
 
 
+def lng_diversion(routes):
+    """A spot US cargo earns the gap between its best Asian netback and its European one."""
+    lng = [r for r in routes if r["family"] == "LNG" and r.get("netback") is not None]
+    europe = next((r for r in lng if r["route_id"] == "LNG_US_NWE"), None)
+    asia = max((r for r in lng if r["route_id"] != "LNG_US_NWE"), key=lambda r: r["netback"], default=None)
+    if not europe or not asia:
+        return None
+    gap = asia["netback"] - europe["netback"]
+    return dict(route="US LNG, Asia against Europe", margin=gap, unit=europe["unit"], asia=asia,
+                pill="Asia pays more" if gap >= 0 else "Europe pays more", pill_class="ok" if gap >= 0 else "info")
+
+
+def energy_cards(routes, lng, export, killed):
+    """One message per family: the best spot arb, and what a spot trader should know next to it."""
+    cards = []
+    for family in ("Crude", "Products"):
+        spot = [r for r in routes if r["family"] == family and r.get("margin") is not None and not r.get("whose")]
+        if not spot:
+            cards.append(dict(family=family))
+            continue
+        best = max(spot, key=lambda r: r["margin"])
+        note = ""
+        if best in killed:
+            note = "The spread pays for the ship but not for the backwardation over the voyage."
+        elif family == "Products" and export:
+            note = f"A Gulf Coast refiner still nets {export['margin']:,.0f} $/t more by exporting diesel than by selling it at home."
+        cards.append(dict(family=family, title=best["route"], value=best["margin"], unit=best["unit"], pill=best["status"],
+                          pill_class=status_class(best["status"]), note=note,
+                          count=f"{sum(r['status'] == 'Open' for r in spot)} of {len(spot)} open"))
+    if lng:
+        cards.append(dict(family="LNG", title=lng["route"], value=lng["margin"], unit=lng["unit"], pill=lng["pill"],
+                          pill_class=lng["pill_class"], count="",
+                          note="A spot cargo is worth its best netback, so the trade is the gap between destinations."))
+    return cards
+
+
 def since_last_run(history, routes, today):
-    """Mark each route with its move against the last run before today. Returns the date of that run."""
+    """Mark each route with the status it had at the last run before today. Returns the date of that run."""
     days = sorted({row["date"] for row in history if row["date"] < today})
     if not days:
         return None
     before = {row["route_id"]: row for row in history if row["date"] == days[-1]}
     for r in routes:
         old = before.get(r["route_id"])
-        if old and r.get("margin") is not None and not _bad(old.get("margin")):
-            r["change"], r["was"] = r["margin"] - float(old["margin"]), old["status"]
+        if old:
+            r["was"] = old["status"]
     return days[-1]
 
 
@@ -548,22 +587,19 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
     routes = snapshot["routes"]
     for r in routes:
         r["bar"] = bar_geometry(r.get("freight"), r.get("breakeven_freight"))
-    priced = [r for r in routes if r.get("pnl_musd") is not None and not r.get("whose")]    # what a trader can buy
+    spot = [r for r in routes if r.get("margin") is not None and not r.get("whose")]         # what a trader can buy
     export = next((r for r in routes if r["route_id"] == "DIESEL_USGC_NWE" and (r.get("margin") or 0) > 0), None)
-    lng = [r for r in routes if r["family"] == "LNG" and r.get("netback") is not None]
-    europe = next((r for r in lng if r["route_id"] == "LNG_US_NWE"), None)
-    asia = max((r for r in lng if r["route_id"] != "LNG_US_NWE"), key=lambda r: r["netback"], default=None)
+    lng = lng_diversion(routes)
     curve_cost = [r for r in routes if (r.get("time_spread") or 0) > 0 and r.get("margin") is not None]
+    killed = [r for r in curve_cost if r["margin"] < 0 < r["margin"] + r["time_spread"]]
     charts = dict(map=_html(route_map(routes, paths)), lng=_html(lng_chart(routes)),
                   margin=_html(history_chart(history, "margin", "Margin", ENERGY_FAMILIES)),
                   freight=_html(history_chart(history, "freight", "Freight", ENERGY_FAMILIES)),
                   insurance=_html(history_chart(history, "insurance", "Insurance (cargo + war risk)", ENERGY_FAMILIES)))
     html = env.get_template("energy.html").render(
-        **common, page="energy", routes=routes, cards=family_cards(routes, ENERGY_FAMILIES), charts=charts,
-        best=max(priced, key=lambda r: r["pnl_musd"]) if priced else None, rvo=rin_summary(snapshot, px),
-        export=export,
-        lng_gap=(asia["netback"] - europe["netback"]) if asia and europe else None, lng_asia=asia,
-        killed=[r for r in curve_cost if r["margin"] < 0 < r["margin"] + r["time_spread"]],
+        **common, page="energy", routes=routes, cards=energy_cards(routes, lng, export, killed), charts=charts,
+        spot=spot, best=max(spot, key=lambda r: r.get("pnl_musd") or 0) if spot else None,
+        rvo=rin_summary(snapshot, px), lng=lng,
         spreads={s["key"]: s for s in snapshot["spreads"]}, spread_rows=snapshot["spreads"], prices=price_rows("energy"),
         assumptions=snapshot["assumptions"], families=ENERGY_FAMILIES, units=UNITS)
     (out / "energy.html").write_text(html, encoding="utf-8")
@@ -601,8 +637,8 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
     td25 = next((r for r in routes if r["route_id"] == "CRUDE_USGC_NWE"), None)
     fcharts = dict(curves=[_html(curve_chart(fr["curves"], keys, title)) for title, keys in CURVE_GROUPS],
                    headroom=_html(headroom_chart(fr["headroom"])),
-                   tankers=_html(chokepoint_chart(fr["chokepoint_weeks"], "n_tanker", "Tankers")),
-                   bulkers=_html(chokepoint_chart(fr["chokepoint_weeks"], "n_dry_bulk", "Bulk carriers")))
+                   tankers=_html(chokepoint_chart(fr["chokepoint_weeks"], "n_tanker", "Tankers", TANKER_STRAITS)),
+                   bulkers=_html(chokepoint_chart(fr["chokepoint_weeks"], "n_dry_bulk", "Bulk carriers", BULK_STRAITS)))
     html = env.get_template("freight.html").render(
         **common, page="freight", fr=fr, charts=fcharts, ideas=freight_ideas or [], hormuz=hormuz, td25=td25,
         all_routes=routes + brows, prices=price_rows("freight"),
@@ -622,10 +658,15 @@ def build(snapshot, history, out_dir, freight_ideas=None, desk_ideas=None, priva
     (out / "ideas.html").write_text(html, encoding="utf-8")
 
     # overview, the page the site opens on
-    trades = [r for r in routes + brows if r["status"] in ("Open", "Marginal", "Closed") and not r.get("whose")]
+    trades = [r for r in routes + brows if r["status"] in TRADES and not r.get("whose")]
     last_run = since_last_run(history, routes + brows, snapshot["prices_asof"][:10])
+    count = lambda rows: dict(open=sum(r["status"] == "Open" for r in rows), total=len(rows))
+    paying = [i for i in desk_ideas or [] if i.get("economics")]
+    energy = [r for r in trades if r["family"] in ENERGY_FAMILIES]
+    tiles = dict(energy=count(energy), bulk=count([r for r in trades if r not in energy]), hormuz=hormuz,
+                 ideas=dict(paying=sum((i["economics"].get("pnl") or 0) > 0 for i in paying), total=len(desk_ideas or [])))
     html = env.get_template("overview.html").render(
-        **common, page="overview", desks=board(routes, brows), bal=balance, ideas=desk_ideas or [],
+        **common, page="overview", desks=board(routes, brows, lng), bal=balance, ideas=desk_ideas or [], tiles=tiles,
         opened=[r for r in trades if r["status"] == "Open"], trade_count=len(trades), last_run=last_run,
         flipped=[r for r in trades if r.get("was") and "Open" in (r["status"], r["was"]) and r["status"] != r["was"]])
     (out / "index.html").write_text(html, encoding="utf-8")
