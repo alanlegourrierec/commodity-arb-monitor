@@ -1,12 +1,12 @@
 {% extends "base.html" %}
+{% import "_macros.html" as m %}
 {% block title %}Trade ideas · Commodity Arbitrage Monitor{% endblock %}
-{% block subnav %}{% for i in ideas %}<a href="#{{ i.id }}">{{ i.desk }}</a>{% endfor %}<a href="#method">How to read an idea</a>{% endblock %}
 {% block content %}
 <header>
-  <p class="eyebrow">One physical trade per desk</p>
+  <p class="eyebrow">What to do about it, one physical trade per desk</p>
   <h1>Trade ideas</h1>
-  <p class="lede">Each idea is a cargo someone could move. It says what to buy and on which term, where to sell it, and what is left after every cost on the way. The numbers are recomputed each morning from the same model as the rest of the site. The text is dated and stays as written.</p>
-  <p class="meta">Prices are the settlements of the last full session. Fetched {{ snap.prices_asof }}. Margins are per cargo, before the desk's overheads and credit lines. An analysis exercise, not investment advice.</p>
+  <p class="lede">Each idea is a cargo someone could move. It shows what the cargo makes today, what it makes if the idea works and what it loses if it goes wrong.</p>
+  <p class="meta">The numbers are recomputed every morning from the same model as the arbs, on the settlements fetched {{ snap.prices_asof }}. The text is dated and stays as written. An analysis exercise, not investment advice.</p>
 </header>
 
 <div class="ideas">
@@ -14,43 +14,50 @@
   {% set e = i.economics %}
   <article class="idea" id="{{ i.id }}">
     <div>
-      <p class="eyebrow">{{ i.desk }} · written {{ i.date }}</p>
+      <p class="eyebrow">{{ i.desk }} · written {{ i.date|day }}</p>
       <h3>{{ i.title }}</h3>
       <p class="instr">{{ i.trade }}</p>
-      <p class="instr"><span class="tag">{{ i.vessel }}</span> <span class="tag">{{ i.laycan }}</span></p>
     </div>
 
     {% if e %}
-    {% set d = 1 if e.unit == '$/t' else 2 %}
-    <dl class="econ">
-      {% for l in e.lines %}<dt class="{{ 'sale' if not e.signed and l.label.startswith('Sell') }}">{{ l.label }}{% if l.note %}<span class="sub">{{ l.note }}</span>{% endif %}</dt><dd class="{{ 'sale' if not e.signed and l.label.startswith('Sell') }}">{{ l.value|signed(d) if e.signed else l.value|num(d) }}</dd>{% endfor %}
-      {% for label, value in e.after %}<dt>{{ label }}</dt><dd>{{ value|signed(d) }}</dd>{% endfor %}
-      <dt class="total">Margin</dt><dd class="total {{ 'pos' if e.margin > 0 else 'neg' }}">{{ e.margin|with_unit(e.unit, True) }}</dd>
-      {% if e.per_day is not none %}<dt>Per day</dt><dd>{{ e.per_day|signed(3 if e.per_day|abs < 1 else 2) }} {{ e.unit }}</dd>{% endif %}
-    </dl>
-    <p class="note">{% if e.over_lme %}Figures are premiums over the LME price. {% endif %}{{ e.terms_note }}
-    {% if e.per_day is not none %}{{ e.days|num(0) }} days {{ e.days_basis }}{% if e.pnl_day is not none %}, or {{ (e.pnl_day / 1000)|signed(0) }} k$ a day for the cargo{% endif %}.{% endif %}
-    {% if e.delay_day %}One day late costs {{ e.delay_day|num(3 if e.delay_day < 1 else 2) }} {{ e.unit }}{% if e.cover_days %}, so the margin covers {{ e.cover_days|num(0) }} days of delay{% endif %}.{% endif %}</p>
     <div class="scen">
-      <div><span class="note">Today</span><b class="{{ 'pos' if (e.pnl or 0) > 0 else 'neg' }}">{{ e.pnl|musd }}</b><span class="note">per cargo</span></div>
+      <div><span class="note">Today</span><b class="{{ 'pos' if (e.pnl or 0) > 0 else 'neg' }}">{{ e.pnl|musd }}</b><span class="note">per cargo, {{ e.margin|with_unit(e.unit, True) }}</span></div>
       <div><span class="note">If it works</span><b class="{{ 'pos' if (e.pnl_good or 0) > 0 else 'neg' }}">{{ e.pnl_good|musd }}</b><span class="note">{{ i.good.case }}</span></div>
       <div><span class="note">If it goes wrong</span><b class="{{ 'pos' if (e.pnl_bad or 0) > 0 else 'neg' }}">{{ e.pnl_bad|musd }}</b><span class="note">{{ i.bad.case }}</span></div>
     </div>
-    {% if e.compare %}<p class="note">The alternative, {{ e.compare.route }}, is at {{ e.compare.margin|with_unit(e.compare.unit, True) }} ({{ e.compare.status|lower }}).</p>{% endif %}
     {% else %}
     <p class="note">{% if i.expired %}The {{ i.expired }} contract has stopped trading, so this trade is either on or missed. Its numbers are no longer recomputed.{% elif i.missed %}This cargo had to be bought by {{ i.until|day }} to make its deadline. That day has passed, so the numbers are no longer recomputed.{% else %}A price is missing today, so the economics are not computed.{% endif %}</p>
     {% endif %}
 
     <div><h4>Why</h4><ul>{% for line in i.why %}<li>{{ line }}</li>{% endfor %}</ul></div>
-    <div><h4>Hedge</h4><p>{{ i.hedge }}</p></div>
     <div><h4>What kills it</h4><ul>{% for line in i.risks %}<li>{{ line }}</li>{% endfor %}</ul></div>
+
+    <details class="drop">
+      <summary>Deal sheet and hedge<span>{{ i.vessel }} · {{ i.laycan }}</span></summary>
+      <div class="in">
+        {% if e %}
+        {% set d = 1 if e.unit == '$/t' else 2 %}
+        <dl class="econ">
+          {% for l in e.lines %}<dt class="{{ 'sale' if not e.signed and l.label.startswith('Sell') }}">{{ l.label }}{% if l.note %}<span class="sub">{{ l.note }}</span>{% endif %}</dt><dd class="{{ 'sale' if not e.signed and l.label.startswith('Sell') }}">{{ l.value|signed(d) if e.signed else l.value|num(d) }}</dd>{% endfor %}
+          {% for label, value in e.after %}<dt>{{ label }}</dt><dd>{{ value|signed(d) }}</dd>{% endfor %}
+          <dt class="total">Margin</dt><dd class="total {{ 'pos' if e.margin > 0 else 'neg' }}">{{ e.margin|with_unit(e.unit, True) }}</dd>
+          {% if e.per_day is not none %}<dt>Per day</dt><dd>{{ e.per_day|signed(3 if e.per_day|abs < 1 else 2) }} {{ e.unit }}</dd>{% endif %}
+        </dl>
+        <p class="note">{% if e.over_lme %}Figures are premiums over the LME price. {% endif %}{{ e.terms_note }}
+        {% if e.per_day is not none %}{{ e.days|num(0) }} days {{ e.days_basis }}{% if e.pnl_day is not none %}, or {{ (e.pnl_day / 1000)|signed(0) }} k$ a day for the cargo{% endif %}.{% endif %}
+        {% if e.delay_day %}One day late costs {{ e.delay_day|num(3 if e.delay_day < 1 else 2) }} {{ e.unit }}{% if e.cover_days %}, so the margin covers {{ e.cover_days|num(0) }} days of delay{% endif %}.{% endif %}
+        {% if e.compare %}The alternative, {{ e.compare.route }}, is at {{ e.compare.margin|with_unit(e.compare.unit, True) }} ({{ e.compare.status|lower }}).{% endif %}</p>
+        {% endif %}
+        <div><h4>Hedge</h4><p>{{ i.hedge }}</p></div>
+      </div>
+    </details>
     <p class="note">Horizon {{ i.horizon }}.{% if i.market %} The balance behind it is under <a href="balance.html#{{ i.market }}">supply and demand</a>.{% endif %}</p>
   </article>
 {% endfor %}
 </div>
 
-<details id="method">
-  <summary>How to read an idea</summary>
+<section class="deeper">
+  {% call m.drop('method', 'How to read an idea', 'the deal sheet, the dates and the two cases') %}
   <div class="method">
     <p><b>The deal sheet</b> runs from the purchase to the sale. Each line is a delivery term and what it adds. FOB is on board at the load port. CFR adds the freight, CIF the cargo insurance, DAP what is lost on the way, and duty paid the import duties. The cargo stops at the term it is sold on. Whatever comes after is the buyer's cost and stays out of the margin. Financing and inspection stay with the seller on every term.</p>
     <p><b>Dates.</b> A cargo idea loads about 30 days after the deal. The purchase is priced for the loading day and the sale for the landing day, both read off the forward curve. A storage idea names its two contracts and stays on them. Once the first one expires the trade is on, and the page stops recomputing it.</p>
@@ -59,5 +66,7 @@
     <p><b>One day late</b> is the ship's hire plus the interest on the cargo for one more day. Demurrage is usually claimed back from whoever caused the delay, so this is the exposure and not a forecast.</p>
     <p><b>If it works, if it goes wrong.</b> Both cases move today's margin by the amount written with the idea, so they follow the market. The bad case is sized on something that has happened, and it can turn the cargo into a loss.</p>
   </div>
-</details>
+
+  {% endcall %}
+</section>
 {% endblock %}

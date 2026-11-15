@@ -1,176 +1,138 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
 {% block title %}Supply & demand · Commodity Arbitrage Monitor{% endblock %}
-{% block subnav %}<a href="#glance">At a glance</a>{% for s in bal.sections %}{% if loop.changed(s.group) %}<i></i>{% endif %}<a href="#{{ s.id }}">{{ s.short or s.name }}</a>{% endfor %}<i></i><a href="#method">Method</a>{% endblock %}
 {% block content %}
 {% set h = bal.headline %}
 <header>
-  <p class="eyebrow">Curves · Port flows · Stocks · Ships</p>
+  <p class="eyebrow">Why the spreads are where they are</p>
   <h1>Supply and demand</h1>
   <p class="lede"><b>{{ h.tight }} of {{ h.markets }}</b> markets read tight this morning{% if h.long %} and {{ h.long }} long{% endif %}.
-  {% if h.steepest %}The steepest curve is <b>{{ h.steepest.label }}</b>, which gives up <b>{{ h.steepest.pct|abs|num(1) }} % a month</b> from the day a cargo loads.{% endif %}
-  {% if h.down %}{{ h.down.measure }} at {{ h.down.label }} is <b>{{ h.down.change|abs|num(0) }} % under</b> a year ago{% if h.up %}, and {{ h.up.measure|lower }} at {{ h.up.label }} is <b>{{ h.up.change|num(0) }} % over</b>{% endif %}.{% endif %}</p>
-  <p class="meta">Each market is read three ways. The curve comes from the settlements of the last full session, fetched {{ snap.prices_asof }}. It is measured from the day a cargo bought today loads, around {{ load_date|day }}, to three months later.
-  {% if bal.flow_week %}Port flows are IMF PortWatch estimates, averaged over the four weeks to {{ bal.flow_week|day }} and set against the same weeks a year earlier.{% endif %}
-  {% if bal.weekly_week %}US figures are the EIA weekly report for the week to {{ bal.weekly_week|day }}.{% endif %}
-  The dated lines were written on {{ bal.written }} and each one names its source. The state of a market is a judgment written the same day. It is not a computed score.</p>
-  {% if age > 10 %}<p class="disclaimer">The dated lines are {{ age }} days old. The curves, flows and stocks around them are today's.</p>{% endif %}
+  {% if h.steepest %}The steepest curve is <b>{{ h.steepest.label }}</b>, which gives up {{ h.steepest.pct|abs|num(1) }} % a month.{% endif %}</p>
+  <p class="meta">One line per market. Open a line for what stands behind it, which is the forward curve, the cargoes seen in ports, the US weekly balance and dated facts with their source. The calls and the facts were written on {{ bal.written|day }}. The curves and the flows are this morning's.</p>
+  {% if age > 10 %}<p class="disclaimer">The calls and the dated facts are {{ age }} days old. The curves, flows and stocks around them are today's.</p>{% endif %}
 </header>
 
-<section id="glance">
-  <h2>At a glance</h2>
-  <p class="note">Curve is what the main contract of each market gains or loses a month over the three months after loading. A minus sign is backwardation, which pays whoever sells now. For ships the column shows the main rate. Measured is one physical number for that market against a year ago. Click a market for the evidence behind its line.</p>
-  {{ m.glance(bal.sections) }}
-</section>
-
+<section class="markets" id="markets">
 {% for s in bal.sections %}
 {% set ch = charts[s.id] %}
-<section class="desk market" id="{{ s.id }}">
-  <header>
-    <p class="eyebrow">{{ s.group }}</p>
-    <div class="head"><h2>{{ s.name }}</h2><span class="state {{ s.tone }}">{{ s.state }}</span></div>
-    <p class="lede">{{ s.read }}</p>
-    {% for i in ideas if i.market == s.id %}<p class="note">Trade idea on this market. <a href="ideas.html#{{ i.id }}">{{ i.title }}</a></p>{% endfor %}
-  </header>
+  {% if loop.changed(s.group) %}<h2>{{ s.group }}</h2>{% endif %}
+  <details class="market" id="{{ s.id }}">
+    <summary>
+      <span class="name">{{ s.name }}</span>
+      <span><span class="state {{ s.tone }}">{{ s.state }}</span></span>
+      <span class="brief">{{ s.brief }}</span>
+      <span class="lead">{{ m.lead(s) }}</span>
+    </summary>
+    <div class="in">
+      <p class="lede">{{ s.read }}</p>
 
-  {% if s.curves or s.rates or s.signal %}
-  <dl class="strip">
-    {% for c in s.curves %}
-    {% set d = 3 if c.unit in ('$/gal', '$/lb') else 2 %}
-    <div><dt>{{ c.label }} curve</dt><dd>{{ c.pct|signed(1) }} % a month</dd><span class="sub">{{ c.state }}{% if s.seasonal %}, seasonal{% endif %}, {{ c.per_month|signed(d) }} a month from {{ c.near|num(d) }} {{ c.unit }}</span></div>
-    {% endfor %}
-    {% for r in s.rates %}
-    <div><dt>{{ r.label }}</dt><dd>{{ r.value|rate(r.unit) }}</dd><span class="sub">{{ r.date|day }}{% if r.licensed and not private %}, public report{% endif %}</span></div>
-    {% endfor %}
-    {% if s.signal and s.signal.kind != 'route' %}
-    <div><dt>{{ s.signal.label }}</dt><dd>{% if s.signal.kind == 'chokepoint' %}{{ s.signal.value|num(1) }} a day{% elif s.signal.kind == 'flow' %}{{ s.signal.value|num(0 if s.signal.calls else 2) }} {{ s.signal.unit }}{% else %}{{ s.signal.value|num(1) }} {{ s.signal.unit }}{% endif %}</dd><span class="sub">{{ s.signal.change|pct(1) }} on the year{% if s.signal.dark %}, seen by AIS{% endif %}</span></div>
-    {% endif %}
-  </dl>
-  {% endif %}
+      {% if s.curves or s.rates or s.signal %}
+      <dl class="strip">
+        {% for c in s.curves %}
+        {% set d = 3 if c.unit in ('$/gal', '$/lb') else 2 %}
+        <div><dt>{{ c.label }} curve</dt><dd>{{ c.pct|signed(1) }} % a month</dd><span class="sub">{{ c.state }}{% if s.seasonal %}, seasonal{% endif %}, {{ c.per_month|signed(d) }} a month from {{ c.near|num(d) }} {{ c.unit }}</span></div>
+        {% endfor %}
+        {% for r in s.rates %}
+        <div><dt>{{ r.label }}</dt><dd>{{ r.value|rate(r.unit) }}</dd><span class="sub">{{ r.date|day }}, {{ r.source }}</span></div>
+        {% endfor %}
+        {% if s.signal and s.signal.kind != 'route' %}
+        <div><dt>{{ s.signal.label }}</dt><dd>{% if s.signal.kind == 'chokepoint' %}{{ s.signal.value|num(1) }} a day{% elif s.signal.kind == 'flow' %}{{ s.signal.value|num(0 if s.signal.calls else 2) }} {{ s.signal.unit }}{% else %}{{ s.signal.value|num(1) }} {{ s.signal.unit }}{% endif %}</dd><span class="sub">{{ s.signal.change|pct(1) }} on the year{% if s.signal.dark %}, seen by AIS{% endif %}</span></div>
+        {% endif %}
+      </dl>
+      {% if s.rates and not private %}<p class="disclaimer"><span class="tag">Daily Baltic assessments</span> {{ private_note }}. These rates come from public weekly reports and the press.</p>{% endif %}
+      {% endif %}
 
-  <div class="facts">
-    {% for title, lines in s.facts.items() %}
-    <div>
-      <h4>{{ title }}</h4>
-      <ul>{% for f in lines %}<li>{{ f.text }}{% if f.url %}<a class="cite" href="{{ f.url }}" rel="noopener">{{ f.source }}</a>{% elif f.source %}<span class="cite">{{ f.source }}</span>{% endif %}</li>{% endfor %}</ul>
-    </div>
-    {% endfor %}
-  </div>
+      {% if ch.curve or ch.flows or ch.straits %}
+      <div class="panels">
+        {% if ch.curve %}
+        <div>
+          <h3>Forward curve</h3>
+          <p class="note">Each contract as a % of the first one. A line that falls is backwardation.{% if s.seasonal %} This curve carries the season, so part of its slope is the calendar.{% endif %}</p>
+          {{ ch.curve|safe }}
+        </div>
+        {% endif %}
+        {% if ch.flows %}
+        <div>
+          <h3>Cargoes seen in ports</h3>
+          <p class="note">Four-week average, in {{ s.flows[0].unit }}. Dotted lines are arrivals. {{ s.flows_note }}</p>
+          {{ ch.flows|safe }}
+        </div>
+        {% endif %}
+        {% if ch.straits %}
+        <div>
+          <h3>{{ 'Bulk carriers' if s.ship == 'bulk' else 'Tankers' }} through the chokepoints</h3>
+          <p class="note">Index of the average from November 2025 to February 2026. Fewer transits with the same trade means longer voyages somewhere else.</p>
+          {{ ch.straits|safe }}
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
 
-  <div class="panels">
-    {% if ch.curve %}
-    <div>
-      <h3>Forward curve</h3>
-      <p class="note">Each contract as a % of the first one, by delivery month. A line that falls is backwardation.{% if s.seasonal %} This curve carries the season, so part of its slope is the calendar and not the balance.{% endif %}</p>
-      {{ ch.curve|safe }}
-    </div>
-    {% endif %}
-    {% if ch.flows %}
-    <div>
-      <h3>Port flows</h3>
-      <p class="note">Four-week average by group of ports, in {{ s.flows[0].unit }}. Dotted lines are arrivals. {{ s.flows_note }}</p>
-      {{ ch.flows|safe }}
-    </div>
-    {% endif %}
-    {% if ch.straits %}
-    <div>
-      <h3>Chokepoints</h3>
-      <p class="note">{{ 'Bulk carriers' if s.ship == 'bulk' else 'Tankers' }} through each chokepoint, as an index of the average from November 2025 to February 2026. Fewer transits on a lane with the same trade means longer voyages somewhere else.</p>
-      {{ ch.straits|safe }}
-    </div>
-    {% endif %}
-    {% if s.weekly %}
-    <div>
-      <h3>US weekly balance</h3>
-      <p class="note">EIA, week to {{ s.weekly[0].week|day }}. Stocks are set against the same week a year earlier. Production, trade and demand are compared on four-week averages, since a single week says little.</p>
-      <div class="scroll"><table>
-        <thead><tr><th>Series</th><th class="r">Level</th><th class="r">On the week</th><th class="r">On the year</th></tr></thead>
-        <tbody>{% for w in s.weekly %}
-          {% set d = 1 if w.unit in ('Mbbl', '%') else 0 %}
-          <tr><td>{{ w.label }}</td><td class="r">{{ w.value|num(d) }} {{ w.unit }}</td><td class="r">{{ w.on_week|signed(d) }}</td>
-            <td class="r {{ 'neg' if (w.on_year or 0) < -5 else 'pos' if (w.on_year or 0) > 5 }}">{{ w.on_year|signed(1) }} {{ 'pts' if w.on_year_unit == 'pts' else '%' }}{% if w.vs_five_year is defined %}<span class="sub">{{ w.vs_five_year|signed(1) }} % vs five-year average</span>{% endif %}</td></tr>
-        {% endfor %}</tbody>
-      </table></div>
-    </div>
-    {% endif %}
-    {% if s.flows %}
-    <div>
-      <h3>Ports behind the lines</h3>
-      <p class="note">Four weeks to {{ s.flows[0].week|day }} against the same weeks a year earlier. PortWatch estimates tonnes from AIS and draught. It does not know the cargo, so a port stands for the trade it is known for.</p>
-      <div class="scroll"><table>
-        <thead><tr><th>Ports</th><th class="r">Now</th><th class="r">Year ago</th><th class="r">Change</th></tr></thead>
-        <tbody>{% for f in s.flows %}
-          {% set d = 1 if f.calls else 2 %}
-          <tr><td><b>{{ f.label }}</b><span class="sub w" style="margin-left:0;max-width:340px">{{ f.measure }}{% if f.dark %}, seen by AIS{% endif %}{% if f.ports|length > 1 %}. {{ f.ports|map(attribute='name')|join(', ') }}{% endif %}</span></td>
-            <td class="r">{{ f.now|num(d) }}<span class="sub">{{ f.unit }}</span></td><td class="r">{{ f.year_ago|num(d) }}</td>
-            <td class="r {{ 'neg' if (f.change or 0) < -10 else 'pos' if (f.change or 0) > 10 }}">{{ f.change|pct }}</td></tr>
-        {% endfor %}</tbody>
-      </table></div>
-      {% if s.flows|map(attribute='ports')|map('length')|sum > s.flows|length %}
-      <details>
-        <summary class="note">Port by port</summary>
-        <div class="scroll"><table>
-          <thead><tr><th>Port</th><th class="r">Now</th><th class="r">Year ago</th></tr></thead>
-          <tbody>{% for f in s.flows if f.ports|length > 1 %}{% for p in f.ports %}
-            <tr><td>{{ p.name }}<span class="sub">{{ f.label }}</span></td><td class="r">{{ p.now|num(1 if f.calls else 0) }}{% if loop.first %}<span class="sub">{{ 'calls' if f.calls else 'kt' }} a week</span>{% endif %}</td><td class="r">{{ p.year_ago|num(1 if f.calls else 0) }}</td></tr>
-          {% endfor %}{% endfor %}</tbody>
-        </table></div>
-      </details>
+      <div class="facts">
+        {% for title, lines in s.facts.items() %}
+        <div>
+          <h4>{{ title }}</h4>
+          <ul>{% for f in lines %}<li>{{ f.text }}{% if f.url %}<a class="cite" href="{{ f.url }}" rel="noopener">{{ f.source }}</a>{% elif f.source %}<span class="cite">{{ f.source }}</span>{% endif %}</li>{% endfor %}</ul>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if s.weekly or s.flows %}
+      <div class="panels">
+        {% if s.weekly %}
+        <div>
+          <h3>US weekly balance</h3>
+          <p class="note">EIA, week to {{ s.weekly[0].week|day }}. Stocks against the same week a year earlier, flows on four-week averages.</p>
+          <div class="scroll"><table>
+            <thead><tr><th>Series</th><th class="r">Level</th><th class="r">On the week</th><th class="r">On the year</th></tr></thead>
+            <tbody>{% for w in s.weekly %}
+              {% set d = 1 if w.unit in ('Mbbl', '%') else 0 %}
+              <tr><td>{{ w.label }}</td><td class="r">{{ w.value|num(d) }} {{ w.unit }}</td><td class="r">{{ w.on_week|signed(d) }}</td>
+                <td class="r">{{ w.on_year|signed(1) }} {{ 'pts' if w.on_year_unit == 'pts' else '%' }}{% if w.vs_five_year is defined %}<span class="sub">{{ w.vs_five_year|signed(1) }} % vs five-year average</span>{% endif %}</td></tr>
+            {% endfor %}</tbody>
+          </table></div>
+        </div>
+        {% endif %}
+        {% if s.flows %}
+        <div>
+          <h3>Ports behind the lines</h3>
+          <p class="note">Four weeks to {{ s.flows[0].week|day }} against the same weeks a year earlier, from IMF PortWatch.</p>
+          <div class="scroll"><table>
+            <thead><tr><th>Ports</th><th class="r">Now</th><th class="r">Year ago</th><th class="r">Change</th></tr></thead>
+            <tbody>{% for f in s.flows %}
+              {% set d = 1 if f.calls else 2 %}
+              <tr><td><b>{{ f.label }}</b><span class="sub w" style="margin-left:0;max-width:340px">{{ f.measure }}{% if f.dark %}, seen by AIS{% endif %}{% if f.ports|map(attribute='name')|reject('in', f.label)|list %}. {{ f.ports|map(attribute='name')|join(', ') }}{% endif %}</span></td>
+                <td class="r">{{ f.now|num(d) }}<span class="sub">{{ f.unit }}</span></td><td class="r">{{ f.year_ago|num(d) }}</td>
+                <td class="r {{ 'neg' if (f.change or 0) < -10 else 'pos' if (f.change or 0) > 10 }}">{{ f.change|pct }}</td></tr>
+            {% endfor %}</tbody>
+          </table></div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% set idea = ideas|selectattr('market', 'equalto', s.id)|first %}
+      {% if s.routes or idea %}
+      <p class="chips">
+        {% if s.routes %}<span>On the arbitrage pages</span>{% for r in s.routes %}<span><a href="{{ r.page }}#routes">{{ r.route }}</a> <span class="pill {{ r.status|status_class }}">{{ r.status }}</span></span>{% endfor %}{% endif %}
+        {% if idea %}<span>Trade idea <a href="ideas.html#{{ idea.id }}">{{ idea.title }}</a></span>{% endif %}
+      </p>
       {% endif %}
     </div>
-    {% endif %}
-    {% if s.rates %}
-    <div>
-      <h3>Rates</h3>
-      {% if not private %}<p class="disclaimer"><span class="tag">Daily Baltic assessments</span> {{ private_note }}. The rates below come from the public weekly reports and from the press.</p>{% endif %}
-      <div class="scroll"><table>
-        <thead><tr><th>Route</th><th class="r">Rate</th><th>As of</th><th>Source</th></tr></thead>
-        <tbody>{% for r in s.rates %}
-          <tr><td>{{ r.label }}</td><td class="r">{{ r.value|rate(r.unit) }}</td><td class="src">{{ r.date|day }}</td><td>{{ r.source }}</td></tr>
-        {% endfor %}</tbody>
-      </table></div>
-    </div>
-    {% endif %}
-    {% if s.chokepoints %}
-    <div>
-      <h3>Transits</h3>
-      <p class="note">{{ 'Bulk carriers' if s.ship == 'bulk' else 'Tankers' }} a day in the week to {{ s.chokepoints[0].week|day }}, counted from AIS. Ships that cross with the transponder off are missed, which understates Hormuz.</p>
-      <div class="scroll"><table>
-        <thead><tr><th>Chokepoint</th><th class="r">A day</th><th class="r">vs year ago</th><th class="r">Pre-war = 100</th></tr></thead>
-        <tbody>{% for c in s.chokepoints %}
-          <tr><td>{{ c.name }}</td><td class="r">{{ c.per_day|num(1) }}</td><td class="r {{ 'neg' if (c.change or 0) < -15 else 'pos' if (c.change or 0) > 15 }}">{{ c.change|pct }}</td><td class="r">{% if c.index is not none %}{{ c.index|num(0) }}{% else %}—{% endif %}</td></tr>
-        {% endfor %}</tbody>
-      </table></div>
-    </div>
-    {% endif %}
-    {% if s.routes %}
-    <div>
-      <h3>What the arbs say</h3>
-      <p class="note">{% if s.rates %}The trades that hire these ships, with the hire they pay and the hire at which they stop working.{% else %}The routes of this market on the arbitrage pages, at this morning's prices.{% endif %}</p>
-      <div class="scroll"><table>
-        <thead><tr><th>Route</th><th>Status</th><th class="r">Margin</th>{% if s.rates %}<th class="r">TCE paid</th><th class="r">Break-even TCE</th>{% endif %}</tr></thead>
-        <tbody>{% for r in s.routes %}
-          {% set trade = r.status in ('Open', 'Marginal', 'Closed', 'Stale price') %}
-          <tr><td><a href="{{ r.page }}#routes">{{ r.route }}</a>{% if s.rates and r.vessel %}<span class="sub">{{ r.vessel }}</span>{% endif %}</td><td><span class="pill {{ r.status|status_class }}">{{ r.status }}</span></td>
-            <td class="r {{ ('pos' if (r.margin or 0) > 0 else 'neg' if (r.margin or 0) < 0) if trade }}">{{ r.margin|with_unit(r.unit, trade) }}</td>
-            {% if s.rates %}<td class="r">{{ r.tce|tce }}</td><td class="r">{{ r.breakeven|tce }}</td>{% endif %}</tr>
-        {% endfor %}</tbody>
-      </table></div>
-    </div>
-    {% endif %}
-  </div>
-</section>
+  </details>
 {% endfor %}
+</section>
 
-<details id="method">
-  <summary>Method and limits</summary>
+<section class="deeper">
+  {% call m.drop('method', 'Method and limits', 'how each layer is built and what it cannot say') %}
   <div class="method">
+    <p><b>Call.</b> Tight, long or split is a judgment made from the three layers below, written on the date shown at the top. It is not a computed score, and it is there to be argued with.</p>
     <p><b>Curve.</b> The slope is read on the same interpolated curve as the arbs, between the day a cargo bought today loads and 90 days later. It is quoted a month, in price and as a % of the price at loading. Under 0.15 % a month a curve is called flat. Gas and gasoline curves carry the season, so their slope is flagged and left out of the headline.</p>
     <p><b>Port flows.</b> IMF PortWatch estimates the tonnes each ship class loads and discharges in a port every day, from AIS positions and draughts. Ports are grouped here by the trade they are known for. Dry bulk leaving Port Hedland is read as iron ore and dry bulk landing at Mundra as coal. It is an estimate, it runs about a week behind and it does not know the cargo. A ship with its transponder off is not seen at all, so Gulf and Russian loadings are marked as seen by AIS. Weeks end on Sunday and only complete weeks are used.</p>
     <p><b>US weekly balance.</b> The EIA Weekly Petroleum Status Report comes out on Wednesday for the week to the previous Friday. The gas storage report follows on Thursday. Both are official and both are US only, which is why they sit next to world figures and do not replace them.</p>
-    <p><b>Dated lines.</b> They are researched by hand and written on the date shown at the top. Each line carries its source. A line without one is this page's own reasoning. The daily run does not rewrite them, so a line can be overtaken by events.</p>
-    <p><b>State.</b> Tight, long or split is a judgment made from the three layers. It is there to be argued with.</p>
+    <p><b>Dated facts.</b> They are researched by hand. Each one carries its source, and a line without one is this page's own reasoning. The daily run does not rewrite them, so a line can be overtaken by events.</p>
     <p><b>Limits.</b> No balance sheet is built here. The page does not forecast supply and demand in barrels or tonnes. It lines up what a desk would check before trusting a forecast. Chinese and Indian domestic figures are quoted from the trade press. Exchange stocks are quoted as dated facts and are not refreshed.</p>
   </div>
-</details>
+  {% endcall %}
+</section>
 {% endblock %}

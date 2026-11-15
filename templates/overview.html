@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 {% import "_macros.html" as m %}
 {% block title %}Commodity Arbitrage Monitor{% endblock %}
-{% block subnav %}<a href="#arbs">Arbs by desk</a>{% if bal %}<a href="#balance">Supply and demand</a>{% endif %}{% if ideas %}<a href="#ideas">Trade ideas</a>{% endif %}<a href="#pages">The pages</a>{% endblock %}
 {% block content %}
-{% set dots = {'Open': 'var(--ok)', 'Marginal': 'var(--warn)', 'Closed': 'var(--bad)', 'Netback': 'var(--accent)', 'Delivered': 'var(--accent)'} %}
 <header>
-  <p class="eyebrow">Physical arbitrage · Freight · Supply and demand</p>
+  <p class="eyebrow">Physical commodity arbitrage, rebuilt every weekday morning</p>
   <h1>What pays to move this morning</h1>
-  <p class="lede"><b>{{ opened|length }} of {{ trade_count }}</b> cargo arbs are open.
-  {% if opened %}{{ 'It is' if opened|length == 1 else 'They are' if opened|length <= 5 else 'Among them are' }} {% for r in opened[:5] %}<b>{{ r.route }}</b>{{ ' and ' if loop.revindex == 2 else ', ' if not loop.last }}{% endfor %}.{% endif %}
-  {% if last_run %}{% if flipped %}Since the run of {{ last_run|day }}, {% for r in flipped %}<b>{{ r.route }}</b> has {{ 'opened' if r.status == 'Open' else 'closed' }}{{ ' and ' if loop.revindex == 2 else ', ' if not loop.last }}{% endfor %}.{% else %}None has opened or closed since the run of {{ last_run|day }}.{% endif %}{% endif %}
-  {% if bal %}{% set h = bal.headline %}{{ h.tight }} of {{ h.markets }} markets read tight{% if h.steepest %}, and the steepest curve is <b>{{ h.steepest.label }}</b> at {{ h.steepest.pct|abs|num(1) }} % a month of backwardation{% endif %}.{% endif %}</p>
-  <p class="meta">Rebuilt every weekday morning from the settlements of the last full session. Fetched {{ snap.prices_asof }}. A cargo bought today loads around {{ load_date|day }}. Every price is read off its forward curve for the day the cargo loads or lands, so two prices always belong to the same cargo.</p>
+  <p class="lede">This site checks whether shipping a cargo from one region to another still pays, once the ship, the duties and the forward curve are paid for. Today <b>{{ opened|length }} of {{ trade_count }}</b> arbs are open.
+  {% if flipped %}Since the run of {{ last_run|day }}, {% for r in flipped %}<b>{{ r.route }}</b> has {{ 'opened' if r.status == 'Open' else 'closed' }}{{ ' and ' if loop.revindex == 2 else ', ' if not loop.last }}{% endfor %}.{% endif %}</p>
+  <p class="meta">Settlements of the last full session, fetched {{ snap.prices_asof }}. A cargo bought today loads around {{ load_date|day }}, and every price is read for the day the cargo loads or lands.</p>
 </header>
 
+<section class="tiles" aria-label="The five pages">
+  <a href="energy.html"><span class="q">Does oil and gas pay to move</span><span class="big">{{ tiles.energy.open }} of {{ tiles.energy.total }}</span><span>spot arbs open in crude, products and LNG</span><span class="go">Energy</span></a>
+  <a href="bulk.html"><span class="q">And coal, steel and metals</span><span class="big">{{ tiles.bulk.open }} of {{ tiles.bulk.total }}</span><span>trades open in coal, ferrous and base metals</span><span class="go">Dry bulk &amp; metals</span></a>
+  {% if tiles.hormuz %}<a href="freight.html"><span class="q">What the ship costs</span><span class="big">{{ tiles.hormuz.total|num(1) }} a day</span><span>ships seen crossing Hormuz, against {{ tiles.hormuz.total_ly|num(0) }} a year ago</span><span class="go">Freight</span></a>{% endif %}
+  {% if bal %}<a href="balance.html"><span class="q">Why the spreads are there</span><span class="big">{{ bal.headline.tight }} of {{ bal.headline.markets }}</span><span>markets read tight, ships included</span><span class="go">Supply &amp; demand</span></a>{% endif %}
+  {% if ideas %}<a href="ideas.html"><span class="q">What to do about it</span><span class="big">{{ tiles.ideas.paying }} of {{ tiles.ideas.total }}</span><span>trade ideas make money at this morning's prices</span><span class="go">Trade ideas</span></a>{% endif %}
+</section>
+
 <section id="arbs">
-  <h2>Every arb, by desk</h2>
-  <p class="note">The figure is what is left on the cargo after freight, insurance, duties, financing and the curve over the voyage. <span class="dot" style="background:var(--ok)"></span>open <span class="dot" style="background:var(--warn)"></span>marginal <span class="dot" style="background:var(--bad)"></span>closed <span class="dot" style="background:var(--accent)"></span>a netback or a delivered cost, with nothing to compare it to.{% if last_run %} The small figure is the move since the run of {{ last_run|day }}.{% endif %}</p>
+  <h2>The arbs, desk by desk</h2>
+  <p class="note">What is left on the cargo after freight, insurance, duties, financing and the curve over the voyage.</p>
   <div class="board">
     {% for d in desks %}
     <article>
-      <div class="head"><h3>{{ d.name }}</h3><span class="note">{% if d.trades %}{{ d.open }} of {{ d.trades }} open{% else %}netbacks only{% endif %}</span></div>
+      <div class="head"><h3>{{ d.name }}</h3>{% if d.trades %}<span class="note">{{ d.open }} of {{ d.trades }} open</span>{% endif %}</div>
       <ul>
-        {% for r in d.routes %}
-        {% set trade = r.status in ('Open', 'Marginal', 'Closed', 'Stale price') %}
-        <li><span class="dot" style="background:{{ dots.get(r.status, 'var(--muted)') }}" title="{{ r.status }}"></span>
-          <span class="name">{{ r.route }}{% if r.whose %}<span class="sub">{{ r.whose }}</span>{% elif r.status == 'Stale price' %}<span class="sub">stale price</span>{% endif %}</span>
-          {% set d = 1 if r.unit == '$/t' else 2 %}
-          {% if r.change is defined and r.change|abs >= (0.05 if d == 1 else 0.005) %}<span class="chg" title="Move since the last run">{{ '▲' if r.change > 0 else '▼' }} {{ r.change|abs|num(d) }}</span>{% endif %}
-          <span class="val {{ ('pos' if (r.margin or 0) > 0 else 'neg' if (r.margin or 0) < 0) if trade }}">{{ r.margin|with_unit(r.unit, trade) }}</span></li>
+        {% for r in d.rows %}
+        <li><span class="name">{{ r.route }}</span><span class="pill {{ r.pill_class }}">{{ r.pill }}</span>
+          <span class="val {{ 'pos' if r.margin > 0 else 'neg' if r.margin < 0 }}">{{ r.margin|with_unit(r.unit, True) }}</span></li>
         {% endfor %}
       </ul>
-      <a class="more" href="{{ d.page }}#routes">Costs and break-evens on the {{ 'Energy' if d.page == 'energy.html' else 'Dry bulk & metals' }} page</a>
+      <a class="more" href="{{ d.page }}#routes">All {{ d.total }} routes with their costs</a>
     </article>
     {% endfor %}
   </div>
@@ -39,8 +39,8 @@
 
 {% if bal %}
 <section id="balance">
-  <h2>Supply and demand at a glance</h2>
-  <p class="note">Why the spreads are where they are. Curve is what the main contract of each market gains or loses a month over the three months after loading, and a minus sign is backwardation. Measured is one physical number against a year ago. Each market opens on its curve, its port flows, its stocks and its dated facts.</p>
+  <h2>Why, market by market</h2>
+  <p class="note">A call on each market and the one line behind it. The curve, the port flows, the stocks and the sources are on the <a href="balance.html">Supply &amp; demand</a> page.</p>
   {{ m.glance(bal.sections, 'balance.html') }}
 </section>
 {% endif %}
@@ -48,43 +48,27 @@
 {% if ideas %}
 <section id="ideas">
   <h2>Trade ideas</h2>
-  <p class="note">One physical trade per desk. The text is dated and stays as written. The result is recomputed every morning from the same model as the arbs.</p>
-  <div class="scroll"><table class="fold">
-    <thead><tr><th>Desk</th><th>Idea</th><th class="r">Margin</th><th class="r">Today, per cargo</th><th class="r">If it goes wrong</th></tr></thead>
+  <p class="note">One physical trade per desk. The text is dated, the result is recomputed every morning.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Desk</th><th>Idea</th><th class="r">Today, per cargo</th></tr></thead>
     <tbody>{% for i in ideas %}
       {% set e = i.economics %}
-      <tr><td>{{ i.desk }}</td><td><a href="ideas.html#{{ i.id }}">{{ i.title }}</a><span class="sub w" style="margin-left:0;max-width:520px">{{ i.trade }}</span></td>
-        {% if e %}
-        <td class="r {{ 'pos' if e.margin > 0 else 'neg' }}">{{ e.margin|with_unit(e.unit, True) }}</td>
-        <td class="r {{ 'pos' if (e.pnl or 0) > 0 else 'neg' }}">{{ e.pnl|musd }}</td>
-        <td class="r {{ 'pos' if (e.pnl_bad or 0) > 0 else 'neg' }}">{{ e.pnl_bad|musd }}</td>
-        {% else %}
-        <td class="r" colspan="3"><span class="sub">no longer recomputed</span></td>
-        {% endif %}</tr>
+      <tr><td>{{ i.desk }}</td><td><a href="ideas.html#{{ i.id }}">{{ i.title }}</a></td>
+        <td class="r {{ ('pos' if (e.pnl or 0) > 0 else 'neg') if e }}">{% if e %}{{ e.pnl|musd }}{% else %}<span class="sub">no longer recomputed</span>{% endif %}</td></tr>
     {% endfor %}</tbody>
   </table></div>
 </section>
 {% endif %}
 
-<section id="pages">
-  <h2>How the site fits together</h2>
-  <div class="pages">
-    <a href="energy.html"><b>Energy</b><span>Crude, refined products and LNG. Whether a cargo pays to cross, on which term it is sold and what freight it can bear.</span></a>
-    <a href="bulk.html"><b>Dry bulk &amp; metals</b><span>Coal, iron ore, coking coal, scrap, steel, copper and aluminium, desk by desk.</span></a>
-    <a href="freight.html"><b>Freight</b><span>What a ship costs a day, how the chokepoints stand and what the curve takes while the cargo is on the water.</span></a>
-    <a href="balance.html"><b>Supply &amp; demand</b><span>The reason behind each spread. Curves, port loadings, stocks and dated facts for every market, ships included.</span></a>
-    <a href="ideas.html"><b>Trade ideas</b><span>One cargo per desk, laid out as a deal sheet with a good case and a bad one.</span></a>
-  </div>
-</section>
-
-<details id="method">
-  <summary>Where the numbers come from</summary>
+<section class="deeper">
+  {% call m.drop('method', 'Where the numbers come from', 'prices, freight, physical flows and what is written by hand') %}
   <div class="method">
-    <p><b>Prices.</b> Futures settlements from TradingView and Yahoo Finance, a session old, plus a few prices typed in by hand and dated. Each route reads its curves for the day the cargo loads and the day it lands.</p>
+    <p><b>Prices.</b> Futures settlements from TradingView and Yahoo Finance, a session old, plus a few prices typed in by hand and dated. Each route reads its curves for the day the cargo loads and the day it lands, so two prices always belong to the same cargo.</p>
     <p><b>Freight.</b> A rate reported by the Baltic Exchange or the press when there is one, and a voyage model otherwise, with hire, bunkers, port costs, canals and EU allowances.</p>
     <p><b>Physical flows.</b> Port loadings and chokepoint transits are IMF PortWatch estimates from AIS. US stocks and flows are the EIA weekly reports.</p>
     <p><b>Text.</b> The supply and demand facts and the trade ideas are written by hand, dated and sourced. Everything else is recomputed by the daily run.</p>
     <p><b>Limits.</b> These are futures and public estimates, not physical assessments. The premiums and discounts of real cargoes are missing, and so are vessel positions. Not investment advice.</p>
   </div>
-</details>
+  {% endcall %}
+</section>
 {% endblock %}
