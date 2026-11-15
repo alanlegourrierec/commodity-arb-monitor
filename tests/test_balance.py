@@ -140,16 +140,17 @@ def test_the_site_builds_with_the_new_pages(tmp_path):
     run.main(["--prices-file", str(FIXTURE), "--out", str(out), "--no-history"])
     page = (out / "balance.html").read_text(encoding="utf-8")
     for s in NOTES["sections"]:
-        assert f'<section class="desk market" id="{s["id"]}">' in page
+        assert f'<details class="market" id="{s["id"]}">' in page
         assert s["read"].replace("&", "&amp;") in page
     assert "<h3>Ports behind the lines</h3>" in page and "<h3>US weekly balance</h3>" in page
     home = (out / "index.html").read_text(encoding="utf-8")
-    assert "Every arb, by desk" in home and 'href="balance.html#crude"' in home
+    assert "The arbs, desk by desk" in home and 'href="balance.html#crude"' in home
     assert (out / "energy.html").stat().st_size > 20_000
     for name in ("index.html", "energy.html", "bulk.html", "freight.html", "balance.html", "ideas.html"):
         html = (out / name).read_text(encoding="utf-8")
-        assert 'class="subnav"' in html, name
         assert f'href="{name}" class="on"' in html, name          # the menu marks the page it is on
+        assert ('class="subnav"' in html) == (name in ("energy.html", "bulk.html", "freight.html")), name
+        assert html.count("<details") == html.count("</details>") and "<details open" not in html, name
 
 
 def test_the_page_still_builds_when_the_measured_data_is_missing(tmp_path, monkeypatch):
