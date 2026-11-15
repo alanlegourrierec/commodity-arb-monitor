@@ -4,16 +4,16 @@ Every weekday morning this checks whether moving a cargo from one region to anot
 
 | Page | What it answers |
 |---|---|
-| Overview | Every arb by desk with its move since the last run, the state of each market in one line, and today's result on the trade ideas |
+| Overview | What the site is, in five numbers that each open a page. Then the arbs a trader can put on by desk, the call on each market and today's result on the trade ideas |
 | Energy | Does US crude pay into Europe or China, do products cross the Atlantic, and should a US LNG cargo go to Europe or Asia |
 | Dry bulk & metals | Where a Richards Bay coal cargo should go, the cheapest delivered energy into India, coking coal, the coal-to-gas switch in German power, iron ore and scrap netbacks, imported coil against local prices, copper and aluminium out of LME Rotterdam |
 | Freight | Chokepoint traffic from IMF PortWatch, which trades can pay more for ships, what a day at sea costs, curve structure and floating storage |
-| Supply & demand | Why the spreads are where they are. For each market and each ship class, the slope of the curve, port loadings from IMF PortWatch, the US weekly balance from the EIA and dated, sourced facts |
+| Supply & demand | Why the spreads are where they are. One line and one call per market and per ship class. Opening a line shows the slope of the curve, port loadings from IMF PortWatch, the US weekly balance from the EIA and dated, sourced facts |
 | Trade ideas | One physical trade per desk, laid out from the purchase to the sale, with the P&L per cargo today, if it works and if it goes wrong |
 
 The live page is at https://alanlegourrierec.github.io/commodity-arb-monitor/
 
-For each route it computes the margin, the break-even freight, the break-even TCE in $/day, the P&L for a cargo, what the cargo costs at each delivery term and what a day of delay costs. Every page keeps a daily history.
+For each route it computes the margin, the break-even freight, the break-even TCE in $/day, the P&L for a cargo, what the cargo costs at each delivery term and what a day of delay costs. Each page opens on its answer and on the one chart or table that carries it. The working behind it, such as delivery terms, history, prices and method, sits in closed blocks under Go deeper.
 
 ## How it works
 
