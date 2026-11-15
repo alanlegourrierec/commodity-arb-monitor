@@ -4,7 +4,7 @@ from datetime import date, timedelta
 import pytest
 import requests
 
-from arb import flows
+from arb import flows, shipping
 
 GROUPS = {
     "ORE": dict(label="Ore ports", field="export_dry_bulk", ports={1: "North", 2: "South"}),
@@ -109,6 +109,28 @@ def test_a_dropped_request_is_tried_again(tmp_path, monkeypatch):
     service = Service(fail=2)
     rows = flows.fetch_port(1, date(2026, 9, 1), ["export_dry_bulk"], service)
     assert len(rows) == 60 and len(service.asked) == 1
+
+
+def test_a_busy_answer_is_tried_again_after_the_pauses(monkeypatch):
+    """PortWatch says it is busy inside a normal reply, which the chokepoint fetch has to survive too."""
+    waited = []
+    monkeypatch.setattr(flows.time, "sleep", waited.append)
+
+    class Busy:
+        def __init__(self, times):
+            self.times = times
+
+        def get(self, url, params=None, timeout=0):
+            if self.times:
+                self.times -= 1
+                return Reply({"error": {"code": 429, "message": "Too many requests."}})
+            return Reply({"features": [{"attributes": dict(date="2026-11-02", portname="Strait of Hormuz", n_tanker=1,
+                                                           n_dry_bulk=1, n_total=2, capacity_tanker=1)}]})
+
+    assert len(shipping.fetch_portwatch(date(2026, 9, 1), Busy(2))) == 1
+    assert waited == list(flows.PAUSES)
+    with pytest.raises(ValueError, match="Too many requests"):
+        flows.get(flows.PORTS_URL, {}, Busy(9))
 
 
 def test_every_port_belongs_to_one_field_per_group():
