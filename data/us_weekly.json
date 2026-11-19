@@ -1,6 +1,6 @@
 {
  "source": "EIA",
- "fetched": "2026-11-18",
+ "fetched": "2026-11-19",
  "series": {
   "crude_stocks": {
    "label": "Commercial crude stocks",
@@ -144,11 +144,11 @@
  "gas": {
   "label": "Working gas in storage",
   "unit": "bcf",
-  "week": "2026-11-06",
-  "value": 3862,
-  "previous": 3801,
-  "year_ago": 3954,
-  "five_year": 3787
+  "week": "2026-11-13",
+  "value": 3882,
+  "previous": 3862,
+  "year_ago": 3948,
+  "five_year": 3802
  },
  "history": {
   "2026-11-06": {
