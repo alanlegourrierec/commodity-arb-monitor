@@ -1,5 +1,5 @@
 {
- "written": "2026-11-14",
+ "written": "2026-11-21",
  "sections": [
   {
    "id": "crude", "signal": {"weekly": "crude_stocks"},
@@ -17,16 +17,16 @@
      {"text": "Saudi exports through the Red Sea fell under the Houthi embargo. That is the drop in the Yanbu and Fujairah line of the chart from late July.", "source": "BIMCO, Aug 2026", "url": "https://cyprusshippingnews.com/2026/08/31/export-disruptions-increasingly-hurting-tanker-demand-bimcos-tanker-shipping-market-overview-outlook-august-2026-is-out/"}
     ],
     "Demand": [
-     {"text": "World demand falls 2.7 mb/d this year to 102.3 mb/d, then recovers 2 mb/d in 2027.", "source": "IEA, 13 Nov 2026", "url": "https://www.bnnbloomberg.ca/markets/oil/2026/11/13/world-oil-market-is-returning-to-surplus-as-gulf-exports-recover-iea-says/"},
-     {"text": "The fourth quarter runs a surplus of about 1.7 mb/d, the first since the war began.", "source": "IEA, 13 Nov 2026", "url": "https://www.bnnbloomberg.ca/markets/oil/2026/11/13/world-oil-market-is-returning-to-surplus-as-gulf-exports-recover-iea-says/"}
+     {"text": "World demand falls 2.7 mb/d this year to 102.3 mb/d, then recovers 2 mb/d in 2027. The fourth quarter runs a surplus of about 1.7 mb/d, the first since the war began.", "source": "IEA, 13 Nov 2026", "url": "https://www.bnnbloomberg.ca/markets/oil/2026/11/13/world-oil-market-is-returning-to-surplus-as-gulf-exports-recover-iea-says/"}
     ],
     "Stocks": [
      {"text": "Observed stocks rose 52 Mbbl in October, the first build since June. Oil on water took 86 Mbbl, so stocks on land kept falling and are the lowest since at least 2016.", "source": "IEA, 13 Nov 2026", "url": "https://energynewsbeat.co/crude-oil/oil-swings-back-to-surplus-diesel-doesnt/"},
      {"text": "Stocks are down 462 Mbbl since the war began. Governments have released 349 Mbbl of reserves, with 71 Mbbl still to come by the end of February.", "source": "IEA, 13 Nov 2026", "url": "https://energynewsbeat.co/crude-oil/oil-swings-back-to-surplus-diesel-doesnt/"}
     ],
     "Watch": [
-     {"text": "Dated Brent fell from 136 $/bbl on 8 October to about 93. A real reopening of Hormuz would move the oil on water into tanks.", "source": "IEA, 13 Nov 2026", "url": "https://energynewsbeat.co/crude-oil/oil-swings-back-to-surplus-diesel-doesnt/"},
-     {"text": "Reports of a Hormuz agreement on 9 November are not confirmed.", "source": "Signal Ocean, 12 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/12/atlantic-tanker-earnings-fall-faster-than-gulf-earnings/"}
+     {"text": "Brent settled at 92.57 $/bbl on 20 November, down 3.4% on the week. It was the third weekly loss in a row.", "source": "Bloomberg via Rigzone, 20 Nov 2026", "url": "https://www.rigzone.com/news/wire/oil_posts_third_weekly_loss_amid_surplus-20-nov-2026-185141-article/"},
+     {"text": "Trump said on 20 November that Iran wants a deal, but not one Washington accepts. Two tankers were attacked in the strait the next day. A real reopening of Hormuz would move the oil on water into tanks.", "source": "Gulf News, 21 Nov 2026", "url": "https://gulfnews.com/uae/middle-east-war-trump-says-iran-wants-deal-but-terms-are-unacceptable-1.500755788"},
+     {"text": "OPEC+ ministers meet on 29 November to set their 2027 output policy.", "source": "Reuters via RTE, 20 Nov 2026", "url": "https://www.rte.ie/news/business/2026/1120/1599964-world-oil-prices/"}
     ]
    }
   },
@@ -41,17 +41,17 @@
     "Supply": [
      {"text": "Gulf product and LPG exports run at about half of pre-war.", "source": "IEA, 13 Nov 2026", "url": "https://energynewsbeat.co/crude-oil/oil-swings-back-to-surplus-diesel-doesnt/"},
      {"text": "Russia shipped 985 kt of diesel in October and 427 kt in September, against about 2.7 Mt a month a year earlier.", "source": "S&P Global, 9 Nov 2026", "url": "https://www.spglobal.com/energy/en/news-research/latest-news/refined-products/110926-russian-diesel-exports-rise-despite-refinery-strikes-us-top-destination"},
-     {"text": "Ukraine resumed refinery strikes at the end of October and hit six plants in eight days.", "source": "S&P Global, 9 Nov 2026", "url": "https://www.spglobal.com/energy/en/news-research/latest-news/refined-products/110926-russian-diesel-exports-rise-despite-refinery-strikes-us-top-destination"}
+     {"text": "Ukrainian drone strikes have cut Russian refinery runs by 45% since late October, to about 3 mb/d. They disrupted or halted 15 of the 35 large refineries.", "source": "Reuters via TimesLIVE, 18 Nov 2026", "url": "https://www.timeslive.co.za/news/world/2026-11-18-ukraine-drone-strikes-wiped-out-45-of-russias-oil-refining-in-november/"}
     ],
     "Demand": [
      {"text": "European diesel costs close to 180 $/bbl, 77% above pre-war.", "source": "IEA, 13 Nov 2026", "url": "https://energynewsbeat.co/crude-oil/oil-swings-back-to-surplus-diesel-doesnt/"},
-     {"text": "US retail diesel averaged 6.06 $/gal on 13 November, against 3.76 a year earlier.", "source": "AAA, 13 Nov 2026", "url": "https://energynewsbeat.co/crude-oil/oil-swings-back-to-surplus-diesel-doesnt/"}
+     {"text": "US retail diesel averaged 5.86 $/gal on 21 November, against 3.80 a year earlier.", "source": "AAA, 21 Nov 2026", "url": "https://gasprices.aaa.com/?state=us"}
     ],
     "Stocks": [
-     {"text": "US distillate stocks fell below 100 Mbbl in the week to 30 October, a 22-year low for any month and about 22 Mbbl under the five-year average.", "source": "Kpler, Nov 2026", "url": "https://www.kpler.com/blog/distillates-continue-to-drive-support-for-margins"}
+     {"text": "US distillate stocks rose 1.6 Mbbl to 104.9 Mbbl in the week to 13 November. That is still about 6 Mbbl less than a year earlier.", "source": "EIA via Reuters, 18 Nov 2026", "url": "https://boereport.com/2026/11/18/us-crude-stocks-gasoline-and-distillate-inventories-rise-eia-says/amp/"}
     ],
     "Watch": [
-     {"text": "The US Treasury waived sanctions on Russian diesel on 9 October, so it can sail to the US. Five cargoes were on the water in early November.", "source": "S&P Global, 9 Nov 2026", "url": "https://www.spglobal.com/energy/en/news-research/latest-news/refined-products/110926-russian-diesel-exports-rise-despite-refinery-strikes-us-top-destination"}
+     {"text": "Russian diesel has been allowed into the US since the waiver of 9 October. No cargo had been delivered by 19 November.", "source": "Reuters via BOE Report, 19 Nov 2026", "url": "https://boereport.com/2026/11/19/us-energy-chief-wright-sees-no-sign-europe-wants-return-to-russia-energy/amp/"}
     ]
    }
   },
@@ -64,12 +64,16 @@
    "routes": ["GASOLINE_NWE_USAC"],
    "facts": {
     "Supply": [
-     {"text": "US refinery runs are heading to about 17 mb/d as maintenance ends, and every extra barrel run for diesel makes gasoline too.", "source": "Kpler, Nov 2026", "url": "https://www.kpler.com/blog/distillates-continue-to-drive-support-for-margins"},
-     {"text": "ARA gasoline stocks are back at the low end of their seasonal range.", "source": "Kpler, Nov 2026", "url": "https://www.kpler.com/blog/distillates-continue-to-drive-support-for-margins"}
+     {"text": "US refineries ran 16.9 mb/d of crude in the week to 13 November, at 95.7% of capacity. Every extra barrel run for diesel makes gasoline too.", "source": "EIA via Reuters, 18 Nov 2026", "url": "https://boereport.com/2026/11/18/us-crude-stocks-gasoline-and-distillate-inventories-rise-eia-says/amp/"},
+     {"text": "ARA gasoline stocks fell by nearly 7% on the week.", "source": "Insights Global via Reuters, 19 Nov 2026", "url": "https://www.marketscreener.com/news/ara-gasoline-stocks-drop-7-insights-global-data-shows-ce785ed2dc89f125"}
     ],
     "Demand": [
-     {"text": "US gasoline demand is down less than 1% on a four-week average, with pump prices almost 1 $/gal higher than a year ago.", "source": "Kpler, Nov 2026", "url": "https://www.kpler.com/blog/distillates-continue-to-drive-support-for-margins"},
-     {"text": "The northwest European gasoline crack is back in the mid teens of $/bbl. Gulf Coast gasoline cracks fell while diesel cracks rose.", "source": "Kpler, Nov 2026", "url": "https://www.kpler.com/blog/distillates-continue-to-drive-support-for-margins"}
+     {"text": "US gasoline demand averaged 8.68 mb/d over the four weeks to 13 November, down 1.8% on the year.", "source": "EIA, 18 Nov 2026", "url": "https://www.eia.gov/petroleum/supply/weekly/"},
+     {"text": "The northwest European gasoline crack is back in the mid teens of $/bbl. Gulf Coast gasoline cracks fell while diesel cracks rose.", "source": "Kpler, Nov 2026", "url": "https://www.kpler.com/blog/distillates-continue-to-drive-support-for-margins"},
+     {"text": "Regular gasoline averaged 3.66 $/gal at the pump on 21 November, against 3.09 a year earlier.", "source": "AAA, 21 Nov 2026", "url": "https://gasprices.aaa.com/?state=us"}
+    ],
+    "Stocks": [
+     {"text": "US gasoline stocks rose 5.2 Mbbl to 215.9 Mbbl in the week to 13 November, about 8.6 Mbbl more than a year earlier.", "source": "EIA via Reuters, 18 Nov 2026", "url": "https://boereport.com/2026/11/18/us-crude-stocks-gasoline-and-distillate-inventories-rise-eia-says/amp/"}
     ],
     "Watch": [
      {"text": "The switch to summer grade lifts RBOB from April. That is the step on the curve, not a shortage.", "source": "", "url": ""}
@@ -87,15 +91,16 @@
    "routes": ["LNG_US_NWE", "LNG_US_ASIA_PANAMA", "LNG_US_ASIA_CAPE"],
    "facts": {
     "Supply": [
-     {"text": "QatarEnergy has kept force majeure on LNG since March and extends it month by month, into early December at the last notice.", "source": "The National, 28 Sep 2026", "url": "https://www.thenationalnews.com/business/energy/2026/09/28/qatar-extends-lng-force-majeure-as-hormuz-disruption-threatens-winter-supply/"},
+     {"text": "QatarEnergy has kept force majeure on LNG since March and extends it month by month. Poland's Orlen cited it to end its 2009 supply contract on 10 November.", "source": "Hydrocarbon Processing, 13 Nov 2026", "url": "https://hydrocarbonprocessing.com/news/2026/11/dropping-qatar-lng-deal-seen-saving-polands-orlen-up-to-2-b/"},
      {"text": "Two trains at Ras Laffan were hit in March. That takes out 12.8 Mt a year, about 17% of Qatar's capacity, for three to five years.", "source": "Enterprise, 12 Oct 2026", "url": "https://enterpriseam.com/logistics/2026/10/12/qatarenergy-is-lining-up-new-lng-capacity-and-a-dozen-empty-carriers-as-hormuz-traffic-picks-up/"},
-     {"text": "Hormuz LNG traffic in October was the highest since the war began and still about 75% below February.", "source": "Enterprise, 12 Oct 2026", "url": "https://enterpriseam.com/logistics/2026/10/12/qatarenergy-is-lining-up-new-lng-capacity-and-a-dozen-empty-carriers-as-hormuz-traffic-picks-up/"}
+     {"text": "Only two LNG carriers crossed Hormuz in the week to 17 November, against about eight a week over the two months before.", "source": "Bloomberg via TASS, 19 Nov 2026", "url": "https://tass.com/world/2221191"}
     ],
     "Demand": [
-     {"text": "Europe took 54% of US LNG exports in September, 5.91 Mt of 10.9 Mt.", "source": "Ship Universe, 7 Oct 2026", "url": "https://www.shipuniverse.com/?p=22138"}
+     {"text": "Europe took 54% of US LNG exports in September, 5.91 Mt of 10.9 Mt.", "source": "Ship Universe, 7 Oct 2026", "url": "https://www.shipuniverse.com/?p=22138"},
+     {"text": "Europe is on track to import 10.11 Mt of LNG in November, up from 8.99 Mt in October.", "source": "Kpler via Reuters, 16 Nov 2026", "url": "https://www.bairdmaritime.com/shipping/tankers/gas/opinion-cold-snap-fears-push-europe-to-pull-more-lng-away-from-asia-but-is-it-enough"}
     ],
     "Stocks": [
-     {"text": "EU storage was 71.6% full on 10 November, about 14 points below the five-year average. It peaked at 75.0% on 27 October and missed the 80% target.", "source": "GIE AGSI+, 10 Nov 2026", "url": "https://global-energy-flow.com/storage/"}
+     {"text": "EU storage was 69.8% full on 18 November, down from a peak of 75.0%. 11% of the gas injected over the summer has already been withdrawn.", "source": "GIE via APA, 20 Nov 2026", "url": "https://en.apa.az/energy-and-industry/europe-withdraws-11-of-gas-reserves-from-storage-during-heating-season-537417"}
     ],
     "Watch": [
      {"text": "North Field East has its first train ready in November, with production due in the first quarter of 2027.", "source": "Reuters via Enterprise, 12 Oct 2026", "url": "https://enterpriseam.com/logistics/2026/10/12/qatarenergy-is-lining-up-new-lng-capacity-and-a-dozen-empty-carriers-as-hormuz-traffic-picks-up/"},
@@ -114,11 +119,12 @@
    "facts": {
     "Supply": [
      {"text": "Indonesia cut its 2026 output quota from 817.5 Mt to about 600 Mt, then moved it back toward 720 Mt. August exports were 36.1 Mt, down 23% on the year.", "source": "Reuters and Fitch via Discovery Alert, 20 Oct 2026", "url": "https://discoveryalert.com/news/thermal-coal-price-outlook-fitch-indonesia-october-2026/"},
-     {"text": "Drought on the Barito River cut the draught to 3 or 4 metres and roughly halved barge loads. Bayan declared force majeure on 14 September.", "source": "Discovery Alert, 20 Oct 2026", "url": "https://discoveryalert.com/news/thermal-coal-price-outlook-fitch-indonesia-october-2026/"}
+     {"text": "Drought on the Barito River cut the draught to 3 or 4 metres and roughly halved barge loads.", "source": "Discovery Alert, 20 Oct 2026", "url": "https://discoveryalert.com/news/thermal-coal-price-outlook-fitch-indonesia-october-2026/"},
+     {"text": "China mined 380 Mt of raw coal in October, down 5.8% on the year, and 3,830 Mt in ten months, down 3.8%.", "source": "NBS, 17 Nov 2026", "url": "https://www.stats.gov.cn/english/PressRelease/202611/t20261117_1965877.html"}
     ],
     "Demand": [
      {"text": "India imported 15.06 Mt of thermal coal in October, its highest month since May 2025.", "source": "Argus via Discovery Alert, 1 Nov 2026", "url": "https://discoveryalert.com/analysis/india-coal-imports-coking-coal-blending-november-2026/"},
-     {"text": "South Korea took 7.44 Mt in September, up 21%, as coal replaced gas in power.", "source": "Discovery Alert, 20 Oct 2026", "url": "https://discoveryalert.com/news/thermal-coal-price-outlook-fitch-indonesia-october-2026/"}
+     {"text": "South Korea imported 9.59 Mt of coal of all kinds in October, a five-month low and 4.4% less than a year earlier.", "source": "Mysteel, 18 Nov 2026", "url": "https://www.mysteel.net/news/5149451-south-koreas-coal-imports-fall-to-5-mth-low-in-oct"}
     ],
     "Watch": [
      {"text": "Indonesia plans to route all exports through one state gateway from 1 January 2027, and its 2027 quota is not out yet.", "source": "Discovery Alert, 20 Oct 2026", "url": "https://discoveryalert.com/news/thermal-coal-price-outlook-fitch-indonesia-october-2026/"},
@@ -137,7 +143,8 @@
    "facts": {
     "Supply": [
      {"text": "Australia shipped 12.49 Mt in October, up 1.8% on the year, and 126.5 Mt in ten months, up 4.3%.", "source": "GMK Center, 4 Nov 2026", "url": "https://gmk.center/en/news/australia-increased-coking-coal-exports-by-1-8-y-y-in-october/"},
-     {"text": "A mine accident in Shanxi in May cut Chinese output. The shortage is expected to last into 2027.", "source": "GMK Center, 4 Nov 2026", "url": "https://gmk.center/en/news/australia-increased-coking-coal-exports-by-1-8-y-y-in-october/"}
+     {"text": "A mine accident in Shanxi in May cut Chinese output. The shortage is expected to last into 2027.", "source": "GMK Center, 4 Nov 2026", "url": "https://gmk.center/en/news/australia-increased-coking-coal-exports-by-1-8-y-y-in-october/"},
+     {"text": "Strict safety inspections still hold back Chinese mines. Low-sulphur coal in Linfen was quoted at 2,230 yuan/t on 20 November, and the market expects a fourth cut in coke prices.", "source": "SMM, 20 Nov 2026", "url": "https://news.metal.com/newscontent/R2VHO4IG3FBQLBQRBADXHZORAC5OCKLREKXMCRQ-smm-coking-coal-and-coke-daily-briefing-20261120"}
     ],
     "Demand": [
      {"text": "China took 18.65 Mt of Australian coking coal in ten months, up 89%.", "source": "GMK Center, 4 Nov 2026", "url": "https://gmk.center/en/news/australia-increased-coking-coal-exports-by-1-8-y-y-in-october/"},
@@ -160,14 +167,15 @@
    "facts": {
     "Supply": [
      {"text": "World shipments were 170.4 Mt in October, up 0.65% on the year. Australia shipped 95.9 Mt and Brazil 40.3 Mt.", "source": "SMM, 13 Nov 2026", "url": "https://news.metal.com/newscontent/K3474JV2GCUJIRVEAJC2ZHHP4KK56QNMWKDLGVY-smm-iron-ore-import-analysis-oct-imports-down-379-mom-turn-lower-yoy-nov-arrivals-recover-imports-may-rebound"},
-     {"text": "Guinea exported 6 Mt in the second quarter and 8.9 Mt in the third as Simandou ramps up. It could reach about 28 Mt this year.", "source": "Macquarie via Solain, 3 Nov 2026", "url": "https://www.solain.de/en/blog/eisenerz-hafenbestaende-herbst-2026"}
+     {"text": "Guinea shipped more than 5 Mt in October for the first time and became the third largest exporter. More than 22 Mt have left this year as Simandou ramps up.", "source": "BIMCO, 19 Nov 2026", "url": "https://www.hellenicshippingnews.com/guinea-climbs-to-third-largest-iron-ore-exporter-as-shipments-surpass-5m-tonnes/"}
     ],
     "Demand": [
      {"text": "China imported 105.7 Mt in October, down 5.0% on the year, and 1,060.6 Mt in ten months, up 3.1%.", "source": "Chinese customs via SMM, 13 Nov 2026", "url": "https://news.metal.com/newscontent/K3474JV2GCUJIRVEAJC2ZHHP4KK56QNMWKDLGVY-smm-iron-ore-import-analysis-oct-imports-down-379-mom-turn-lower-yoy-nov-arrivals-recover-imports-may-rebound"},
-     {"text": "Hot metal output was 2.362 Mt a day at the end of October, 26 kt a day less than a month earlier.", "source": "SMM, 13 Nov 2026", "url": "https://news.metal.com/newscontent/K3474JV2GCUJIRVEAJC2ZHHP4KK56QNMWKDLGVY-smm-iron-ore-import-analysis-oct-imports-down-379-mom-turn-lower-yoy-nov-arrivals-recover-imports-may-rebound"}
+     {"text": "Hot metal output was 2.348 Mt a day on 18 November, 15 kt a day less than a week earlier and the lowest in five weeks.", "source": "SMM, 20 Nov 2026", "url": "https://news.metal.com/newscontent/GYFEOKYZPWQOY7BRTAWW2ZYAKHTWHHXRVSV3COA-smm-iron-ore-analysis-port-stock-builds-meet-fund-selling-as-iron-ore-breaks-below-90-onshore-hit-harder"},
+     {"text": "China made 70.83 Mt of crude steel in October, down 1.6% on the year, and 795.61 Mt in ten months, down 2.8%.", "source": "NBS via SteelOrbis, 16 Nov 2026", "url": "https://www.steelorbis.com/steel-news/latest-news/chinas-crude-steel-output-down-28-percent-in-january-october-2026-1491023.htm"}
     ],
     "Stocks": [
-     {"text": "Stocks at 35 Chinese ports were 152.1 Mt on 13 November, up 4.1 Mt in two weeks.", "source": "SMM, 13 Nov 2026", "url": "https://news.metal.com/newscontent/K3474JV2GCUJIRVEAJC2ZHHP4KK56QNMWKDLGVY-smm-iron-ore-import-analysis-oct-imports-down-379-mom-turn-lower-yoy-nov-arrivals-recover-imports-may-rebound"}
+     {"text": "Stocks at 35 Chinese ports were 153.75 Mt on 20 November, up 1.63 Mt on the week. It was the fourth weekly build in a row.", "source": "SMM, 20 Nov 2026", "url": "https://news.metal.com/newscontent/GYFEOKYZPWQOY7BRTAWW2ZYAKHTWHHXRVSV3COA-smm-iron-ore-analysis-port-stock-builds-meet-fund-selling-as-iron-ore-breaks-below-90-onshore-hit-harder"}
     ],
     "Watch": [
      {"text": "Every Simandou tonne that replaces an Australian one triples the voyage. That is bearish for ore and supportive for Capesizes.", "source": "", "url": ""}
@@ -186,15 +194,17 @@
      {"text": "US finished steel imports fell 14% to about 13 Mt in nine months. Their market share went from 19% to 16%.", "source": "Trading Economics, 14 Nov 2026", "url": "https://tradingeconomics.com/commodity/hrc-steel"}
     ],
     "Demand": [
-     {"text": "US coil is at its highest since April 2022 and costs about two thirds more than in Europe.", "source": "Trading Economics, 14 Nov 2026", "url": "https://tradingeconomics.com/commodity/hrc-steel"},
-     {"text": "The EU coil quota is exhausted, with about 0.45 Mt waiting in ports to clear on 1 January.", "source": "SMM, 6 Nov 2026", "url": "https://news.metal.com/newscontent/L5T2E2R73KQBYNXYEZHQJ2T4MN5E4IV7VVZ4RLY-smm-türkiye-weekly-review-restocking-and-firmer-scrap-lift-rebar-while-eu-quotas-keep-hrc-stalled"}
+     {"text": "US coil reached 1,445 $/st on 19 November, its highest since April 2022, and was at 1,421 the next day.", "source": "Trading Economics, 20 Nov 2026", "url": "https://tradingeconomics.com/commodity/hrc-steel"},
+     {"text": "The EU coil quota is exhausted. On 19 November Turkey and the FTA pool had none left for the quarter, India about 1.5 kt and Vietnam about 3.7 kt.", "source": "SMM, 20 Nov 2026", "url": "https://news.metal.com/newscontent/R3XMH7P366MV5YNYJMACRE4766TBMAHHHIHO7XQ-smm-global-hrc-weekly-review-turkish-export-offers-catch-up-european-import-prices-slip-with-weaker-euro"}
     ],
     "Scrap": [
      {"text": "HMS 80:20 averaged 397 $/t CFR Turkey in October. Turkey imported 14.3 Mt in nine months, up 2.3%.", "source": "GMK Center, 11 Nov 2026", "url": "https://gmk.center/en/news/average-hms-1-2-scrap-prices-in-turkey-fell-by-4-t-in-october/"},
-     {"text": "Turkish mills buy hand to mouth, with lending rates at 49% and rebar margins negative.", "source": "GMK Center, 11 Nov 2026", "url": "https://gmk.center/en/news/average-hms-1-2-scrap-prices-in-turkey-fell-by-4-t-in-october/"}
+     {"text": "Turkish mills buy hand to mouth, with lending rates at 49% and rebar margins negative.", "source": "GMK Center, 11 Nov 2026", "url": "https://gmk.center/en/news/average-hms-1-2-scrap-prices-in-turkey-fell-by-4-t-in-october/"},
+     {"text": "HMS 80:20 held at 405 $/t CFR Turkey on 19 November.", "source": "SMM, 19 Nov 2026", "url": "https://news.metal.com/newscontent/622MQJFWIHXXUDBKRGNMXGS3UYMINAVPXEDM6HI-smm-steel-t%C3%BCrkiye-cuts-rebar-export-offers-domestic-prices-diverge"}
     ],
     "Watch": [
-     {"text": "The EU plans to restrict scrap exports to non-OECD countries from May 2027.", "source": "GMK Center, 11 Nov 2026", "url": "https://gmk.center/en/news/average-hms-1-2-scrap-prices-in-turkey-fell-by-4-t-in-october/"}
+     {"text": "The EU plans to restrict scrap exports to non-OECD countries from May 2027.", "source": "GMK Center, 11 Nov 2026", "url": "https://gmk.center/en/news/average-hms-1-2-scrap-prices-in-turkey-fell-by-4-t-in-october/"},
+     {"text": "The EU put anti-dumping duties of up to 27.9% on cold-rolled steel from India, Japan, Taiwan, Turkey and Vietnam from 17 November.", "source": "GMK Center, 17 Nov 2026", "url": "https://gmk.center/en/news/eu-imposes-duties-of-up-to-27-9-on-cold-rolled-steel-from-five-asian-and-middle-eastern-countries/"}
     ]
    }
   },
@@ -206,19 +216,21 @@
    "routes": ["COPPER_LME_COMEX"],
    "facts": {
     "Supply": [
-     {"text": "Grasberg ran at about two thirds of its normal rate in the third quarter and is not due back at full rate before late 2027.", "source": "ICA Australia, 12 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-to-12-november-2026/"}
+     {"text": "Grasberg ran at about two thirds of its normal rate in the third quarter and is not due back at full rate before late 2027.", "source": "ICA Australia, 12 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-to-12-november-2026/"},
+     {"text": "Cochilco expects Chile's output to fall 8.4% this year to 4.94 Mt, the lowest in 23 years.", "source": "ICA Australia, 19 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-19-november-2026/"}
     ],
     "Demand": [
-     {"text": "The Yangshan import premium hit a record 230 $/t on 11 November, from 188 two weeks earlier.", "source": "ICA Australia, 12 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-to-12-november-2026/"},
+     {"text": "The Yangshan import premium reached 360 $/t on 18 November, from less than 100 in September.", "source": "ICA Australia, 19 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-19-november-2026/"},
      {"text": "The ICSG sees a refined surplus of 104 kt this year and 368 kt next. Goldman puts the market outside the US in a 950 kt deficit.", "source": "ICA Australia, 12 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-to-12-november-2026/"}
     ],
     "Stocks": [
-     {"text": "LME stocks were 329,100 t on 13 November, up from 274,000 t at the end of October. About 70% sits in US warehouses.", "source": "LME via Westmetall, 13 Nov 2026", "url": "https://www.westmetall.com/en/markdaten.php?action=table&field=LME_Cu_cash"},
-     {"text": "COMEX holds a record of more than 700 kt. Shanghai holds 33,848 t, a three-year low.", "source": "Discovery Alert, 13 Nov 2026", "url": "https://discoveryalert.com/analysis/copper-price-forecast-deutsche-bank-november-2026/"}
+     {"text": "LME stocks were 332,025 t on 20 November, up from 274,000 t at the end of October.", "source": "LME via Westmetall, 20 Nov 2026", "url": "https://www.westmetall.com/en/markdaten.php?action=table&field=LME_Cu_cash"},
+     {"text": "COMEX holds 730,697 t, near its record, and almost 74% of LME stock sits in US warehouses. Shanghai fell to 27,642 t, the lowest since December 2023.", "source": "ICA Australia, 19 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-19-november-2026/"}
     ],
     "Watch": [
-     {"text": "Commerce recommended a 15% tariff on refined copper from January 2027 and 30% from 2028. The White House had not decided by 12 November.", "source": "Discovery Alert, 13 Nov 2026", "url": "https://discoveryalert.com/analysis/copper-price-forecast-deutsche-bank-november-2026/"},
-     {"text": "COMEX went from more than 700 $/t over the LME in August to slightly under it.", "source": "ICA Australia, 12 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-to-12-november-2026/"}
+     {"text": "The 15% tariff that Commerce proposed on refined copper from January 2027 still awaited a presidential decision on 19 November.", "source": "ICA Australia, 19 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-19-november-2026/"},
+     {"text": "COMEX went from more than 700 $/t over the LME in August to slightly under it.", "source": "ICA Australia, 12 Nov 2026", "url": "https://copper.com.au/news/mining/copper-weekly-brief-to-12-november-2026/"},
+     {"text": "LME cash copper fell to 12,230.50 $/t on 20 November, from 13,610 a week earlier.", "source": "LME via Westmetall, 20 Nov 2026", "url": "https://www.westmetall.com/en/markdaten.php?action=table&field=LME_Cu_cash"}
     ]
    }
   },
@@ -231,14 +243,16 @@
    "facts": {
     "Supply": [
      {"text": "War damage and the strait cut output at the affected Gulf and European smelters by an estimated 44%, from 6.15 Mt to 3.45 Mt a year.", "source": "Discovery Alert, 2 Nov 2026", "url": "https://discoveryalert.com/analysis/aluminium-price-lme-backwardation-november-2026/"},
-     {"text": "Fastmarkets expects Gulf output back at 75 to 80% of pre-war by the first quarter of 2027.", "source": "Fastmarkets via Discovery Alert, 2 Nov 2026", "url": "https://discoveryalert.com/analysis/aluminium-price-lme-backwardation-november-2026/"}
+     {"text": "EGA has restored 61% of its Al Taweelah smelter and expects full production in the first quarter of 2027.", "source": "AlCircle, 16 Nov 2026", "url": "https://alcircle.com/news/ega-allocates-400-million-to-restore-al-taweelah-smelter-production-121967"}
     ],
     "Demand": [
-     {"text": "Banks see a deficit of about 1 Mt this year. Morgan Stanley has 1.1 Mt, then a surplus of 830 kt in 2027.", "source": "Discovery Alert, 2 Nov 2026", "url": "https://discoveryalert.com/analysis/aluminium-price-lme-backwardation-november-2026/"},
-     {"text": "The Rotterdam duty-paid premium was 560 to 590 $/t on 27 October. Japan's fourth quarter premium settled at 255 $/t, down from 395.", "source": "Fastmarkets and Platts via Discovery Alert, 2 Nov 2026", "url": "https://discoveryalert.com/analysis/aluminium-price-lme-backwardation-november-2026/"}
+     {"text": "A Reuters poll sees a deficit of about 720 kt this year and a surplus of 410 kt in 2027. Citi has 941 kt, then a surplus of 1.8 Mt.", "source": "Reuters poll via Discovery Alert, 16 Nov 2026", "url": "https://discoveryalert.com/news/lme-aluminium-price-cancelled-warrants-november-2026/"},
+     {"text": "The Rotterdam duty-paid premium fell to 470 to 500 $/t on 13 November, from 540 to 570 three days earlier.", "source": "Fastmarkets, 16 Nov 2026", "url": "https://www.fastmarkets.com/?p=141048"},
+     {"text": "Japan's fourth quarter premium settled at 255 $/t, down from 395.", "source": "Fastmarkets and Platts via Discovery Alert, 2 Nov 2026", "url": "https://discoveryalert.com/analysis/aluminium-price-lme-backwardation-november-2026/"}
     ],
     "Stocks": [
-     {"text": "LME stocks were 231,675 t at the end of October. Cash traded 35 $/t over three months, from a small contango in August.", "source": "Discovery Alert, 2 Nov 2026", "url": "https://discoveryalert.com/analysis/aluminium-price-lme-backwardation-november-2026/"}
+     {"text": "LME stocks were 223,525 t on 20 November. Cash settled 353 $/t over three months, against about 35 at the end of October.", "source": "LME via Westmetall, 20 Nov 2026", "url": "https://www.westmetall.com/en/markdaten.php?action=table&field=LME_Al_cash"},
+     {"text": "The squeeze is the tightest since those of 1988 and 1990. All but 50 t of the metal on LME warrant at the end of October was Russian.", "source": "Reuters, 17 Nov 2026", "url": "https://mining.com.au/column-crunch-time-for-aluminium-as-buyers-tap-metal-of-last-resort/"}
     ],
     "Watch": [
      {"text": "Rotterdam premium futures fall sharply from January. The market is pricing the Gulf recovery before it has happened.", "source": "", "url": ""},
@@ -259,38 +273,39 @@
      {"text": "Moving a barrel from the Gulf to East Asia cost 37.13 $ in freight and 12.29 $ in insurance in late October, against 3.18 and 0.06 in January. That is about 30% of the delivered price.", "source": "OPEC via Signal Ocean, 12 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/12/atlantic-tanker-earnings-fall-faster-than-gulf-earnings/"}
     ],
     "Supply": [
-     {"text": "49 empty VLCCs were heading west on 8 November, mostly to Brazil and West Africa. The east to west position ratio is 5.1, against 3.75 last year.", "source": "Signal Ocean, 12 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/12/atlantic-tanker-earnings-fall-faster-than-gulf-earnings/"},
+     {"text": "47 empty VLCCs were heading west, down from 49. East of Suez 450 VLCCs were in ballast on 12 November against 308 laden.", "source": "Signal Ocean, 20 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/20/gulf-earnings-fall-atlantic-rates-retreat-faster/"},
      {"text": "The crude tanker orderbook was 14.1% of the fleet a year ago, a nine-year high, with deliveries peaking in 2027. Close to a fifth of the fleet is over 20 years old.", "source": "BIMCO, Nov 2025", "url": "https://indiaseatradenews.com/global-crude-tanker-order-book-hits-nine-year-high-amid-fleet-renewal-push/"}
     ],
     "Rates": [
      {"text": "At the peak on 16 October a VLCC earned 1.37 M$ a day from the Gulf to China, and Houston to China paid 80.6 M$ a voyage.", "source": "Ship Universe, 16 Oct 2026", "url": "https://www.shipuniverse.com/news/tanker-market-suddenly-turns-lower-as-record-vlcc-rates-start-falling/"},
-     {"text": "Atlantic rates fell faster than Gulf rates in early November as the ballasters arrived. An Aframax from Houston to Rotterdam lost 61% in a week.", "source": "Signal Ocean, 12 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/12/atlantic-tanker-earnings-fall-faster-than-gulf-earnings/"}
+     {"text": "Atlantic rates bounced back this week. An Aframax from Houston to Rotterdam was assessed 283 points higher at just over WS 596, about 180,100 $ a day.", "source": "Baltic Exchange, 20 Nov 2026", "url": "https://www.balticexchange.com/en/data-services/WeeklyRoundup/tanker/news/2026/tanker-report-week-47.html"}
     ],
     "Watch": [
      {"text": "A confirmed Hormuz deal would cut war premiums first and voyage lengths second.", "source": "", "url": ""},
-     {"text": "Crude and heavy product export volumes were down 5.7% in the year to August. Rates are high on lost ship time, not on more cargo.", "source": "BIMCO, Aug 2026", "url": "https://cyprusshippingnews.com/2026/08/31/export-disruptions-increasingly-hurting-tanker-demand-bimcos-tanker-shipping-market-overview-outlook-august-2026-is-out/"}
+     {"text": "Crude and heavy product export volumes were down 5.7% in the year to August. Rates are high on lost ship time, not on more cargo.", "source": "BIMCO, Aug 2026", "url": "https://cyprusshippingnews.com/2026/08/31/export-disruptions-increasingly-hurting-tanker-demand-bimcos-tanker-shipping-market-overview-outlook-august-2026-is-out/"},
+     {"text": "Five tankers were struck near Hormuz between 11 and 18 November.", "source": "Windward via OilPrice, 20 Nov 2026", "url": "https://oilprice.com/Latest-Energy-News/World-News/Iran-Steps-Up-Hormuz-Tanker-Attacks-as-Oil-Prices-Slide.html"}
     ]
    }
   },
   {
    "id": "product-tankers", "signal": {"route": "DIESEL_USGC_NWE"},
    "group": "Freight", "name": "Product tankers", "short": "Clean tankers", "state": "Split", "tone": "mixed",
-   "read": "Clean tankers out of the Gulf earn crude money. An MR from Rotterdam to New York earns twenty times less, and one leaving the US Gulf sits in between.",
+   "read": "Clean tankers out of the Gulf earn crude money. An MR from Rotterdam to New York earns about 27 times less, and one leaving the US Gulf sits in between.",
    "rates": ["TC14", "TC2"],
    "routes": ["DIESEL_USGC_NWE", "DIESEL_NWE_USAC", "GASOLINE_NWE_USAC"],
    "facts": {
     "Demand": [
-     {"text": "Clean product exports were down 11.2% in the year to August.", "source": "BIMCO, Aug 2026", "url": "https://cyprusshippingnews.com/2026/08/31/export-disruptions-increasingly-hurting-tanker-demand-bimcos-tanker-shipping-market-overview-outlook-august-2026-is-out/"},
-     {"text": "LR2s moved into crude and dirty products, which tightens what is left for clean cargoes east of Suez.", "source": "BIMCO, Aug 2026", "url": "https://cyprusshippingnews.com/2026/08/31/export-disruptions-increasingly-hurting-tanker-demand-bimcos-tanker-shipping-market-overview-outlook-august-2026-is-out/"}
+     {"text": "Seaborne clean product exports reached 18.4 mb/d in October, about 5% below the 2025 average.", "source": "Gibson, 20 Nov 2026", "url": "https://www.gibsons.co.uk/report/cracks-are-showing/"},
+     {"text": "Only about 12% of the Aframax and LR2 fleet trades clean, near a record low. MRs carried 55% of clean cargo in October, against 48% in 2025.", "source": "Gibson, 20 Nov 2026", "url": "https://www.gibsons.co.uk/report/cracks-are-showing/"}
     ],
     "Supply": [
-     {"text": "BIMCO expected the product tanker fleet to grow 5 to 6% a year in 2026 and 2027, against 1 to 2% for demand, with deliveries at 15-year highs.", "source": "BIMCO, Nov 2025", "url": "https://www.rivieramm.com/news-content-hub/geopolitics-and-fundamentals-dampen-bimcos-product-tanker-outlook-86948"}
+     {"text": "116 MRs and 73 LR2s were delivered this year. Another 163 MRs and 82 LR2s are due by the end of 2027, 8% and 11% of their fleets.", "source": "Gibson, 20 Nov 2026", "url": "https://www.gibsons.co.uk/report/cracks-are-showing/"}
     ],
     "Rates": [
-     {"text": "An LR2 from the Gulf to Japan earned 298,000 $ a day on 13 November. An MR earned 55,700 from the US Gulf to Europe and 13,800 from Rotterdam to New York.", "source": "Baltic Exchange, 13 Nov 2026", "url": "https://www.balticexchange.com/en/data-services/WeeklyRoundup/tanker/news/2026/tanker-report-week-46.html"}
+     {"text": "An LR2 from the Gulf to Japan earned 308,200 $ a day on 20 November. An MR earned 23,700 from the US Gulf to Europe and 11,300 from Rotterdam to New York, after the Atlantic MR basket fell from 60,600 to 37,000 in a week.", "source": "Baltic Exchange, 20 Nov 2026", "url": "https://www.balticexchange.com/en/data-services/WeeklyRoundup/tanker/news/2026/tanker-report-week-47.html"}
     ],
     "Watch": [
-     {"text": "Russian diesel is allowed back into the Atlantic since the US waiver of 9 October. That is long-haul work for MRs out of the Baltic.", "source": "S&P Global, 9 Nov 2026", "url": "https://www.spglobal.com/energy/en/news-research/latest-news/refined-products/110926-russian-diesel-exports-rise-despite-refinery-strikes-us-top-destination"}
+     {"text": "Russian diesel is allowed back into the Atlantic since the US waiver of 9 October, long-haul work for MRs out of the Baltic. No cargo had been delivered to the US by 19 November.", "source": "Reuters via BOE Report, 19 Nov 2026", "url": "https://boereport.com/2026/11/19/us-energy-chief-wright-sees-no-sign-europe-wants-return-to-russia-energy/amp/"}
     ]
    }
   },
@@ -309,7 +324,7 @@
      {"text": "The orderbook is about 285 ships, some 37% of the fleet.", "source": "FLEX LNG via Ship Universe, 7 Oct 2026", "url": "https://www.shipuniverse.com/?p=22138"}
     ],
     "Rates": [
-     {"text": "Spot rates were 31,000 $ a day in the Atlantic and 54,500 in the Pacific on 13 November. They peaked at 287,500 and 225,750 in early March.", "source": "Spark Commodities via Reuters, 13 Nov 2026", "url": "https://rallies.ai/news/asian-spot-lng-holds-near-four-year-high-as-european-storage-worries-persist-948f6c86a84457f9"}
+     {"text": "Spot rates were 20,500 $ a day in the Atlantic and 52,000 in the Pacific on 19 November. They peaked at 287,500 and 225,750 in early March.", "source": "Spark Commodities via Reuters, 20 Nov 2026", "url": "https://rallies.ai/news/asia-spot-lng-prices-fall-to-6-week-low-on-weak-demand-improved-supplies-e6e68ac32fa607c6"}
     ],
     "Watch": [
      {"text": "A Qatari restart would pull ships east and lengthen voyages. Until then every new delivery adds to the surplus.", "source": "", "url": ""}
@@ -327,14 +342,15 @@
    "facts": {
     "Demand": [
      {"text": "With the strait closed, BIMCO sees ship demand growing 0.5 to 2.5% in 2027 and coal shipments falling.", "source": "BIMCO, 2 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/02/bimco-dry-bulk-shipping-market-overview-outlook-3/"},
-     {"text": "Guinean ore replaces shorter Australian voyages to China, which lengthens the average haul.", "source": "Solain, 3 Nov 2026", "url": "https://www.solain.de/en/blog/eisenerz-hafenbestaende-herbst-2026"}
+     {"text": "Guinean ore sails 88% further than the average iron ore cargo. Iron ore tonne-miles rose 2% in ten months on flat volumes.", "source": "BIMCO, 19 Nov 2026", "url": "https://www.hellenicshippingnews.com/guinea-climbs-to-third-largest-iron-ore-exporter-as-shipments-surpass-5m-tonnes/"}
     ],
     "Supply": [
-     {"text": "Supply grows 3 to 4% in 2027 as deliveries pick up, Capesizes above all.", "source": "BIMCO, 2 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/02/bimco-dry-bulk-shipping-market-overview-outlook-3/"}
+     {"text": "Supply grows 3 to 4% in 2027 as deliveries pick up, Capesizes above all.", "source": "BIMCO, 2 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/02/bimco-dry-bulk-shipping-market-overview-outlook-3/"},
+     {"text": "Dry bulk recycling fell 36% to 3 M dwt in ten months, the lowest in 18 years. Deliveries are expected to grow 19% in 2027.", "source": "BIMCO, 16 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/16/bimco-shipping-number-of-the-week-121/"}
     ],
     "Rates": [
-     {"text": "The Baltic Dry Index closed at 2,980 on 13 November, up 4.4% on the week.", "source": "Baltic Exchange via Baird Maritime, 13 Nov 2026", "url": ""},
-     {"text": "Ultramaxes across the Atlantic fixed at new highs of 39,000 to 42,000 $ a day, for lack of November ships in North America.", "source": "Baltic Exchange, 13 Nov 2026", "url": "https://www.balticexchange.com/en/data-services/WeeklyRoundup/dry/news/2026/bulk-report-week-46.html"}
+     {"text": "The Baltic Dry Index closed at 2,898 on 20 November, down 2.8% on the week. The Capesize index lost 4.6%.", "source": "Baltic Exchange via Baird Maritime, 20 Nov 2026", "url": "https://www.bairdmaritime.com/shipping/dry-cargo/bulkers/baltic-dry-bulk-index-ends-lower-to-cap-a-losing-week"},
+     {"text": "Ultramaxes across the Atlantic still pay high 30,000s $ a day for November, down from 39,000 to 42,000 last week. December looks more balanced.", "source": "Baltic Exchange, 20 Nov 2026", "url": "https://www.balticexchange.com/en/data-services/WeeklyRoundup/dry/news/2026/bulk-report-week-47.html"}
     ],
     "Watch": [
      {"text": "Bulk carriers returning to the Panama Canal would shorten voyages.", "source": "BIMCO, 2 Nov 2026", "url": "https://cyprusshippingnews.com/2026/11/02/bimco-dry-bulk-shipping-market-overview-outlook-3/"}
