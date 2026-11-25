@@ -54,7 +54,8 @@ def test_carry_idea_locks_the_backwardation(tmp_path):
 def _routes():
     raw = json.loads((Path(__file__).parent / "fixtures" / "prices_2026-11-12.json").read_text(encoding="utf-8"))
     px = {k: dict(v, value=float(v["value"])) for k, v in raw["prices"].items()}
-    return calc.evaluate(px, {})["routes"] + bulk.evaluate(px, {})["routes"]
+    day = date(2026, 11, 12)                   # the fixture's own day, or its prices go stale
+    return calc.evaluate(px, {}, today=day)["routes"] + bulk.evaluate(px, {}, today=day)["routes"]
 
 
 def test_a_deal_sheet_adds_up_to_the_route_margin():
