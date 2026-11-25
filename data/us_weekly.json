@@ -1,154 +1,154 @@
 {
  "source": "EIA",
- "fetched": "2026-11-21",
+ "fetched": "2026-11-25",
  "series": {
   "crude_stocks": {
    "label": "Commercial crude stocks",
    "unit": "Mbbl",
-   "week": "2026-11-13",
-   "value": 417.797,
-   "previous": 414.417,
-   "year_ago": 424.155
+   "week": "2026-11-20",
+   "value": 418.906,
+   "previous": 417.797,
+   "year_ago": 426.929
   },
   "spr": {
    "label": "Strategic reserve",
    "unit": "Mbbl",
-   "week": "2026-11-13",
-   "value": 276.361,
-   "previous": 279.535,
-   "year_ago": 410.926
+   "week": "2026-11-20",
+   "value": 273.465,
+   "previous": 276.361,
+   "year_ago": 411.424
   },
   "gasoline_stocks": {
    "label": "Gasoline stocks",
    "unit": "Mbbl",
-   "week": "2026-11-13",
-   "value": 215.949,
-   "previous": 210.757,
-   "year_ago": 207.391
+   "week": "2026-11-20",
+   "value": 217.682,
+   "previous": 215.949,
+   "year_ago": 209.904
   },
   "distillate_stocks": {
    "label": "Distillate stocks",
    "unit": "Mbbl",
-   "week": "2026-11-13",
-   "value": 104.901,
-   "previous": 103.33,
-   "year_ago": 111.08
+   "week": "2026-11-20",
+   "value": 105.616,
+   "previous": 104.901,
+   "year_ago": 112.227
   },
   "jet_stocks": {
    "label": "Jet fuel stocks",
    "unit": "Mbbl",
-   "week": "2026-11-13",
-   "value": 44.143,
-   "previous": 41.979,
-   "year_ago": 42.962
+   "week": "2026-11-20",
+   "value": 43.204,
+   "previous": 44.143,
+   "year_ago": 43.332
   },
   "cushing": {
    "label": "Cushing crude stocks",
    "unit": "Mbbl",
-   "week": "2026-11-13",
-   "value": 26.147,
-   "previous": 27.356,
-   "year_ago": 21.821
+   "week": "2026-11-20",
+   "value": 25.613,
+   "previous": 26.147,
+   "year_ago": 21.753
   },
   "crude_production": {
    "label": "Crude production",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 14032.0,
-   "previous": 14013.0,
-   "year_ago": 13834.0,
-   "four_week": 14010.0,
-   "four_week_year_ago": 13748.0
+   "week": "2026-11-20",
+   "value": 14065.0,
+   "previous": 14032.0,
+   "year_ago": 13814.0,
+   "four_week": 14028.0,
+   "four_week_year_ago": 13790.0
   },
   "crude_imports": {
    "label": "Crude imports",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 5576.0,
-   "previous": 6698.0,
-   "year_ago": 5950.0,
-   "four_week": 6256.0,
-   "four_week_year_ago": 5537.0
+   "week": "2026-11-20",
+   "value": 6250.0,
+   "previous": 5576.0,
+   "year_ago": 6436.0,
+   "four_week": 6225.0,
+   "four_week_year_ago": 5883.0
   },
   "crude_exports": {
    "label": "Crude exports",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 4488.0,
-   "previous": 3455.0,
-   "year_ago": 4158.0,
-   "four_week": 4118.0,
-   "four_week_year_ago": 3926.0
+   "week": "2026-11-20",
+   "value": 3269.0,
+   "previous": 4488.0,
+   "year_ago": 3598.0,
+   "four_week": 3722.0,
+   "four_week_year_ago": 3735.0
   },
   "refinery_input": {
    "label": "Crude runs",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 16918.0,
-   "previous": 17047.0,
-   "year_ago": 16232.0,
-   "four_week": 16804.0,
-   "four_week_year_ago": 15670.0
+   "week": "2026-11-20",
+   "value": 17346.0,
+   "previous": 16918.0,
+   "year_ago": 16443.0,
+   "four_week": 17009.0,
+   "four_week_year_ago": 15976.0
   },
   "product_exports": {
    "label": "Product exports",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 7376.0,
-   "previous": 7543.0,
-   "year_ago": 6988.0,
-   "four_week": 7447.0,
-   "four_week_year_ago": 6972.0
+   "week": "2026-11-20",
+   "value": 7932.0,
+   "previous": 7376.0,
+   "year_ago": 7732.0,
+   "four_week": 7512.0,
+   "four_week_year_ago": 7239.0
   },
   "gasoline_supplied": {
    "label": "Gasoline supplied",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 8790.0,
-   "previous": 8767.0,
-   "year_ago": 8528.0,
-   "four_week": 8680.0,
-   "four_week_year_ago": 8839.0
+   "week": "2026-11-20",
+   "value": 8714.0,
+   "previous": 8790.0,
+   "year_ago": 8726.0,
+   "four_week": 8770.0,
+   "four_week_year_ago": 8789.0
   },
   "distillate_supplied": {
    "label": "Distillate supplied",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 3785.0,
-   "previous": 3411.0,
-   "year_ago": 3882.0,
-   "four_week": 3961.0,
-   "four_week_year_ago": 3798.0
+   "week": "2026-11-20",
+   "value": 3917.0,
+   "previous": 3785.0,
+   "year_ago": 3362.0,
+   "four_week": 3888.0,
+   "four_week_year_ago": 3743.0
   },
   "jet_supplied": {
    "label": "Jet fuel supplied",
    "unit": "kb/d",
-   "week": "2026-11-13",
-   "value": 1657.0,
-   "previous": 1889.0,
-   "year_ago": 1669.0,
-   "four_week": 1738.0,
-   "four_week_year_ago": 1734.0
+   "week": "2026-11-20",
+   "value": 1756.0,
+   "previous": 1657.0,
+   "year_ago": 1698.0,
+   "four_week": 1757.0,
+   "four_week_year_ago": 1671.0
   },
   "utilisation": {
    "label": "Refinery utilisation",
    "unit": "%",
-   "week": "2026-11-13",
-   "value": 95.7,
-   "previous": 95.2,
-   "year_ago": 90.0,
-   "four_week": 94.5,
-   "four_week_year_ago": 88.0
+   "week": "2026-11-20",
+   "value": 97.5,
+   "previous": 95.7,
+   "year_ago": 92.3,
+   "four_week": 95.7,
+   "four_week_year_ago": 89.4
   }
  },
  "gas": {
   "label": "Working gas in storage",
   "unit": "bcf",
-  "week": "2026-11-13",
-  "value": 3882,
-  "previous": 3862,
-  "year_ago": 3948,
-  "five_year": 3802
+  "week": "2026-11-20",
+  "value": 3858,
+  "previous": 3882,
+  "year_ago": 3937,
+  "five_year": 3778
  },
  "history": {
   "2026-11-06": {
@@ -184,7 +184,24 @@
    "distillate_supplied": 3785.0,
    "jet_supplied": 1657.0,
    "utilisation": 95.7
+  },
+  "2026-11-20": {
+   "crude_stocks": 418.906,
+   "spr": 273.465,
+   "gasoline_stocks": 217.682,
+   "distillate_stocks": 105.616,
+   "jet_stocks": 43.204,
+   "cushing": 25.613,
+   "crude_production": 14065.0,
+   "crude_imports": 6250.0,
+   "crude_exports": 3269.0,
+   "refinery_input": 17346.0,
+   "product_exports": 7932.0,
+   "gasoline_supplied": 8714.0,
+   "distillate_supplied": 3917.0,
+   "jet_supplied": 1756.0,
+   "utilisation": 97.5
   }
  },
- "week": "2026-11-13"
+ "week": "2026-11-20"
 }
