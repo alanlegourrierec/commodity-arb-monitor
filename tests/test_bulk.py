@@ -8,6 +8,7 @@ from arb import bulk, terms
 from arb.config import BULK_PARAMS, LB_PER_TONNE
 
 FIXTURE = Path(__file__).parent / "fixtures" / "prices_2026-11-12.json"
+FIXTURE_DAY = date(2026, 11, 12)          # prices are read on the day they were saved, or they all go stale
 
 
 @pytest.fixture
@@ -86,7 +87,7 @@ def test_missing_price_is_flagged(prices):
 
 
 def test_india_fuel_margin_is_room_against_the_next_cheapest(prices):
-    rows = [r for r in bulk.evaluate(prices, {})["routes"] if r["family"] == "India fuel"]
+    rows = [r for r in bulk.evaluate(prices, {}, today=FIXTURE_DAY)["routes"] if r["family"] == "India fuel"]
     fresh = [r for r in rows if r.get("per_mkcal") is not None and not r["stale"]]
     cheapest = min(fresh, key=lambda r: r["per_mkcal"])
     second = sorted(r["per_mkcal"] for r in fresh)[1]
