@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import run
@@ -42,6 +43,14 @@ class Reply:
         return self.payload
 
 
+class Frozen(datetime):
+    """The clock stopped on 12 November, the day the fixture was saved."""
+
+    @classmethod
+    def now(cls, tz=None):
+        return datetime(2026, 11, 12, 12, 0, tzinfo=tz or timezone.utc)
+
+
 def test_a_live_run_builds_from_the_feed(tmp_path, monkeypatch):
     """The path the daily workflow takes: fronts and curves from the feed, nothing read from a file."""
     raw = json.loads(FIXTURE.read_text(encoding="utf-8"))
@@ -61,6 +70,8 @@ def test_a_live_run_builds_from_the_feed(tmp_path, monkeypatch):
 
     monkeypatch.setattr(run.prices.requests, "post", post)
     monkeypatch.setattr(run.prices, "fetch_yahoo", lambda: {"EURUSD": raw["prices"]["EURUSD"]})
+    monkeypatch.setattr(run, "datetime", Frozen)                 # the run happens on the fixture's day
+    monkeypatch.setattr(run.prices, "datetime", Frozen)
     out = tmp_path / "site"
     run.main(["--offline", "--no-history", "--out", str(out)])
     snap = json.loads((out / "snapshot.json").read_text(encoding="utf-8"))
